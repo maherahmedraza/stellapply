@@ -1,5 +1,6 @@
 import asyncio
 from logging.config import fileConfig
+from typing import Any
 
 from alembic import context
 from sqlalchemy import pool
@@ -7,12 +8,12 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 # Import core and module models to ensure they are registered
 from src.core.config import settings
-from src.core.database.connection import Base
+from src.core.database.base_model import Base
+from src.core.security.audit_log import AuditEvent  # noqa: F401
 from src.modules.identity.domain.models import User  # noqa: F401
 from src.modules.job_search.domain.models import Job, JobMatch  # noqa: F401
 from src.modules.persona.domain.models import Persona  # noqa: F401
 from src.modules.resume.domain.models import Resume, ResumeTemplate  # noqa: F401
-from src.core.security.audit_log import AuditEvent  # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -40,7 +41,7 @@ def run_migrations_offline() -> None:
         context.run_migrations()
 
 
-def do_run_migrations(connection):
+def do_run_migrations(connection: Any) -> None:
     context.configure(connection=connection, target_metadata=target_metadata)
 
     with context.begin_transaction():
