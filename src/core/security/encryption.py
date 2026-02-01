@@ -8,7 +8,7 @@ from src.core.config import settings
 # In a real app, generate a proper key and store it in environment variables
 def get_encryption_key() -> bytes:
     # Fernet requires a 32-byte base64 encoded string
-    key = settings.SECRET_KEY.ljust(32)[:32].encode()
+    key = settings.security.SECRET_KEY.ljust(32)[:32].encode()
     return base64.urlsafe_b64encode(key)
 
 

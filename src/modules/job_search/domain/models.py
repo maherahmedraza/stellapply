@@ -44,6 +44,8 @@ class Job(BaseModel):
 
     raw_data: Mapped[dict[str, Any]] = mapped_column(JSONB, default={})
 
+    status: Mapped[str] = mapped_column(String(50), default="active", index=True)
+
     posted_at: Mapped[datetime | None] = mapped_column(DateTime, index=True)
     expired_at: Mapped[datetime | None] = mapped_column(DateTime)
 

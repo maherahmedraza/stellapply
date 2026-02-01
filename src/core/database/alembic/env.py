@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from src.core.config import settings
 from src.core.database.connection import Base
 from src.modules.identity.domain.models import User  # noqa: F401
+from src.modules.job_search.domain.models import Job, JobMatch  # noqa: F401
 from src.modules.persona.domain.models import Persona  # noqa: F401
 from src.modules.resume.domain.models import Resume, ResumeTemplate  # noqa: F401
 
@@ -26,7 +27,7 @@ target_metadata = Base.metadata
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode."""
-    url = settings.DATABASE_URL
+    url = settings.db.URL
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -49,7 +50,7 @@ async def run_migrations_online() -> None:
     """Run migrations in 'online' mode."""
     config_section = config.get_section(config.config_ini_section)
     if config_section:
-        config_section["sqlalchemy.url"] = settings.DATABASE_URL
+        config_section["sqlalchemy.url"] = settings.db.URL
 
     connectable = async_engine_from_config(
         config_section or {},

@@ -8,22 +8,22 @@ from src.core.config import settings
 class KeycloakProvider:
     def __init__(self) -> None:
         self.openid = KeycloakOpenID(
-            server_url=settings.KC_URL + "/auth"
-            if "/auth" not in settings.KC_URL
-            else settings.KC_URL,
-            client_id=settings.KC_CLIENT_ID,
-            realm_name=settings.KC_REALM,
-            client_secret_key=settings.KC_CLIENT_SECRET,
+            server_url=settings.keycloak.URL + "/auth"
+            if "/auth" not in settings.keycloak.URL
+            else settings.keycloak.URL,
+            client_id=settings.keycloak.CLIENT_ID,
+            realm_name=settings.keycloak.REALM,
+            client_secret_key=settings.keycloak.CLIENT_SECRET,
         )
 
     def get_admin_client(self) -> KeycloakAdmin:
         return KeycloakAdmin(
-            server_url=settings.KC_URL + "/auth"
-            if "/auth" not in settings.KC_URL
-            else settings.KC_URL,
-            username=settings.KC_ADMIN_USER,
-            password=settings.KC_ADMIN_PASSWORD,
-            realm_name=settings.KC_REALM,
+            server_url=settings.keycloak.URL + "/auth"
+            if "/auth" not in settings.keycloak.URL
+            else settings.keycloak.URL,
+            username=settings.keycloak.ADMIN_USER,
+            password=settings.keycloak.ADMIN_PASSWORD,
+            realm_name=settings.keycloak.REALM,
             user_realm_name="master",
             verify=True,
         )

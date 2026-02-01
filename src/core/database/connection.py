@@ -6,13 +6,11 @@ from sqlalchemy.orm import DeclarativeBase
 from src.core.config import settings
 
 # Update DATABASE_URL to use asyncpg if not already
-async_db_url = settings.DATABASE_URL.replace(
-    "postgresql+psycopg://", "postgresql+asyncpg://"
-)
+async_db_url = settings.db.URL.replace("postgresql+psycopg://", "postgresql+asyncpg://")
 
 engine = create_async_engine(
     async_db_url,
-    echo=settings.APP_ENV == "dev",
+    echo=settings.ENVIRONMENT == "development",
     pool_pre_ping=True,
 )
 
