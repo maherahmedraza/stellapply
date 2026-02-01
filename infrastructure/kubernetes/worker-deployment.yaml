@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stellarapply-worker
+  namespace: stellarapply
+  labels:
+    app: stellarapply-worker
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: stellarapply-worker
+  template:
+    metadata:
+      labels:
+        app: stellarapply-worker
+    spec:
+      containers:
+        - name: worker
+          image: ghcr.io/stellarapply/worker:${IMAGE_TAG}
+          
+          command: ["celery", "-A", "src.workers.celery_app", "worker", "--loglevel=info"]
+          
+          env:
+            # Same environment variables as API
+            - name: ENVIRONMENT
+              value: "production"
+            # ... other env vars
+          
+          resources:
+            requests:
+              cpu: "1000m"
+              memory: "1Gi"
+            limits:
+              cpu: "4000m"
+              memory: "4Gi"
+          
+          livenessProbe:
+            exec:
+              command:
+                - celery
+                - -A
+                - src.workers.celery_app
+                - inspect
+                - ping
+            initialDelaySeconds: 30
+            periodSeconds: 60
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stellarapply-beat
+  namespace: stellarapply
+spec:
+  replicas: 1  # Only one beat scheduler
+  selector:
+    matchLabels:
+      app: stellarapply-beat
+  template:
+    metadata:
+      labels:
+        app: stellarapply-beat
+    spec:
+      containers:
+        - name: beat
+          image: ghcr.io/stellarapply/worker:${IMAGE_TAG}
+          command: ["celery", "-A", "src.workers.celery_app", "beat", "--loglevel=info"]
+          
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"

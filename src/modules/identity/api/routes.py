@@ -67,8 +67,13 @@ async def register(
             status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
         ) from e
     except Exception as e:
-        # Log unexpected errors here
+        import traceback
+        import logging
+
+        logger = logging.getLogger(__name__)
+        logger.error(f"Registration error: {str(e)}")
+        logger.error(traceback.format_exc())
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An error occurred during registration",
+            detail=f"An error occurred during registration: {str(e)}",
         ) from e

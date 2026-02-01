@@ -1,7 +1,8 @@
+import logging
 from typing import Any
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.middleware.auth import get_current_user
@@ -143,3 +144,61 @@ async def analyze_resume(
 
     analyzed_resume = await service.analyze_ats(resume_id)
     return ResumeResponse.model_validate(analyzed_resume)
+
+
+@router.post("/upload")
+async def upload_resume(
+    file: UploadFile = File(...),  # noqa: B008
+    current_user: dict[str, Any] = Depends(get_current_user),  # noqa: B008
+) -> dict[str, Any]:
+    """
+    Upload and parse a resume file (PDF or DOCX).
+
+    Uses Gemini AI to extract structured data from the uploaded file.
+    Returns form-compatible data that can be used to auto-fill the resume builder.
+    """
+    # Validate file type
+    if not file.filename:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Filename is required",
+        )
+
+    file_ext = file.filename.lower().split(".")[-1]
+    if file_ext not in ("pdf", "docx", "doc"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Only PDF and DOCX files are supported",
+        )
+
+    # Validate file size (max 10MB)
+    content = await file.read()
+    if len(content) > 10 * 1024 * 1024:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail="File size exceeds 10MB limit",
+        )
+
+    try:
+        # Parse the resume
+        from src.core.ai.gemini_client import GeminiClient
+        from src.core.config import settings
+        from src.modules.resume.ai.resume_parser import ResumeParser
+
+        gemini_client = GeminiClient(api_key=settings.security.GEMINI_API_KEY)
+        parser = ResumeParser(gemini_client)
+
+        extracted = await parser.parse_resume(content, file.filename)
+        form_data = parser.convert_to_form_data(extracted)
+
+        return {
+            "status": "success",
+            "message": "Resume parsed successfully",
+            "data": form_data,
+        }
+    except Exception as e:
+        logging.error(f"Resume parsing failed: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to parse resume. Please try again or enter data manually.",
+        ) from e

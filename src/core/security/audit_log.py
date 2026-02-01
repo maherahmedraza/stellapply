@@ -16,7 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 
-from src.core.database.connection import Base
+from src.core.database.base_model import Base
 from src.core.security.encryption import encryption_service
 
 logger = logging.getLogger(__name__)
@@ -60,9 +60,7 @@ class AuditEvent(Base):
     old_value_encrypted: Mapped[str | None] = mapped_column(Text, nullable=True)
     new_value_encrypted: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    metadata_json: Mapped[dict[str, Any] | None] = mapped_column(
-        JSONB, nullable=True
-    )
+    metadata_json: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
     hash_chain: Mapped[str] = mapped_column(String(64), nullable=False)
 
 

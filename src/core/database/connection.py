@@ -1,9 +1,9 @@
 from collections.abc import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.orm import DeclarativeBase
 
 from src.core.config import settings
+from src.core.database.base_model import Base
 
 # Update DATABASE_URL to use asyncpg if not already
 async_db_url = settings.db.URL.replace("postgresql+psycopg://", "postgresql+asyncpg://")
@@ -20,9 +20,8 @@ AsyncSessionLocal = async_sessionmaker(
     expire_on_commit=False,
 )
 
-
-class Base(DeclarativeBase):
-    pass
+# Reference Base to satisfy imports without unused warnings.
+__all__ = ["engine", "AsyncSessionLocal", "get_db", "Base"]
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:

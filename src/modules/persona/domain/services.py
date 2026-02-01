@@ -1,8 +1,10 @@
 from uuid import UUID
 
-from src.modules.persona.api.schemas import PersonaUpdate
-from src.modules.persona.domain.models import Persona
+from src.modules.persona.domain.models import (
+    Persona,
+)
 from src.modules.persona.domain.repository import PersonaRepository
+from src.modules.persona.domain.schemas import PersonaUpdate
 
 
 class PersonaService:
@@ -17,19 +19,27 @@ class PersonaService:
         if not persona:
             persona = Persona(user_id=user_id)
 
-        # Update fields
-        if schema.preferred_name is not None:
-            persona.preferred_name = schema.preferred_name
-        if schema.pronouns is not None:
-            persona.pronouns = schema.pronouns
-        if schema.location is not None:
-            persona.location = schema.location
-        if schema.experience is not None:
-            persona.experience = [item.model_dump() for item in schema.experience]
-        if schema.education is not None:
-            persona.education = [item.model_dump() for item in schema.education]
-        if schema.skills is not None:
-            persona.skills = schema.skills
+        # Update core fields
+        if schema.full_name is not None:
+            persona.full_name = schema.full_name
+        if schema.email is not None:
+            persona.email = schema.email
+        if schema.phone is not None:
+            persona.phone = schema.phone
+        if schema.location_city is not None:
+            persona.location_city = schema.location_city
+        if schema.location_state is not None:
+            persona.location_state = schema.location_state
+        if schema.location_country is not None:
+            persona.location_country = schema.location_country
+        if schema.work_authorization is not None:
+            persona.work_authorization = schema.work_authorization
+        if schema.remote_preference is not None:
+            persona.remote_preference = schema.remote_preference
+
+        # Summary embedding
+        if schema.summary_embedding is not None:
+            persona.summary_embedding = schema.summary_embedding
 
         # Recalculate completeness
         persona.completeness_score = self._calculate_completeness(persona)
@@ -39,18 +49,20 @@ class PersonaService:
 
         return await self._repository.save(persona)
 
-    def _calculate_completeness(self, persona: Persona) -> int:
-        score = 0
-        if persona.preferred_name:
+    def _calculate_completeness(self, persona: Persona) -> float:
+        score = 0.0
+        if persona.full_name:
             score += 10
-        if persona.location:
+        if persona.email:
             score += 10
-        if persona.experience:
+        if persona.location_city:
+            score += 10
+        if persona.experiences:
             score += 30
-        if persona.education:
+        if persona.educations:
             score += 20
         if persona.skills:
-            score += 20
-        if persona.pronouns:
             score += 10
-        return min(score, 100)
+        if persona.career_preference:
+            score += 10
+        return float(min(score, 100))
