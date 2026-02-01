@@ -11,6 +11,17 @@ if TYPE_CHECKING:
     from src.modules.resume.domain.models import Resume
 
 
+from enum import Enum as PyEnum
+from sqlalchemy import Enum as SQLAlchemyEnum
+
+
+class SubscriptionTier(str, PyEnum):
+    FREE = "free"
+    PLUS = "plus"
+    PRO = "pro"
+    PREMIUM = "premium"
+
+
 class User(BaseModel):
     __tablename__ = "users"
 
@@ -21,6 +32,11 @@ class User(BaseModel):
     email_hash: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     status: Mapped[str] = mapped_column(String(20), default="active")
+    tier: Mapped[SubscriptionTier] = mapped_column(
+        SQLAlchemyEnum(SubscriptionTier, name="subscription_tier"),
+        default=SubscriptionTier.FREE,
+        nullable=False,
+    )
     governance_metadata: Mapped[dict[str, Any]] = mapped_column(JSONB, default={})
 
     resumes: Mapped[list["Resume"]] = relationship("Resume", back_populates="user")
