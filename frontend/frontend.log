@@ -1334,3 +1334,6 @@ Import trace:
  GET /dashboard/settings/privacy 200 in 63ms (compile: 8ms, render: 55ms)
  GET / 200 in 52ms (compile: 8ms, render: 44ms)
  GET / 200 in 319ms (compile: 3ms, render: 316ms)
+ GET / 200 in 164ms (compile: 19ms, render: 144ms)
+ GET / 200 in 19ms (compile: 2ms, render: 17ms)
+ GET /sw.js 404 in 39ms (compile: 5ms, render: 34ms)
