@@ -1,0 +1,31 @@
+2026/02/01 01:52:18 Successfully connected to database
+2026/02/01 01:52:18 Starting server on port 8080
+
+ ┌───────────────────────────────────────────────────┐ 
+ │                  Stellapply API                   │ 
+ │                  Fiber v2.52.11                   │ 
+ │               http://127.0.0.1:8080               │ 
+ │       (bound on host 0.0.0.0 and port 8080)       │ 
+ │                                                   │ 
+ │ Handlers ............ 23  Processes ........... 1 │ 
+ │ Prefork ....... Disabled  PID ............. 56314 │ 
+ └───────────────────────────────────────────────────┘ 
+
+01:53:14 | 200 |    4.290278ms | 127.0.0.1 | GET | /api/v1/resumes | -
+01:53:14 | 200 |     685.445µs | 127.0.0.1 | GET | /api/v1/resumes | -
+01:53:31 | 201 |    9.807142ms | 127.0.0.1 | POST | /api/v1/resumes | -
+01:53:31 | 200 |    1.291776ms | 127.0.0.1 | GET | /api/v1/resumes | -
+01:53:31 | 200 |     761.717µs | 127.0.0.1 | GET | /api/v1/resumes | -
+01:53:37 | 200 |     3.14946ms | 127.0.0.1 | GET | /api/v1/applications | -
+01:53:37 | 200 |     844.125µs | 127.0.0.1 | GET | /api/v1/applications | -
+02:09:49 | 200 |   10.738884ms | 127.0.0.1 | GET | /api/v1/applications | -
+02:09:49 | 200 |    2.930642ms | 127.0.0.1 | GET | /api/v1/resumes | -
+02:10:15 | 200 |    1.824524ms | 127.0.0.1 | GET | /api/v1/applications | -
+02:10:15 | 200 |    1.254211ms | 127.0.0.1 | GET | /api/v1/resumes | -
+02:10:46 | 200 |    2.660733ms | 127.0.0.1 | GET | /api/v1/resumes | -
+02:11:31 | 200 |    1.866988ms | 127.0.0.1 | GET | /api/v1/resumes | -
+02:11:51 | 200 |    1.239667ms | 127.0.0.1 | GET | /api/v1/applications | -
+02:12:00 | 200 |    1.849637ms | 127.0.0.1 | GET | /api/v1/resumes | -
+02:12:04 | 200 |    1.415792ms | 127.0.0.1 | GET | /api/v1/applications | -
+02:12:20 | 200 |    2.024798ms | 127.0.0.1 | GET | /api/v1/resumes | -
+02:12:23 | 200 |     926.415µs | 127.0.0.1 | GET | /api/v1/applications | -

@@ -1,0 +1,70 @@
+[project]
+name = "stellarapply"
+version = "0.1.0"
+description = "Modular Monolith Career Automation Platform"
+requires-python = ">=3.12,<4.0"
+authors = [
+    {name = "StellarApply Architect", email = "arch@stellarapply.com"}
+]
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn>=0.30.0",
+    "sqlalchemy[asyncio]>=2.0.30",
+    "alembic>=1.14.0",
+    "pydantic[email]>=2.10.0",
+    "pydantic-settings>=2.7.0",
+    "celery>=5.4.0",
+    "redis>=5.2.0",
+    "python-multipart>=0.0.12",
+    "python-jose[cryptography]>=3.4.0",
+    "passlib[bcrypt]>=1.7.4",
+    "cryptography>=44.0.0",
+    "google-generativeai>=0.8.0",
+    "playwright>=1.49.0",
+    "pgvector>=0.3.6",
+    "psycopg[binary]>=3.2.0",
+    "asyncpg>=0.30.0",
+    "httpx>=0.28.0",
+    "python-dotenv>=1.0.1",
+    "argon2-cffi>=23.1.0",
+    "python-keycloak (>=7.0.3,<8.0.0)",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.9.0",
+    "mypy>=1.14.0",
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+]
+
+[build-system]
+requires = ["poetry-core>=2.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+packages = [{include = "src"}]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "C4", "DTZ", "TID", "ARG", "PT", "SIM", "SLF", "RET"]
+ignore = ["N805"] # Ignore "First argument of a method should be named self" for SQLAlchemy models
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+ignore_missing_imports = true
+mypy_path = "src:ai-service"
+exclude = ["venv", ".venv", "alembic", "src/core/database/alembic"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+asyncio_mode = "auto"

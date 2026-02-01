@@ -1,0 +1,28 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    queries: "internal/infrastructure/persistence/queries"
+    schema: "migrations"
+    gen:
+      go:
+        package: "persistence"
+        out: "internal/infrastructure/persistence"
+        sql_package: "pgx/v5"
+        emit_json_tags: true
+        emit_db_tags: true
+        overrides:
+          - column: "personas.summary_embedding"
+            go_type:
+              import: "github.com/pgvector/pgvector-go"
+              type: "Vector"
+              pointer: true
+          - column: "personas.skills_embedding"
+            go_type:
+              import: "github.com/pgvector/pgvector-go"
+              type: "Vector"
+              pointer: true
+          - column: "jobs.description_embedding"
+            go_type:
+              import: "github.com/pgvector/pgvector-go"
+              type: "Vector"
+              pointer: true

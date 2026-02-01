@@ -1,0 +1,1331 @@
+
+> frontend@0.1.0 dev
+> next dev -H 0.0.0.0
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://0.0.0.0:3000
+
+✓ Starting...
+✓ Ready in 612ms
+ GET /sw.js 404 in 275ms (compile: 217ms, render: 59ms)
+ GET /dashboard/resumes 200 in 572ms (compile: 416ms, render: 156ms)
+(node:43600) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ GET /sw.js 404 in 19ms (compile: 2ms, render: 17ms)
+ GET /dashboard/resumes 200 in 24ms (compile: 2ms, render: 21ms)
+ GET /sw.js 404 in 21ms (compile: 2ms, render: 19ms)
+ GET /dashboard/resumes/new 200 in 403ms (compile: 392ms, render: 11ms)
+ GET /login 404 in 26ms (compile: 3ms, render: 23ms)
+ GET /sw.js 404 in 16ms (compile: 2ms, render: 14ms)
+ GET /auth/login 404 in 26ms (compile: 3ms, render: 23ms)
+ GET /sw.js 404 in 18ms (compile: 2ms, render: 16ms)
+ GET / 200 in 77ms (compile: 22ms, render: 54ms)
+ GET /sw.js 404 in 17ms (compile: 2ms, render: 15ms)
+ GET /dashboard/resumes 200 in 25ms (compile: 1652µs, render: 24ms)
+ GET /sw.js 404 in 23ms (compile: 3ms, render: 21ms)
+ GET /auth/register 404 in 20ms (compile: 2ms, render: 18ms)
+ GET /sw.js 404 in 16ms (compile: 2ms, render: 14ms)
+ GET /signin 404 in 22ms (compile: 1939µs, render: 20ms)
+ GET /sw.js 404 in 14ms (compile: 1840µs, render: 13ms)
+ GET /dashboard/resumes/new 200 in 55ms (compile: 1907µs, render: 53ms)
+ GET /sw.js 404 in 16ms (compile: 2ms, render: 14ms)
+ GET /sw.js 404 in 15ms (compile: 1726µs, render: 13ms)
+ GET /dashboard/resumes/new 200 in 24ms (compile: 1990µs, render: 22ms)
+ GET /sw.js 404 in 16ms (compile: 3ms, render: 13ms)
+ GET /dashboard/resumes 200 in 26ms (compile: 1827µs, render: 24ms)
+ GET /sw.js 404 in 15ms (compile: 1707µs, render: 13ms)
+ GET / 200 in 23ms (compile: 2ms, render: 21ms)
+ GET /sw.js 404 in 18ms (compile: 2ms, render: 16ms)
+ GET /dashboard/resumes/new 200 in 23ms (compile: 1781µs, render: 21ms)
+ GET /sw.js 404 in 17ms (compile: 2ms, render: 15ms)
+ GET /sw.js 404 in 16ms (compile: 1711µs, render: 15ms)
+ GET /dashboard/resumes 200 in 21ms (compile: 1674µs, render: 19ms)
+⚠ Cross origin request detected from 127.0.0.1 to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
+Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
+ GET /sw.js 404 in 15ms (compile: 1802µs, render: 13ms)
+ GET /dashboard/resumes/new 200 in 25ms (compile: 1654µs, render: 24ms)
+ GET /sw.js 404 in 19ms (compile: 1987µs, render: 17ms)
+ GET /dashboard/resumes 200 in 19ms (compile: 1416µs, render: 18ms)
+ GET /sw.js 404 in 14ms (compile: 1799µs, render: 12ms)
+ GET /dashboard/resumes 200 in 19ms (compile: 1701µs, render: 17ms)
+ GET /sw.js 404 in 15ms (compile: 1713µs, render: 13ms)
+ GET /dashboard/resumes/new 200 in 17ms (compile: 1397µs, render: 15ms)
+ GET /dashboard/resumes/new 200 in 22ms (compile: 1893µs, render: 21ms)
+ GET /sw.js 404 in 15ms (compile: 1772µs, render: 13ms)
+ GET / 200 in 18ms (compile: 1675µs, render: 16ms)
+ GET /sw.js 404 in 17ms (compile: 2ms, render: 15ms)
+ GET /login 404 in 20ms (compile: 1909µs, render: 18ms)
+ GET /sw.js 404 in 15ms (compile: 2ms, render: 13ms)
+ GET /dashboard/resumes 200 in 20ms (compile: 1846µs, render: 18ms)
+ GET /sw.js 404 in 15ms (compile: 1726µs, render: 13ms)
+ GET /dashboard/resumes/new 200 in 15ms (compile: 2ms, render: 13ms)
+ GET /sw.js 404 in 20ms (compile: 3ms, render: 16ms)
+ GET /dashboard/resumes 200 in 24ms (compile: 1674µs, render: 22ms)
+ GET /sw.js 404 in 18ms (compile: 1911µs, render: 16ms)
+ GET /dashboard/resumes/new 200 in 22ms (compile: 3ms, render: 19ms)
+ GET /sw.js 404 in 15ms (compile: 2ms, render: 13ms)
+ GET /dashboard/resumes/new 200 in 23ms (compile: 3ms, render: 20ms)
+ GET /sw.js 404 in 17ms (compile: 2ms, render: 15ms)
+ GET /dashboard/resumes 200 in 26ms (compile: 1539µs, render: 25ms)
+ GET /sw.js 404 in 15ms (compile: 1945µs, render: 13ms)
+ GET /dashboard/resumes/new 200 in 29ms (compile: 1579µs, render: 27ms)
+ GET /dashboard 404 in 20ms (compile: 3ms, render: 17ms)
+ GET /sw.js 404 in 15ms (compile: 1888µs, render: 13ms)
+ GET /dashboard/resumes 200 in 20ms (compile: 1507µs, render: 19ms)
+ GET /sw.js 404 in 15ms (compile: 1869µs, render: 14ms)
+ GET /dashboard/resumes/1 200 in 423ms (compile: 400ms, render: 24ms)
+ GET /sw.js 404 in 16ms (compile: 1672µs, render: 14ms)
+ GET /dashboard/resumes/new 200 in 19ms (compile: 1697µs, render: 18ms)
+ GET /sw.js 404 in 16ms (compile: 2ms, render: 13ms)
+✓ Compiled in 32ms
+⨯ ReferenceError: Navbar is not defined
+    at RootLayout (app/layout.tsx:30:10)
+  28 |         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-white dark:bg-black overflow-x-hidden`}
+  29 |       >
+> 30 |         <Navbar />
+     |          ^
+  31 |         {children}
+  32 |       </body>
+  33 |     </html> {
+  digest: '2472056820'
+}
+⨯ ReferenceError: Navbar is not defined
+    at RootLayout (app/layout.tsx:30:10)
+  28 |         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-white dark:bg-black overflow-x-hidden`}
+  29 |       >
+> 30 |         <Navbar />
+     |          ^
+  31 |         {children}
+  32 |       </body>
+  33 |     </html> {
+  digest: '2472056820'
+}
+⨯ ReferenceError: Navbar is not defined
+    at RootLayout (app/layout.tsx:30:10)
+  28 |         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-white dark:bg-black overflow-x-hidden`}
+  29 |       >
+> 30 |         <Navbar />
+     |          ^
+  31 |         {children}
+  32 |       </body>
+  33 |     </html> {
+  digest: '2472056820'
+}
+⨯ ReferenceError: Navbar is not defined
+    at RootLayout (app/layout.tsx:30:10)
+  28 |         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-white dark:bg-black overflow-x-hidden`}
+  29 |       >
+> 30 |         <Navbar />
+     |          ^
+  31 |         {children}
+  32 |       </body>
+  33 |     </html> {
+  digest: '2472056820'
+}
+ GET /dashboard/resumes/new 200 in 116ms (compile: 41ms, render: 75ms)
+⨯ ReferenceError: Navbar is not defined
+    at RootLayout (app/layout.tsx:30:10)
+  28 |         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-white dark:bg-black overflow-x-hidden`}
+  29 |       >
+> 30 |         <Navbar />
+     |          ^
+  31 |         {children}
+  32 |       </body>
+  33 |     </html> {
+  digest: '2472056820'
+}
+ GET /dashboard/resumes/new 200 in 64ms (compile: 2ms, render: 62ms)
+⨯ ReferenceError: Navbar is not defined
+    at RootLayout (app/layout.tsx:30:10)
+  28 |         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-white dark:bg-black overflow-x-hidden`}
+  29 |       >
+> 30 |         <Navbar />
+     |          ^
+  31 |         {children}
+  32 |       </body>
+  33 |     </html> {
+  digest: '2472056820'
+}
+⨯ ReferenceError: Navbar is not defined
+    at RootLayout (app/layout.tsx:30:10)
+  28 |         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-white dark:bg-black overflow-x-hidden`}
+  29 |       >
+> 30 |         <Navbar />
+     |          ^
+  31 |         {children}
+  32 |       </body>
+  33 |     </html> {
+  digest: '2472056820'
+}
+ GET /dashboard/resumes/new 200 in 111ms (compile: 1650µs, render: 109ms)
+⨯ ReferenceError: Navbar is not defined
+    at RootLayout (app/layout.tsx:30:10)
+  28 |         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-white dark:bg-black overflow-x-hidden`}
+  29 |       >
+> 30 |         <Navbar />
+     |          ^
+  31 |         {children}
+  32 |       </body>
+  33 |     </html> {
+  digest: '2472056820'
+}
+ GET /dashboard/resumes/new 200 in 148ms (compile: 1545µs, render: 146ms)
+ GET /dashboard/resumes/new 200 in 135ms (compile: 3ms, render: 132ms)
+ GET /dashboard 404 in 118ms (compile: 47ms, render: 72ms)
+ GET /dashboard/resumes/new 200 in 118ms (compile: 4ms, render: 114ms)
+ GET /dashboard/resumes 200 in 63ms (compile: 31ms, render: 32ms)
+⨯ ReferenceError: Navbar is not defined
+    at RootLayout (app/layout.tsx:30:10)
+  28 |         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-white dark:bg-black overflow-x-hidden`}
+  29 |       >
+> 30 |         <Navbar />
+     |          ^
+  31 |         {children}
+  32 |       </body>
+  33 |     </html> {
+  digest: '2472056820'
+}
+⨯ ReferenceError: Navbar is not defined
+    at RootLayout (app/layout.tsx:30:10)
+  28 |         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-white dark:bg-black overflow-x-hidden`}
+  29 |       >
+> 30 |         <Navbar />
+     |          ^
+  31 |         {children}
+  32 |       </body>
+  33 |     </html> {
+  digest: '2472056820'
+}
+⨯ ReferenceError: Navbar is not defined
+    at RootLayout (app/layout.tsx:30:10)
+  28 |         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-white dark:bg-black overflow-x-hidden`}
+  29 |       >
+> 30 |         <Navbar />
+     |          ^
+  31 |         {children}
+  32 |       </body>
+  33 |     </html> {
+  digest: '2472056820'
+}
+ GET /dashboard/resumes/new 200 in 47ms (compile: 3ms, render: 44ms)
+ GET /dashboard 500 in 80ms (compile: 2ms, render: 78ms)
+ GET /dashboard/resumes 200 in 22ms (compile: 8ms, render: 14ms)
+⨯ ReferenceError: Navbar is not defined
+    at RootLayout (app/layout.tsx:30:10)
+  28 |         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-white dark:bg-black overflow-x-hidden`}
+  29 |       >
+> 30 |         <Navbar />
+     |          ^
+  31 |         {children}
+  32 |       </body>
+  33 |     </html> {
+  digest: '2472056820'
+}
+⨯ ReferenceError: Navbar is not defined
+    at RootLayout (app/layout.tsx:30:10)
+  28 |         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-white dark:bg-black overflow-x-hidden`}
+  29 |       >
+> 30 |         <Navbar />
+     |          ^
+  31 |         {children}
+  32 |       </body>
+  33 |     </html> {
+  digest: '2472056820'
+}
+⨯ ReferenceError: Navbar is not defined
+    at RootLayout (app/layout.tsx:30:10)
+  28 |         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-white dark:bg-black overflow-x-hidden`}
+  29 |       >
+> 30 |         <Navbar />
+     |          ^
+  31 |         {children}
+  32 |       </body>
+  33 |     </html> {
+  digest: '2472056820'
+}
+ GET /dashboard/resumes 200 in 105ms (compile: 5ms, render: 100ms)
+ GET /dashboard/resumes/new 200 in 106ms (compile: 26ms, render: 80ms)
+⨯ ReferenceError: Navbar is not defined
+    at RootLayout (app/layout.tsx:30:10)
+  28 |         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-white dark:bg-black overflow-x-hidden`}
+  29 |       >
+> 30 |         <Navbar />
+     |          ^
+  31 |         {children}
+  32 |       </body>
+  33 |     </html> {
+  digest: '2472056820'
+}
+⨯ ReferenceError: Navbar is not defined
+    at RootLayout (app/layout.tsx:30:10)
+  28 |         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-white dark:bg-black overflow-x-hidden`}
+  29 |       >
+> 30 |         <Navbar />
+     |          ^
+  31 |         {children}
+  32 |       </body>
+  33 |     </html> {
+  digest: '2472056820'
+}
+ GET /dashboard/resumes 200 in 65ms (compile: 4ms, render: 61ms)
+⨯ ReferenceError: Navbar is not defined
+    at RootLayout (app/layout.tsx:30:10)
+  28 |         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-white dark:bg-black overflow-x-hidden`}
+  29 |       >
+> 30 |         <Navbar />
+     |          ^
+  31 |         {children}
+  32 |       </body>
+  33 |     </html> {
+  digest: '2472056820'
+}
+ GET /dashboard/resumes/new 200 in 54ms (compile: 4ms, render: 50ms)
+ GET /dashboard/resumes 200 in 53ms (compile: 16ms, render: 37ms)
+ GET /dashboard/resumes/new 200 in 24ms (compile: 1567µs, render: 22ms)
+⨯ ReferenceError: Navbar is not defined
+    at RootLayout (app/layout.tsx:30:10)
+  28 |         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-white dark:bg-black overflow-x-hidden`}
+  29 |       >
+> 30 |         <Navbar />
+     |          ^
+  31 |         {children}
+  32 |       </body>
+  33 |     </html> {
+  digest: '2472056820'
+}
+ GET /sw.js 500 in 23ms (compile: 2ms, render: 21ms)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /dashboard/resumes/new 200 in 133ms (compile: 49ms, render: 85ms)
+ GET /dashboard/resumes/new 200 in 155ms (compile: 84ms, render: 70ms)
+ GET /dashboard/resumes/new 200 in 21ms (compile: 1589µs, render: 19ms)
+ GET /dashboard/resumes/new 200 in 191ms (compile: 1189µs, render: 189ms)
+ GET /dashboard 404 in 197ms (compile: 60ms, render: 137ms)
+ GET /dashboard/resumes 200 in 87ms (compile: 25ms, render: 62ms)
+ GET /dashboard/resumes/new 200 in 52ms (compile: 3ms, render: 49ms)
+ GET /dashboard/resumes/new 200 in 52ms (compile: 13ms, render: 39ms)
+ GET /dashboard/resumes 200 in 29ms (compile: 2ms, render: 27ms)
+ GET /dashboard 404 in 32ms (compile: 18ms, render: 14ms)
+ GET /dashboard 404 in 24ms (compile: 5ms, render: 19ms)
+✓ Compiled in 66ms
+ GET /sw.js 404 in 18ms (compile: 2ms, render: 16ms)
+ GET /dashboard/resumes/new 200 in 106ms (compile: 40ms, render: 66ms)
+ GET /dashboard/resumes/new 200 in 107ms (compile: 57ms, render: 50ms)
+ GET /dashboard/resumes/new 200 in 46ms (compile: 1284µs, render: 45ms)
+ GET /dashboard/resumes/new 200 in 53ms (compile: 1907µs, render: 51ms)
+ GET /dashboard/resumes/new 200 in 47ms (compile: 1234µs, render: 45ms)
+ GET /dashboard/resumes/new 200 in 48ms (compile: 1130µs, render: 47ms)
+ GET /dashboard/resumes/new 200 in 50ms (compile: 2ms, render: 48ms)
+ GET /dashboard/resumes/new 200 in 52ms (compile: 1856µs, render: 50ms)
+ GET /dashboard/resumes/new 200 in 100ms (compile: 1378µs, render: 98ms)
+✓ Compiled in 30ms
+ GET /dashboard/resumes/new 200 in 107ms (compile: 1255µs, render: 105ms)
+ GET /dashboard/resumes/new 200 in 109ms (compile: 1044µs, render: 108ms)
+ GET /dashboard/resumes/new 200 in 94ms (compile: 2ms, render: 92ms)
+ GET /dashboard 404 in 151ms (compile: 38ms, render: 113ms)
+ GET /dashboard/resumes/new 200 in 100ms (compile: 6ms, render: 94ms)
+ GET /dashboard/resumes/new 200 in 104ms (compile: 2ms, render: 102ms)
+ GET /dashboard/resumes/new 200 in 107ms (compile: 1546µs, render: 106ms)
+ GET /dashboard/resumes 200 in 99ms (compile: 6ms, render: 93ms)
+ GET /dashboard/resumes/new 200 in 40ms (compile: 1708µs, render: 38ms)
+ GET /dashboard 404 in 101ms (compile: 13ms, render: 88ms)
+ GET /dashboard/resumes 200 in 21ms (compile: 1530µs, render: 20ms)
+ GET /dashboard/resumes/new 200 in 53ms (compile: 1736µs, render: 51ms)
+ GET /dashboard/resumes 200 in 44ms (compile: 2ms, render: 42ms)
+ GET /dashboard/resumes/new 200 in 52ms (compile: 1190µs, render: 51ms)
+ GET /dashboard/resumes 200 in 67ms (compile: 1735µs, render: 66ms)
+ GET /dashboard/resumes/new 200 in 58ms (compile: 2ms, render: 56ms)
+ GET /dashboard/resumes 200 in 58ms (compile: 17ms, render: 41ms)
+ GET /dashboard/resumes/new 200 in 41ms (compile: 3ms, render: 39ms)
+ GET /dashboard/resumes 200 in 59ms (compile: 1311µs, render: 57ms)
+ GET /dashboard/resumes/new 200 in 72ms (compile: 1267µs, render: 71ms)
+ GET /dashboard/resumes 200 in 65ms (compile: 7ms, render: 57ms)
+ GET /dashboard/resumes/new 200 in 39ms (compile: 4ms, render: 35ms)
+ GET /dashboard/resumes 200 in 36ms (compile: 3ms, render: 33ms)
+ GET /dashboard/resumes/new 200 in 35ms (compile: 3ms, render: 32ms)
+ GET /dashboard/resumes 200 in 24ms (compile: 1641µs, render: 23ms)
+ GET /dashboard/resumes/new 200 in 31ms (compile: 2ms, render: 28ms)
+ GET /dashboard/resumes 200 in 32ms (compile: 4ms, render: 28ms)
+ GET /dashboard/resumes/new 200 in 25ms (compile: 1663µs, render: 23ms)
+ GET /dashboard/resumes 200 in 33ms (compile: 1040µs, render: 32ms)
+ GET /dashboard/resumes/new 200 in 36ms (compile: 2ms, render: 33ms)
+ GET /dashboard/resumes 200 in 36ms (compile: 8ms, render: 28ms)
+ GET /dashboard/resumes/new 200 in 35ms (compile: 2ms, render: 33ms)
+ GET /dashboard/resumes 200 in 30ms (compile: 927µs, render: 29ms)
+ GET /dashboard/resumes/new 200 in 24ms (compile: 1872µs, render: 22ms)
+ GET /dashboard/resumes 200 in 14ms (compile: 1743µs, render: 12ms)
+ GET /dashboard/resumes/new 200 in 82ms (compile: 30ms, render: 52ms)
+✓ Compiled in 33ms
+ GET /dashboard/resumes 200 in 177ms (compile: 52ms, render: 125ms)
+ GET /dashboard/resumes/new 200 in 177ms (compile: 62ms, render: 115ms)
+ GET /dashboard/resumes/new 200 in 151ms (compile: 49ms, render: 102ms)
+ GET /dashboard 404 in 166ms (compile: 77ms, render: 90ms)
+ GET /dashboard/resumes 200 in 81ms (compile: 2ms, render: 79ms)
+ GET /dashboard/resumes/new 200 in 82ms (compile: 10ms, render: 72ms)
+ GET /dashboard/resumes/new 200 in 82ms (compile: 19ms, render: 64ms)
+ GET /dashboard/resumes/new 200 in 102ms (compile: 1784µs, render: 100ms)
+ GET /dashboard 404 in 124ms (compile: 12ms, render: 112ms)
+ GET /dashboard/resumes/new 200 in 107ms (compile: 1666µs, render: 105ms)
+ GET /dashboard 404 in 26ms (compile: 7ms, render: 19ms)
+ GET /dashboard/resumes/new 200 in 121ms (compile: 1742µs, render: 119ms)
+ GET /dashboard/resumes/new 200 in 120ms (compile: 3ms, render: 117ms)
+ GET /dashboard/resumes 200 in 123ms (compile: 3ms, render: 120ms)
+ GET /dashboard/resumes/new 200 in 123ms (compile: 39ms, render: 84ms)
+ GET /dashboard/resumes/new 200 in 88ms (compile: 10ms, render: 77ms)
+ GET /dashboard/resumes/new 200 in 103ms (compile: 12ms, render: 91ms)
+ GET /dashboard/resumes 200 in 95ms (compile: 12ms, render: 83ms)
+ GET /dashboard 404 in 190ms (compile: 18ms, render: 172ms)
+ GET /dashboard/resumes/new 200 in 91ms (compile: 1720µs, render: 90ms)
+ GET /dashboard/resumes/new 200 in 119ms (compile: 1665µs, render: 117ms)
+ GET /dashboard/resumes/new 200 in 115ms (compile: 5ms, render: 111ms)
+ GET /dashboard/resumes/new 200 in 115ms (compile: 14ms, render: 101ms)
+ GET /dashboard/resumes 200 in 108ms (compile: 15ms, render: 93ms)
+ GET /dashboard/resumes/new 200 in 90ms (compile: 2ms, render: 87ms)
+ GET /dashboard/resumes/new 200 in 98ms (compile: 3ms, render: 95ms)
+ GET /dashboard/resumes/new 200 in 98ms (compile: 13ms, render: 85ms)
+ GET /dashboard/resumes 200 in 97ms (compile: 31ms, render: 67ms)
+ GET /dashboard/resumes/new 200 in 62ms (compile: 2ms, render: 60ms)
+ GET /dashboard/resumes/new 200 in 64ms (compile: 3ms, render: 61ms)
+ GET /dashboard/resumes/new 200 in 55ms (compile: 4ms, render: 51ms)
+ GET /dashboard/resumes 200 in 55ms (compile: 10ms, render: 45ms)
+ GET /dashboard/resumes/new 200 in 55ms (compile: 19ms, render: 36ms)
+ GET /dashboard/resumes/new 200 in 51ms (compile: 3ms, render: 48ms)
+ GET /dashboard/resumes 200 in 51ms (compile: 11ms, render: 40ms)
+ GET /dashboard/resumes/new 200 in 59ms (compile: 2ms, render: 57ms)
+ GET /dashboard/resumes 200 in 59ms (compile: 12ms, render: 47ms)
+ GET /dashboard/resumes/new 200 in 58ms (compile: 1783µs, render: 56ms)
+ GET /dashboard/resumes 200 in 58ms (compile: 11ms, render: 47ms)
+ GET /dashboard/resumes/new 200 in 66ms (compile: 1224µs, render: 65ms)
+ GET /dashboard/resumes 200 in 64ms (compile: 1910µs, render: 62ms)
+ GET /dashboard/resumes/new 200 in 64ms (compile: 11ms, render: 53ms)
+ GET /dashboard/resumes 200 in 57ms (compile: 3ms, render: 54ms)
+ GET /dashboard/resumes/new 200 in 57ms (compile: 10ms, render: 47ms)
+ GET /dashboard/resumes 200 in 47ms (compile: 1282µs, render: 46ms)
+ GET /dashboard/resumes/new 200 in 44ms (compile: 1918µs, render: 42ms)
+ GET /dashboard/resumes 200 in 44ms (compile: 7ms, render: 37ms)
+ GET /dashboard/resumes/new 200 in 37ms (compile: 2ms, render: 35ms)
+ GET /dashboard/resumes 200 in 38ms (compile: 8ms, render: 30ms)
+ GET /dashboard/resumes/new 200 in 24ms (compile: 1340µs, render: 23ms)
+ GET /dashboard/resumes 200 in 17ms (compile: 1145µs, render: 16ms)
+ GET /sw.js 404 in 23ms (compile: 5ms, render: 18ms)
+ GET /sw.js 404 in 14ms (compile: 2ms, render: 12ms)
+ GET / 200 in 127ms (compile: 54ms, render: 74ms)
+ GET /sw.js 404 in 19ms (compile: 2ms, render: 16ms)
+ GET /auth/login 200 in 235ms (compile: 219ms, render: 16ms)
+ GET /auth/register 200 in 201ms (compile: 190ms, render: 10ms)
+ GET / 200 in 30ms (compile: 1304µs, render: 29ms)
+ GET /sw.js 404 in 15ms (compile: 1632µs, render: 14ms)
+ GET /auth/login 200 in 25ms (compile: 1343µs, render: 23ms)
+ GET /sw.js 404 in 17ms (compile: 1697µs, render: 15ms)
+ GET /auth/register 200 in 24ms (compile: 1552µs, render: 22ms)
+ GET /sw.js 404 in 16ms (compile: 1945µs, render: 14ms)
+ GET / 200 in 31ms (compile: 1423µs, render: 29ms)
+ GET /sw.js 404 in 22ms (compile: 2ms, render: 19ms)
+ GET /auth/login 200 in 25ms (compile: 1772µs, render: 23ms)
+ GET /sw.js 404 in 22ms (compile: 3ms, render: 19ms)
+ GET /auth/register 200 in 26ms (compile: 1610µs, render: 24ms)
+ GET /sw.js 404 in 18ms (compile: 2ms, render: 16ms)
+ GET / 200 in 40ms (compile: 1646µs, render: 38ms)
+ GET /sw.js 404 in 17ms (compile: 2ms, render: 15ms)
+ GET /auth/login 200 in 53ms (compile: 1433µs, render: 51ms)
+ GET /sw.js 404 in 17ms (compile: 1781µs, render: 15ms)
+ GET /auth/register 200 in 24ms (compile: 2ms, render: 22ms)
+ GET /sw.js 404 in 15ms (compile: 2ms, render: 13ms)
+ GET /auth/login 200 in 23ms (compile: 1694µs, render: 22ms)
+ GET /sw.js 404 in 17ms (compile: 1875µs, render: 15ms)
+ GET / 200 in 30ms (compile: 1571µs, render: 28ms)
+ GET /sw.js 404 in 20ms (compile: 3ms, render: 17ms)
+ GET /auth/login 200 in 26ms (compile: 1505µs, render: 25ms)
+ GET /sw.js 404 in 18ms (compile: 3ms, render: 15ms)
+ GET /auth/register 200 in 20ms (compile: 1817µs, render: 18ms)
+ GET /sw.js 404 in 14ms (compile: 1833µs, render: 12ms)
+ GET / 200 in 36ms (compile: 1548µs, render: 34ms)
+ GET /sw.js 404 in 17ms (compile: 1933µs, render: 15ms)
+ GET /auth/login 200 in 27ms (compile: 1796µs, render: 25ms)
+ GET /sw.js 404 in 19ms (compile: 3ms, render: 16ms)
+ GET /auth/register 200 in 22ms (compile: 2ms, render: 20ms)
+ GET /sw.js 404 in 25ms (compile: 3ms, render: 22ms)
+ GET /dashboard/resumes/new 200 in 208ms (compile: 117ms, render: 91ms)
+ GET /dashboard/resumes/new 200 in 49ms (compile: 1594µs, render: 48ms)
+ GET /dashboard/resumes/new 200 in 49ms (compile: 1249µs, render: 48ms)
+ GET /dashboard/resumes/new 200 in 60ms (compile: 1515µs, render: 58ms)
+ GET /dashboard/resumes/new 200 in 57ms (compile: 5ms, render: 53ms)
+✓ Compiled in 1ms
+ GET /dashboard/resumes/new 200 in 128ms (compile: 2ms, render: 125ms)
+ GET /dashboard/resumes/new 200 in 216ms (compile: 16ms, render: 200ms)
+ GET /dashboard/resumes/new 200 in 216ms (compile: 2ms, render: 214ms)
+ GET /auth/register 200 in 218ms (compile: 15ms, render: 203ms)
+ GET /dashboard/resumes/new 200 in 212ms (compile: 21ms, render: 191ms)
+ GET /dashboard/resumes/new 200 in 172ms (compile: 6ms, render: 166ms)
+ GET /auth/login 200 in 165ms (compile: 7ms, render: 157ms)
+ GET /dashboard/resumes/new 200 in 150ms (compile: 3ms, render: 146ms)
+ GET /dashboard 404 in 262ms (compile: 62ms, render: 200ms)
+ GET /dashboard/resumes/new 200 in 179ms (compile: 4ms, render: 175ms)
+ GET /dashboard/resumes/new 200 in 202ms (compile: 1654µs, render: 201ms)
+ GET /dashboard/resumes/new 200 in 207ms (compile: 1365µs, render: 206ms)
+ GET / 200 in 460ms (compile: 27ms, render: 433ms)
+ GET /dashboard/resumes/new 200 in 204ms (compile: 74ms, render: 130ms)
+ GET /dashboard/resumes 200 in 206ms (compile: 63ms, render: 144ms)
+ GET /auth/register 200 in 153ms (compile: 48ms, render: 104ms)
+ GET /dashboard/resumes/new 200 in 103ms (compile: 10ms, render: 93ms)
+ GET /dashboard 404 in 276ms (compile: 5ms, render: 271ms)
+ GET /dashboard/resumes/new 200 in 104ms (compile: 1396µs, render: 103ms)
+ GET /dashboard/resumes/new 200 in 91ms (compile: 1818µs, render: 89ms)
+ GET /dashboard/resumes/new 200 in 88ms (compile: 1948µs, render: 87ms)
+ GET /auth/login 200 in 74ms (compile: 18ms, render: 56ms)
+ GET /dashboard/resumes/new 200 in 75ms (compile: 3ms, render: 71ms)
+ GET /dashboard/resumes 200 in 73ms (compile: 27ms, render: 46ms)
+ GET /auth/register 200 in 33ms (compile: 1748µs, render: 31ms)
+ GET / 200 in 183ms (compile: 20ms, render: 163ms)
+ GET /dashboard/resumes/new 200 in 81ms (compile: 23ms, render: 58ms)
+ GET /auth/login 200 in 74ms (compile: 26ms, render: 48ms)
+ GET /dashboard/resumes 200 in 38ms (compile: 3ms, render: 35ms)
+ GET /auth/register 200 in 57ms (compile: 16ms, render: 40ms)
+ GET / 200 in 158ms (compile: 11ms, render: 147ms)
+ GET /dashboard/resumes/new 200 in 45ms (compile: 2ms, render: 43ms)
+ GET /auth/login 200 in 45ms (compile: 9ms, render: 35ms)
+ GET /dashboard/resumes 200 in 45ms (compile: 24ms, render: 21ms)
+ GET / 200 in 133ms (compile: 2ms, render: 131ms)
+ GET /auth/register 200 in 55ms (compile: 2ms, render: 53ms)
+ GET /dashboard/resumes/new 200 in 56ms (compile: 30ms, render: 26ms)
+ GET /auth/login 200 in 57ms (compile: 36ms, render: 21ms)
+ GET /dashboard/resumes 200 in 66ms (compile: 7ms, render: 59ms)
+ GET /auth/register 200 in 66ms (compile: 15ms, render: 51ms)
+ GET /dashboard/resumes/new 200 in 40ms (compile: 15ms, render: 26ms)
+ GET / 200 in 146ms (compile: 16ms, render: 129ms)
+ GET /auth/login 200 in 61ms (compile: 1838µs, render: 59ms)
+ GET /dashboard/resumes 200 in 45ms (compile: 2ms, render: 43ms)
+ GET /auth/register 200 in 45ms (compile: 15ms, render: 30ms)
+ GET / 200 in 120ms (compile: 1752µs, render: 118ms)
+ GET /dashboard/resumes/new 200 in 49ms (compile: 1780µs, render: 48ms)
+ GET /auth/login 200 in 35ms (compile: 1577µs, render: 33ms)
+ GET /dashboard/resumes 200 in 46ms (compile: 13ms, render: 34ms)
+ GET /auth/register 200 in 31ms (compile: 1070µs, render: 30ms)
+ GET / 200 in 107ms (compile: 4ms, render: 103ms)
+ GET /dashboard/resumes/new 200 in 58ms (compile: 1782µs, render: 56ms)
+ GET /auth/login 200 in 58ms (compile: 17ms, render: 41ms)
+ GET /dashboard/resumes 200 in 32ms (compile: 1804µs, render: 30ms)
+ GET /auth/register 200 in 55ms (compile: 2ms, render: 53ms)
+ GET / 200 in 160ms (compile: 1770µs, render: 158ms)
+ GET /dashboard/resumes/new 200 in 81ms (compile: 21ms, render: 60ms)
+ GET /auth/login 200 in 81ms (compile: 36ms, render: 46ms)
+ GET /dashboard/resumes 200 in 82ms (compile: 46ms, render: 36ms)
+ GET /auth/register 200 in 63ms (compile: 1548µs, render: 62ms)
+ GET /dashboard/resumes/new 200 in 40ms (compile: 1921µs, render: 38ms)
+ GET /auth/login 200 in 40ms (compile: 12ms, render: 28ms)
+ GET /dashboard/resumes 200 in 33ms (compile: 8ms, render: 25ms)
+ GET / 200 in 157ms (compile: 5ms, render: 152ms)
+ GET /auth/register 200 in 47ms (compile: 2ms, render: 45ms)
+ GET /dashboard/resumes/new 200 in 56ms (compile: 11ms, render: 45ms)
+ GET / 200 in 131ms (compile: 2ms, render: 129ms)
+ GET /auth/login 200 in 47ms (compile: 11ms, render: 36ms)
+ GET /dashboard/resumes 200 in 30ms (compile: 3ms, render: 28ms)
+ GET /auth/register 200 in 47ms (compile: 1011µs, render: 46ms)
+ GET /dashboard/resumes/new 200 in 68ms (compile: 18ms, render: 50ms)
+ GET / 200 in 132ms (compile: 2ms, render: 130ms)
+ GET /auth/login 200 in 51ms (compile: 6ms, render: 45ms)
+ GET /dashboard/resumes 200 in 52ms (compile: 17ms, render: 34ms)
+ GET /auth/register 200 in 48ms (compile: 1225µs, render: 47ms)
+ GET /dashboard/resumes/new 200 in 66ms (compile: 4ms, render: 62ms)
+ GET /auth/login 200 in 66ms (compile: 15ms, render: 52ms)
+ GET /dashboard/resumes 200 in 67ms (compile: 25ms, render: 42ms)
+ GET / 200 in 173ms (compile: 1963µs, render: 171ms)
+ GET /auth/register 200 in 53ms (compile: 1615µs, render: 52ms)
+ GET /dashboard/resumes/new 200 in 52ms (compile: 15ms, render: 37ms)
+ GET /auth/login 200 in 52ms (compile: 22ms, render: 30ms)
+ GET / 200 in 146ms (compile: 2ms, render: 144ms)
+ GET /dashboard/resumes 200 in 23ms (compile: 1757µs, render: 21ms)
+ GET /auth/register 200 in 30ms (compile: 1341µs, render: 29ms)
+ GET /dashboard/resumes/new 200 in 54ms (compile: 17ms, render: 37ms)
+ GET / 200 in 111ms (compile: 2ms, render: 109ms)
+ GET /dashboard/resumes 200 in 41ms (compile: 12ms, render: 28ms)
+ GET /auth/login 200 in 24ms (compile: 1154µs, render: 23ms)
+ GET /auth/register 200 in 20ms (compile: 1652µs, render: 18ms)
+ GET /dashboard/resumes/new 200 in 70ms (compile: 17ms, render: 53ms)
+ GET / 200 in 129ms (compile: 3ms, render: 126ms)
+ GET /auth/login 200 in 42ms (compile: 1616µs, render: 40ms)
+ GET /dashboard/resumes 200 in 44ms (compile: 14ms, render: 30ms)
+ GET /auth/register 200 in 44ms (compile: 20ms, render: 24ms)
+ GET /auth/login 200 in 125ms (compile: 77ms, render: 48ms)
+ GET /dashboard/resumes/new 200 in 130ms (compile: 59ms, render: 71ms)
+ GET /auth/register 200 in 38ms (compile: 1877µs, render: 36ms)
+ GET /dashboard/resumes 200 in 38ms (compile: 17ms, render: 21ms)
+ GET / 200 in 212ms (compile: 8ms, render: 204ms)
+ GET /dashboard/resumes/new 200 in 60ms (compile: 19ms, render: 42ms)
+ GET / 200 in 199ms (compile: 3ms, render: 196ms)
+ GET /auth/login 200 in 34ms (compile: 1991µs, render: 32ms)
+ GET /auth/register 200 in 34ms (compile: 8ms, render: 26ms)
+ GET /dashboard/resumes 200 in 42ms (compile: 20ms, render: 22ms)
+ GET /auth/login 200 in 69ms (compile: 27ms, render: 43ms)
+ GET / 200 in 146ms (compile: 4ms, render: 142ms)
+ GET /auth/register 200 in 35ms (compile: 1971µs, render: 33ms)
+ GET /auth/login 200 in 35ms (compile: 1581µs, render: 34ms)
+ GET / 200 in 108ms (compile: 15ms, render: 93ms)
+ GET /auth/register 200 in 36ms (compile: 11ms, render: 25ms)
+ GET / 200 in 94ms (compile: 1320µs, render: 93ms)
+ GET /auth/login 200 in 72ms (compile: 2ms, render: 70ms)
+ GET /auth/register 200 in 72ms (compile: 17ms, render: 55ms)
+ GET / 200 in 94ms (compile: 956µs, render: 93ms)
+ GET /auth/login 200 in 70ms (compile: 1432µs, render: 68ms)
+ GET /auth/register 200 in 55ms (compile: 1626µs, render: 53ms)
+ GET /auth/login 200 in 58ms (compile: 15ms, render: 43ms)
+ GET / 200 in 138ms (compile: 23ms, render: 115ms)
+ GET /auth/register 200 in 40ms (compile: 1202µs, render: 39ms)
+ GET /auth/login 200 in 45ms (compile: 1148µs, render: 44ms)
+ GET /auth/register 200 in 43ms (compile: 2ms, render: 41ms)
+ GET / 200 in 111ms (compile: 2ms, render: 109ms)
+ GET /auth/login 200 in 38ms (compile: 12ms, render: 26ms)
+ GET /auth/register 200 in 47ms (compile: 1552µs, render: 45ms)
+ GET / 200 in 111ms (compile: 5ms, render: 106ms)
+ GET /auth/login 200 in 51ms (compile: 1488µs, render: 49ms)
+ GET /auth/register 200 in 51ms (compile: 9ms, render: 41ms)
+ GET / 200 in 105ms (compile: 2ms, render: 103ms)
+ GET /auth/login 200 in 70ms (compile: 18ms, render: 51ms)
+ GET / 200 in 124ms (compile: 7ms, render: 117ms)
+ GET /auth/register 200 in 45ms (compile: 3ms, render: 42ms)
+ GET /auth/login 200 in 44ms (compile: 21ms, render: 23ms)
+ GET /auth/register 200 in 42ms (compile: 1448µs, render: 40ms)
+ GET / 200 in 118ms (compile: 1661µs, render: 117ms)
+ GET /auth/login 200 in 52ms (compile: 12ms, render: 40ms)
+ GET /auth/register 200 in 53ms (compile: 19ms, render: 34ms)
+ GET / 200 in 106ms (compile: 10ms, render: 96ms)
+ GET /auth/login 200 in 38ms (compile: 1216µs, render: 37ms)
+ GET /auth/register 200 in 39ms (compile: 958µs, render: 38ms)
+ GET / 200 in 99ms (compile: 1917µs, render: 97ms)
+ GET /auth/login 200 in 27ms (compile: 1126µs, render: 26ms)
+ GET / 200 in 104ms (compile: 4ms, render: 100ms)
+ GET /auth/register 200 in 50ms (compile: 1492µs, render: 48ms)
+ GET /auth/login 200 in 46ms (compile: 1717µs, render: 45ms)
+ GET / 200 in 98ms (compile: 1570µs, render: 96ms)
+ GET /auth/register 200 in 50ms (compile: 8ms, render: 42ms)
+ GET /auth/login 200 in 51ms (compile: 13ms, render: 39ms)
+ GET / 200 in 102ms (compile: 1582µs, render: 100ms)
+ GET /auth/register 200 in 39ms (compile: 1194µs, render: 37ms)
+ GET /auth/login 200 in 35ms (compile: 9ms, render: 26ms)
+ GET /auth/register 200 in 46ms (compile: 1217µs, render: 45ms)
+ GET / 200 in 102ms (compile: 1856µs, render: 100ms)
+ GET /auth/login 200 in 50ms (compile: 12ms, render: 38ms)
+ GET /auth/register 200 in 34ms (compile: 1014µs, render: 33ms)
+ GET / 200 in 106ms (compile: 7ms, render: 99ms)
+ GET /auth/login 200 in 54ms (compile: 9ms, render: 45ms)
+ GET /auth/register 200 in 44ms (compile: 1742µs, render: 42ms)
+ GET / 200 in 102ms (compile: 1769µs, render: 100ms)
+ GET /auth/login 200 in 34ms (compile: 1087µs, render: 33ms)
+ GET /auth/register 200 in 57ms (compile: 1158µs, render: 56ms)
+ GET / 200 in 114ms (compile: 1117µs, render: 113ms)
+ GET /auth/login 200 in 57ms (compile: 2ms, render: 55ms)
+ GET /auth/register 200 in 38ms (compile: 2ms, render: 36ms)
+ GET / 200 in 112ms (compile: 1742µs, render: 111ms)
+ GET /auth/login 200 in 64ms (compile: 14ms, render: 50ms)
+ GET /auth/register 200 in 39ms (compile: 2ms, render: 37ms)
+ GET / 200 in 123ms (compile: 1507µs, render: 121ms)
+ GET /auth/login 200 in 45ms (compile: 14ms, render: 31ms)
+ GET /auth/register 200 in 52ms (compile: 2ms, render: 50ms)
+ GET / 200 in 123ms (compile: 1576µs, render: 122ms)
+ GET /auth/login 200 in 51ms (compile: 1857µs, render: 50ms)
+ GET /auth/register 200 in 42ms (compile: 1424µs, render: 41ms)
+ GET / 200 in 113ms (compile: 1937µs, render: 111ms)
+ GET /auth/login 200 in 58ms (compile: 14ms, render: 44ms)
+ GET /auth/register 200 in 48ms (compile: 6ms, render: 42ms)
+ GET / 200 in 117ms (compile: 3ms, render: 114ms)
+ GET /auth/login 200 in 45ms (compile: 1087µs, render: 44ms)
+ GET /auth/register 200 in 57ms (compile: 2ms, render: 55ms)
+ GET / 200 in 123ms (compile: 4ms, render: 119ms)
+ GET /auth/login 200 in 47ms (compile: 2ms, render: 45ms)
+ GET / 200 in 116ms (compile: 9ms, render: 106ms)
+ GET /auth/register 200 in 36ms (compile: 973µs, render: 35ms)
+ GET /auth/login 200 in 50ms (compile: 10ms, render: 40ms)
+ GET / 200 in 114ms (compile: 1210µs, render: 113ms)
+ GET /auth/register 200 in 42ms (compile: 2ms, render: 40ms)
+ GET /auth/login 200 in 45ms (compile: 19ms, render: 26ms)
+ GET /auth/register 200 in 47ms (compile: 1609µs, render: 46ms)
+ GET / 200 in 111ms (compile: 1778µs, render: 109ms)
+ GET /auth/login 200 in 61ms (compile: 11ms, render: 50ms)
+ GET /auth/register 200 in 52ms (compile: 11ms, render: 42ms)
+ GET / 200 in 116ms (compile: 10ms, render: 106ms)
+ GET /auth/login 200 in 43ms (compile: 1521µs, render: 42ms)
+ GET /auth/register 200 in 49ms (compile: 1212µs, render: 47ms)
+ GET / 200 in 117ms (compile: 1867µs, render: 115ms)
+ GET /auth/login 200 in 34ms (compile: 1133µs, render: 33ms)
+ GET /auth/register 200 in 52ms (compile: 1256µs, render: 50ms)
+ GET / 200 in 115ms (compile: 1397µs, render: 114ms)
+ GET /auth/login 200 in 45ms (compile: 1651µs, render: 43ms)
+ GET /auth/register 200 in 45ms (compile: 11ms, render: 34ms)
+ GET / 200 in 111ms (compile: 9ms, render: 102ms)
+ GET /auth/login 200 in 46ms (compile: 1269µs, render: 45ms)
+ GET /auth/register 200 in 43ms (compile: 1990µs, render: 41ms)
+ GET / 200 in 104ms (compile: 1284µs, render: 103ms)
+ GET /auth/login 200 in 37ms (compile: 11ms, render: 26ms)
+ GET / 200 in 102ms (compile: 1634µs, render: 100ms)
+ GET /auth/register 200 in 43ms (compile: 1336µs, render: 42ms)
+ GET /auth/login 200 in 50ms (compile: 10ms, render: 40ms)
+ GET /auth/register 200 in 50ms (compile: 16ms, render: 34ms)
+ GET / 200 in 104ms (compile: 9ms, render: 95ms)
+ GET /auth/login 200 in 64ms (compile: 13ms, render: 51ms)
+ GET /auth/register 200 in 49ms (compile: 1693µs, render: 48ms)
+ GET / 200 in 111ms (compile: 2ms, render: 109ms)
+ GET /auth/login 200 in 35ms (compile: 2ms, render: 33ms)
+ GET /auth/register 200 in 43ms (compile: 1160µs, render: 42ms)
+ GET / 200 in 115ms (compile: 1920µs, render: 113ms)
+ GET /auth/login 200 in 49ms (compile: 2ms, render: 47ms)
+ GET /auth/register 200 in 49ms (compile: 10ms, render: 39ms)
+ GET / 200 in 118ms (compile: 9ms, render: 109ms)
+ GET /auth/login 200 in 61ms (compile: 12ms, render: 49ms)
+ GET /auth/register 200 in 45ms (compile: 1485µs, render: 43ms)
+ GET / 200 in 111ms (compile: 1877µs, render: 109ms)
+ GET /auth/login 200 in 27ms (compile: 1102µs, render: 26ms)
+ GET /auth/register 200 in 47ms (compile: 969µs, render: 46ms)
+ GET / 200 in 112ms (compile: 1326µs, render: 110ms)
+ GET /auth/login 200 in 44ms (compile: 3ms, render: 42ms)
+ GET /auth/register 200 in 43ms (compile: 8ms, render: 36ms)
+ GET / 200 in 109ms (compile: 14ms, render: 95ms)
+ GET /auth/login 200 in 76ms (compile: 2ms, render: 74ms)
+ GET /auth/register 200 in 62ms (compile: 2ms, render: 59ms)
+ GET / 200 in 128ms (compile: 1821µs, render: 126ms)
+ GET /auth/login 200 in 72ms (compile: 20ms, render: 52ms)
+ GET / 200 in 146ms (compile: 1473µs, render: 145ms)
+ GET /auth/register 200 in 57ms (compile: 3ms, render: 54ms)
+ GET /auth/login 200 in 63ms (compile: 15ms, render: 48ms)
+ GET /auth/register 200 in 63ms (compile: 21ms, render: 42ms)
+ GET / 200 in 145ms (compile: 9ms, render: 136ms)
+ GET /auth/login 200 in 61ms (compile: 15ms, render: 46ms)
+ GET /auth/register 200 in 38ms (compile: 1445µs, render: 37ms)
+ GET / 200 in 122ms (compile: 2ms, render: 120ms)
+ GET /auth/login 200 in 32ms (compile: 3ms, render: 29ms)
+ GET /auth/register 200 in 53ms (compile: 921µs, render: 52ms)
+ GET / 200 in 118ms (compile: 1934µs, render: 116ms)
+ GET /auth/login 200 in 40ms (compile: 2ms, render: 38ms)
+ GET /auth/register 200 in 40ms (compile: 8ms, render: 32ms)
+ GET / 200 in 111ms (compile: 1582µs, render: 109ms)
+ GET /auth/login 200 in 63ms (compile: 4ms, render: 60ms)
+ GET /auth/register 200 in 59ms (compile: 1813µs, render: 57ms)
+ GET / 200 in 128ms (compile: 1619µs, render: 126ms)
+ GET /auth/login 200 in 28ms (compile: 2ms, render: 26ms)
+ GET /auth/register 200 in 42ms (compile: 1146µs, render: 40ms)
+ GET / 200 in 126ms (compile: 1444µs, render: 124ms)
+ GET /auth/login 200 in 51ms (compile: 14ms, render: 37ms)
+ GET /auth/register 200 in 39ms (compile: 8ms, render: 31ms)
+ GET / 200 in 116ms (compile: 12ms, render: 103ms)
+ GET /auth/login 200 in 54ms (compile: 11ms, render: 43ms)
+ GET /auth/register 200 in 45ms (compile: 1413µs, render: 43ms)
+ GET / 200 in 103ms (compile: 4ms, render: 99ms)
+ GET /auth/login 200 in 26ms (compile: 1846µs, render: 24ms)
+ GET /auth/register 200 in 47ms (compile: 1205µs, render: 46ms)
+ GET / 200 in 105ms (compile: 1399µs, render: 104ms)
+ GET /auth/login 200 in 50ms (compile: 13ms, render: 37ms)
+ GET /auth/register 200 in 42ms (compile: 1642µs, render: 41ms)
+ GET / 200 in 112ms (compile: 13ms, render: 99ms)
+ GET /auth/login 200 in 53ms (compile: 1561µs, render: 51ms)
+ GET /auth/register 200 in 41ms (compile: 1294µs, render: 40ms)
+ GET / 200 in 119ms (compile: 1702µs, render: 118ms)
+ GET /auth/login 200 in 48ms (compile: 10ms, render: 38ms)
+ GET /auth/register 200 in 42ms (compile: 1473µs, render: 41ms)
+ GET / 200 in 117ms (compile: 4ms, render: 113ms)
+ GET /auth/login 200 in 33ms (compile: 1301µs, render: 32ms)
+ GET /auth/register 200 in 39ms (compile: 2ms, render: 37ms)
+ GET / 200 in 100ms (compile: 1739µs, render: 98ms)
+ GET /auth/login 200 in 51ms (compile: 3ms, render: 48ms)
+ GET /auth/register 200 in 40ms (compile: 4ms, render: 36ms)
+ GET / 200 in 101ms (compile: 1154µs, render: 100ms)
+ GET /auth/login 200 in 42ms (compile: 11ms, render: 30ms)
+ GET / 200 in 112ms (compile: 1019µs, render: 111ms)
+ GET /auth/register 200 in 47ms (compile: 1096µs, render: 46ms)
+ GET /auth/login 200 in 45ms (compile: 12ms, render: 33ms)
+ GET /auth/register 200 in 48ms (compile: 927µs, render: 47ms)
+ GET / 200 in 124ms (compile: 2ms, render: 122ms)
+ GET /auth/login 200 in 76ms (compile: 804µs, render: 76ms)
+ GET /auth/register 200 in 48ms (compile: 2ms, render: 46ms)
+ GET / 200 in 134ms (compile: 2ms, render: 132ms)
+ GET /auth/login 200 in 51ms (compile: 1019µs, render: 50ms)
+ GET / 200 in 135ms (compile: 11ms, render: 124ms)
+ GET /auth/login 200 in 38ms (compile: 1595µs, render: 36ms)
+ GET /auth/register 200 in 35ms (compile: 12ms, render: 24ms)
+ GET /auth/register 200 in 82ms (compile: 7ms, render: 75ms)
+ GET / 200 in 128ms (compile: 995µs, render: 127ms)
+ GET /auth/login 200 in 53ms (compile: 1096µs, render: 52ms)
+ GET / 200 in 115ms (compile: 4ms, render: 111ms)
+ GET /auth/register 200 in 60ms (compile: 1814µs, render: 58ms)
+ GET /auth/login 200 in 54ms (compile: 1393µs, render: 52ms)
+ GET /auth/register 200 in 55ms (compile: 1249µs, render: 53ms)
+ GET / 200 in 138ms (compile: 2ms, render: 136ms)
+ GET /auth/login 200 in 54ms (compile: 1734µs, render: 53ms)
+ GET /auth/register 200 in 34ms (compile: 1187µs, render: 32ms)
+ GET / 200 in 131ms (compile: 1553µs, render: 129ms)
+ GET /auth/login 200 in 53ms (compile: 1649µs, render: 51ms)
+ GET /auth/register 200 in 41ms (compile: 1488µs, render: 39ms)
+ GET /auth/login 200 in 41ms (compile: 8ms, render: 33ms)
+ GET / 200 in 113ms (compile: 10ms, render: 103ms)
+ GET /auth/register 200 in 43ms (compile: 1453µs, render: 41ms)
+ GET / 200 in 112ms (compile: 1469µs, render: 111ms)
+ GET /auth/login 200 in 50ms (compile: 2ms, render: 48ms)
+ GET /auth/register 200 in 59ms (compile: 21ms, render: 38ms)
+ GET /auth/login 200 in 57ms (compile: 1592µs, render: 55ms)
+ GET / 200 in 125ms (compile: 1581µs, render: 123ms)
+ GET /auth/register 200 in 59ms (compile: 1842µs, render: 57ms)
+ GET /auth/login 200 in 59ms (compile: 9ms, render: 50ms)
+ GET / 200 in 126ms (compile: 10ms, render: 116ms)
+ GET /auth/login 200 in 66ms (compile: 1657µs, render: 65ms)
+ GET /auth/register 200 in 68ms (compile: 11ms, render: 57ms)
+ GET /auth/login 200 in 64ms (compile: 12ms, render: 52ms)
+ GET /auth/register 200 in 44ms (compile: 1120µs, render: 43ms)
+ GET / 200 in 132ms (compile: 13ms, render: 119ms)
+ GET /auth/login 200 in 59ms (compile: 11ms, render: 48ms)
+ GET /auth/register 200 in 38ms (compile: 1523µs, render: 37ms)
+ GET / 200 in 107ms (compile: 3ms, render: 104ms)
+ GET /auth/login 200 in 29ms (compile: 13ms, render: 16ms)
+ GET / 200 in 97ms (compile: 1990µs, render: 95ms)
+ GET /auth/register 200 in 35ms (compile: 3ms, render: 32ms)
+ GET /auth/login 200 in 26ms (compile: 1658µs, render: 24ms)
+ GET / 200 in 88ms (compile: 1818µs, render: 86ms)
+ GET /auth/register 200 in 46ms (compile: 1578µs, render: 45ms)
+ GET /auth/login 200 in 43ms (compile: 3ms, render: 41ms)
+ GET /auth/register 200 in 43ms (compile: 2ms, render: 41ms)
+ GET /auth/login 200 in 44ms (compile: 1556µs, render: 42ms)
+ GET /auth/register 200 in 52ms (compile: 1707µs, render: 50ms)
+ GET /auth/login 200 in 42ms (compile: 1640µs, render: 40ms)
+ GET /auth/register 200 in 44ms (compile: 1467µs, render: 43ms)
+ GET /auth/login 200 in 46ms (compile: 1355µs, render: 44ms)
+ GET /auth/register 200 in 53ms (compile: 1036µs, render: 52ms)
+ GET /auth/login 200 in 65ms (compile: 5ms, render: 60ms)
+ GET /auth/register 200 in 63ms (compile: 10ms, render: 52ms)
+ GET /auth/login 200 in 60ms (compile: 3ms, render: 57ms)
+ GET /auth/register 200 in 44ms (compile: 4ms, render: 40ms)
+ GET /auth/login 200 in 36ms (compile: 890µs, render: 35ms)
+ GET /auth/register 200 in 41ms (compile: 1646µs, render: 40ms)
+ GET /auth/login 200 in 35ms (compile: 1358µs, render: 33ms)
+ GET /auth/login 200 in 43ms (compile: 9ms, render: 34ms)
+ GET /auth/register 200 in 45ms (compile: 2ms, render: 42ms)
+ GET /auth/register 200 in 64ms (compile: 1316µs, render: 62ms)
+ GET /auth/login 200 in 64ms (compile: 11ms, render: 53ms)
+ GET /auth/register 200 in 77ms (compile: 15ms, render: 61ms)
+ GET /auth/login 200 in 79ms (compile: 23ms, render: 56ms)
+ GET /auth/register 200 in 73ms (compile: 3ms, render: 70ms)
+ GET /auth/login 200 in 60ms (compile: 1688µs, render: 59ms)
+ GET /auth/register 200 in 62ms (compile: 3ms, render: 60ms)
+ GET /auth/login 200 in 67ms (compile: 1402µs, render: 65ms)
+ GET /auth/register 200 in 67ms (compile: 10ms, render: 57ms)
+ GET /auth/login 200 in 52ms (compile: 1681µs, render: 50ms)
+ GET /auth/register 200 in 50ms (compile: 4ms, render: 47ms)
+ GET /auth/login 200 in 40ms (compile: 1352µs, render: 38ms)
+ GET /auth/register 200 in 27ms (compile: 1566µs, render: 25ms)
+ GET /sw.js 404 in 16ms (compile: 1959µs, render: 14ms)
+✓ Compiled in 15ms
+ GET /login 404 in 76ms (compile: 26ms, render: 50ms)
+ GET /sw.js 404 in 20ms (compile: 1839µs, render: 18ms)
+ GET /auth/login 200 in 76ms (compile: 25ms, render: 51ms)
+ GET /sw.js 404 in 22ms (compile: 3ms, render: 19ms)
+ GET / 200 in 185ms (compile: 27ms, render: 158ms)
+ GET /sw.js 404 in 17ms (compile: 2ms, render: 15ms)
+ GET /dashboard/resumes 200 in 40ms (compile: 24ms, render: 16ms)
+ GET /dashboard/resumes/new 200 in 50ms (compile: 31ms, render: 19ms)
+ GET /dashboard/resumes 200 in 9ms (compile: 1683µs, render: 8ms)
+ GET /dashboard/resumes 200 in 14ms (compile: 1947µs, render: 12ms)
+ GET /dashboard/applications 200 in 224ms (compile: 214ms, render: 11ms)
+✓ Compiled in 112ms
+✓ Compiled in 42ms
+✓ Compiled in 112ms
+ GET /auth/register 200 in 148ms (compile: 63ms, render: 85ms)
+ GET /sw.js 404 in 89ms (compile: 35ms, render: 54ms)
+✓ Compiled in 30ms
+ GET /auth/register 200 in 15ms (compile: 2ms, render: 13ms)
+✓ Compiled in 29ms
+ GET /auth/register 200 in 21ms (compile: 1335µs, render: 19ms)
+ GET /sw.js 404 in 18ms (compile: 4ms, render: 13ms)
+✓ Compiled in 31ms
+✓ Compiled in 28ms
+✓ Compiled in 49ms
+✓ Compiled in 47ms
+✓ Compiled in 57ms
+⨯ ./app/globals.css:1898:8
+Parsing CSS source code failed
+[0m [90m 1896 |[39m   }
+ [90m 1897 |[39m }
+[31m[1m>[22m[39m[90m 1898 |[39m [33m@[39m[36mimport[39m url([32m'https://fonts.googleapis.com/css2?family=Kalam:wght@700&family=Patrick+Hand&display=swap'[39m)[33m;[39m
+ [90m      |[39m        [31m[1m^[22m[39m
+ [90m 1899 |[39m [33m:[39mroot {
+ [90m 1900 |[39m   [33m--[39mbackground[33m:[39m [33m#[39mfdfbf7[33m;[39m
+ [90m 1901 |[39m   [33m--[39mforeground[33m:[39m [33m#[39m[35m2[39md2d2d[33m;[39m[0m
+
+@import rules must precede all rules aside from @charset and @layer statements
+
+Import trace:
+  Client Component Browser:
+    ./app/globals.css [Client Component Browser]
+    ./app/layout.tsx [Server Component]
+
+
+ GET / 500 in 262ms (compile: 177ms, render: 85ms)
+ GET /sw.js 500 in 23ms (compile: 17ms, render: 5ms)
+⨯ ./app/globals.css:1898:8
+Parsing CSS source code failed
+[0m [90m 1896 |[39m   }
+ [90m 1897 |[39m }
+[31m[1m>[22m[39m[90m 1898 |[39m [33m@[39m[36mimport[39m url([32m'https://fonts.googleapis.com/css2?family=Kalam:wght@700&family=Patrick+Hand&display=swap'[39m)[33m;[39m
+ [90m      |[39m        [31m[1m^[22m[39m
+ [90m 1899 |[39m [33m:[39mroot {
+ [90m 1900 |[39m   [33m--[39mbackground[33m:[39m [33m#[39mfdfbf7[33m;[39m
+ [90m 1901 |[39m   [33m--[39mforeground[33m:[39m [33m#[39m[35m2[39md2d2d[33m;[39m[0m
+
+@import rules must precede all rules aside from @charset and @layer statements
+
+Import trace:
+  Client Component Browser:
+    ./app/globals.css [Client Component Browser]
+    ./app/layout.tsx [Server Component]
+
+
+ GET / 500 in 60ms (compile: 55ms, render: 5ms)
+ GET /sw.js 500 in 17ms (compile: 12ms, render: 4ms)
+⨯ ./app/globals.css:1898:8
+Parsing CSS source code failed
+[0m [90m 1896 |[39m   }
+ [90m 1897 |[39m }
+[31m[1m>[22m[39m[90m 1898 |[39m [33m@[39m[36mimport[39m url([32m'https://fonts.googleapis.com/css2?family=Kalam:wght@700&family=Patrick+Hand&display=swap'[39m)[33m;[39m
+ [90m      |[39m        [31m[1m^[22m[39m
+ [90m 1899 |[39m [33m:[39mroot {
+ [90m 1900 |[39m   [33m--[39mbackground[33m:[39m [33m#[39mfdfbf7[33m;[39m
+ [90m 1901 |[39m   [33m--[39mforeground[33m:[39m [33m#[39m[35m2[39md2d2d[33m;[39m[0m
+
+@import rules must precede all rules aside from @charset and @layer statements
+
+Import trace:
+  Client Component Browser:
+    ./app/globals.css [Client Component Browser]
+    ./app/layout.tsx [Server Component]
+
+
+ GET /auth/login 500 in 91ms (compile: 84ms, render: 6ms)
+ GET /sw.js 500 in 19ms (compile: 13ms, render: 6ms)
+⨯ ./app/globals.css:1898:8
+Parsing CSS source code failed
+[0m [90m 1896 |[39m   }
+ [90m 1897 |[39m }
+[31m[1m>[22m[39m[90m 1898 |[39m [33m@[39m[36mimport[39m url([32m'https://fonts.googleapis.com/css2?family=Kalam:wght@700&family=Patrick+Hand&display=swap'[39m)[33m;[39m
+ [90m      |[39m        [31m[1m^[22m[39m
+ [90m 1899 |[39m [33m:[39mroot {
+ [90m 1900 |[39m   [33m--[39mbackground[33m:[39m [33m#[39mfdfbf7[33m;[39m
+ [90m 1901 |[39m   [33m--[39mforeground[33m:[39m [33m#[39m[35m2[39md2d2d[33m;[39m[0m
+
+@import rules must precede all rules aside from @charset and @layer statements
+
+Import trace:
+  Client Component Browser:
+    ./app/globals.css [Client Component Browser]
+    ./app/layout.tsx [Server Component]
+
+
+ GET /dashboard/resumes 500 in 72ms (compile: 67ms, render: 5ms)
+⨯ ./app/globals.css:1898:8
+Parsing CSS source code failed
+[0m [90m 1896 |[39m   }
+ [90m 1897 |[39m }
+[31m[1m>[22m[39m[90m 1898 |[39m [33m@[39m[36mimport[39m url([32m'https://fonts.googleapis.com/css2?family=Kalam:wght@700&family=Patrick+Hand&display=swap'[39m)[33m;[39m
+ [90m      |[39m        [31m[1m^[22m[39m
+ [90m 1899 |[39m [33m:[39mroot {
+ [90m 1900 |[39m   [33m--[39mbackground[33m:[39m [33m#[39mfdfbf7[33m;[39m
+ [90m 1901 |[39m   [33m--[39mforeground[33m:[39m [33m#[39m[35m2[39md2d2d[33m;[39m[0m
+
+@import rules must precede all rules aside from @charset and @layer statements
+
+Import trace:
+  Client Component Browser:
+    ./app/globals.css [Client Component Browser]
+    ./app/layout.tsx [Server Component]
+
+
+ GET /dashboard/applications 500 in 71ms (compile: 66ms, render: 6ms)
+⨯ ./app/globals.css:1898:8
+Parsing CSS source code failed
+[0m [90m 1896 |[39m   }
+ [90m 1897 |[39m }
+[31m[1m>[22m[39m[90m 1898 |[39m [33m@[39m[36mimport[39m url([32m'https://fonts.googleapis.com/css2?family=Kalam:wght@700&family=Patrick+Hand&display=swap'[39m)[33m;[39m
+ [90m      |[39m        [31m[1m^[22m[39m
+ [90m 1899 |[39m [33m:[39mroot {
+ [90m 1900 |[39m   [33m--[39mbackground[33m:[39m [33m#[39mfdfbf7[33m;[39m
+ [90m 1901 |[39m   [33m--[39mforeground[33m:[39m [33m#[39m[35m2[39md2d2d[33m;[39m[0m
+
+@import rules must precede all rules aside from @charset and @layer statements
+
+Import trace:
+  Client Component Browser:
+    ./app/globals.css [Client Component Browser]
+    ./app/layout.tsx [Server Component]
+
+
+ GET /auth/register 500 in 75ms (compile: 70ms, render: 5ms)
+ GET /sw.js 500 in 20ms (compile: 14ms, render: 6ms)
+⨯ ./app/globals.css:1800:8
+Parsing CSS source code failed
+[0m [90m 1798 |[39m   }
+ [90m 1799 |[39m }
+[31m[1m>[22m[39m[90m 1800 |[39m [33m@[39m[36mimport[39m url([32m'https://fonts.googleapis.com/css2?family=Kalam:wght@700&family=Patrick+Hand&display=swap'[39m)[33m;[39m
+ [90m      |[39m        [31m[1m^[22m[39m
+ [90m 1801 |[39m [33m:[39mroot {
+ [90m 1802 |[39m   [33m--[39mbackground[33m:[39m [33m#[39mfdfbf7[33m;[39m
+ [90m 1803 |[39m   [33m--[39mforeground[33m:[39m [33m#[39m[35m2[39md2d2d[33m;[39m[0m
+
+@import rules must precede all rules aside from @charset and @layer statements
+
+Import trace:
+  Client Component Browser:
+    ./app/globals.css [Client Component Browser]
+    ./app/layout.tsx [Server Component]
+
+
+ GET / 500 in 82ms (compile: 76ms, render: 6ms)
+ GET /sw.js 500 in 18ms (compile: 12ms, render: 6ms)
+⨯ ./app/globals.css:1800:8
+Parsing CSS source code failed
+[0m [90m 1798 |[39m   }
+ [90m 1799 |[39m }
+[31m[1m>[22m[39m[90m 1800 |[39m [33m@[39m[36mimport[39m url([32m'https://fonts.googleapis.com/css2?family=Kalam:wght@700&family=Patrick+Hand&display=swap'[39m)[33m;[39m
+ [90m      |[39m        [31m[1m^[22m[39m
+ [90m 1801 |[39m [33m:[39mroot {
+ [90m 1802 |[39m   [33m--[39mbackground[33m:[39m [33m#[39mfdfbf7[33m;[39m
+ [90m 1803 |[39m   [33m--[39mforeground[33m:[39m [33m#[39m[35m2[39md2d2d[33m;[39m[0m
+
+@import rules must precede all rules aside from @charset and @layer statements
+
+Import trace:
+  Client Component Browser:
+    ./app/globals.css [Client Component Browser]
+    ./app/layout.tsx [Server Component]
+
+
+ GET / 500 in 73ms (compile: 59ms, render: 14ms)
+ GET /sw.js 500 in 21ms (compile: 15ms, render: 6ms)
+⨯ ./app/globals.css:1800:8
+Parsing CSS source code failed
+[0m [90m 1798 |[39m   }
+ [90m 1799 |[39m }
+[31m[1m>[22m[39m[90m 1800 |[39m [33m@[39m[36mimport[39m url([32m'https://fonts.googleapis.com/css2?family=Kalam:wght@700&family=Patrick+Hand&display=swap'[39m)[33m;[39m
+ [90m      |[39m        [31m[1m^[22m[39m
+ [90m 1801 |[39m [33m:[39mroot {
+ [90m 1802 |[39m   [33m--[39mbackground[33m:[39m [33m#[39mfdfbf7[33m;[39m
+ [90m 1803 |[39m   [33m--[39mforeground[33m:[39m [33m#[39m[35m2[39md2d2d[33m;[39m[0m
+
+@import rules must precede all rules aside from @charset and @layer statements
+
+Import trace:
+  Client Component Browser:
+    ./app/globals.css [Client Component Browser]
+    ./app/layout.tsx [Server Component]
+
+
+ GET /auth/login 500 in 56ms (compile: 52ms, render: 4ms)
+ GET /sw.js 500 in 18ms (compile: 11ms, render: 6ms)
+⨯ ./app/globals.css:1800:8
+Parsing CSS source code failed
+[0m [90m 1798 |[39m   }
+ [90m 1799 |[39m }
+[31m[1m>[22m[39m[90m 1800 |[39m [33m@[39m[36mimport[39m url([32m'https://fonts.googleapis.com/css2?family=Kalam:wght@700&family=Patrick+Hand&display=swap'[39m)[33m;[39m
+ [90m      |[39m        [31m[1m^[22m[39m
+ [90m 1801 |[39m [33m:[39mroot {
+ [90m 1802 |[39m   [33m--[39mbackground[33m:[39m [33m#[39mfdfbf7[33m;[39m
+ [90m 1803 |[39m   [33m--[39mforeground[33m:[39m [33m#[39m[35m2[39md2d2d[33m;[39m[0m
+
+@import rules must precede all rules aside from @charset and @layer statements
+
+Import trace:
+  Client Component Browser:
+    ./app/globals.css [Client Component Browser]
+    ./app/layout.tsx [Server Component]
+
+
+ GET / 500 in 56ms (compile: 51ms, render: 5ms)
+ GET /sw.js 500 in 18ms (compile: 12ms, render: 6ms)
+✓ Compiled in 65ms
+⨯ ReferenceError: SketchCard is not defined
+    at LoginPage (app/auth/login/page.tsx:29:18)
+  27 |                 </Link>
+  28 |
+> 29 |                 <SketchCard decoration="tack" className="px-8 py-10 rotate-1 shadow-sketch-lg">
+     |                  ^
+  30 |                     <div className="text-center mb-8">
+  31 |                         <h1 className="text-4xl font-marker mb-2">Welcome Back!</h1>
+  32 |                         <p className="text-xl font-handwritten text-pencil-black/60">Keep sketching your career path.</p> {
+  digest: '3886408132'
+}
+ GET /dashboard/applications 200 in 213ms (compile: 31ms, render: 183ms)
+ GET /dashboard/resumes 200 in 218ms (compile: 111ms, render: 107ms)
+ GET /auth/login 500 in 114ms (compile: 30ms, render: 84ms)
+ GET /auth/register 200 in 56ms (compile: 17ms, render: 38ms)
+ GET / 200 in 259ms (compile: 51ms, render: 208ms)
+ GET / 200 in 50ms (compile: 4ms, render: 47ms)
+ GET /sw.js 404 in 79ms (compile: 49ms, render: 30ms)
+ GET /sw.js 404 in 16ms (compile: 1839µs, render: 14ms)
+ GET / 200 in 26ms (compile: 1601µs, render: 24ms)
+ GET /sw.js 404 in 16ms (compile: 1949µs, render: 14ms)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET / 200 in 117ms (compile: 91ms, render: 25ms)
+✓ Compiled in 655ms
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET / 200 in 56ms (compile: 1044µs, render: 55ms)
+ GET /dashboard/applications 200 in 80ms (compile: 33ms, render: 47ms)
+⨯ ReferenceError: SketchCard is not defined
+    at LoginPage (app/auth/login/page.tsx:29:18)
+  27 |                 </Link>
+  28 |
+> 29 |                 <SketchCard decoration="tack" className="px-8 py-10 rotate-1 shadow-sketch-lg">
+     |                  ^
+  30 |                     <div className="text-center mb-8">
+  31 |                         <h1 className="text-4xl font-marker mb-2">Welcome Back!</h1>
+  32 |                         <p className="text-xl font-handwritten text-pencil-black/60">Keep sketching your career path.</p> {
+  digest: '3886408132'
+}
+ GET /auth/login 500 in 382ms (compile: 44ms, render: 338ms)
+ GET /dashboard/resumes 200 in 278ms (compile: 49ms, render: 229ms)
+ GET /auth/register 200 in 278ms (compile: 137ms, render: 141ms)
+ GET / 200 in 175ms (compile: 88ms, render: 87ms)
+ GET / 200 in 52ms (compile: 1899µs, render: 50ms)
+✓ Compiled in 52ms
+ GET /sw.js 404 in 80ms (compile: 40ms, render: 41ms)
+ GET / 200 in 101ms (compile: 32ms, render: 68ms)
+ GET /sw.js 404 in 16ms (compile: 1597µs, render: 14ms)
+⨯ ReferenceError: SketchCard is not defined
+    at LoginPage (app/auth/login/page.tsx:29:18)
+  27 |                 </Link>
+  28 |
+> 29 |                 <SketchCard decoration="tack" className="px-8 py-10 rotate-1 shadow-sketch-lg">
+     |                  ^
+  30 |                     <div className="text-center mb-8">
+  31 |                         <h1 className="text-4xl font-marker mb-2">Welcome Back!</h1>
+  32 |                         <p className="text-xl font-handwritten text-pencil-black/60">Keep sketching your career path.</p> {
+  digest: '3886408132'
+}
+ GET /auth/login 500 in 97ms (compile: 32ms, render: 65ms)
+ GET /sw.js 404 in 17ms (compile: 1799µs, render: 16ms)
+ GET /dashboard/resumes 200 in 76ms (compile: 30ms, render: 47ms)
+ GET /sw.js 404 in 20ms (compile: 1976µs, render: 18ms)
+ GET /dashboard/resumes 200 in 84ms (compile: 50ms, render: 34ms)
+⨯ ReferenceError: SketchCard is not defined
+    at LoginPage (app/auth/login/page.tsx:29:18)
+  27 |                 </Link>
+  28 |
+> 29 |                 <SketchCard decoration="tack" className="px-8 py-10 rotate-1 shadow-sketch-lg">
+     |                  ^
+  30 |                     <div className="text-center mb-8">
+  31 |                         <h1 className="text-4xl font-marker mb-2">Welcome Back!</h1>
+  32 |                         <p className="text-xl font-handwritten text-pencil-black/60">Keep sketching your career path.</p> {
+  digest: '3886408132'
+}
+ GET /auth/login 500 in 110ms (compile: 36ms, render: 74ms)
+ GET / 200 in 74ms (compile: 43ms, render: 31ms)
+ GET /auth/register 200 in 209ms (compile: 39ms, render: 170ms)
+ GET /dashboard/applications 200 in 153ms (compile: 23ms, render: 130ms)
+ GET /dashboard/resumes 200 in 149ms (compile: 33ms, render: 116ms)
+ GET /auth/register 200 in 91ms (compile: 5ms, render: 86ms)
+ GET /dashboard/applications 200 in 91ms (compile: 3ms, render: 88ms)
+ GET /dashboard/resumes 200 in 58ms (compile: 1800µs, render: 56ms)
+ GET / 200 in 163ms (compile: 10ms, render: 153ms)
+ GET /auth/register 200 in 47ms (compile: 14ms, render: 33ms)
+ GET /dashboard/applications 200 in 44ms (compile: 4ms, render: 40ms)
+ GET /dashboard/resumes 200 in 50ms (compile: 1017µs, render: 49ms)
+ GET / 200 in 87ms (compile: 5ms, render: 83ms)
+ GET /auth/register 200 in 41ms (compile: 9ms, render: 31ms)
+ GET /dashboard/applications 200 in 37ms (compile: 1384µs, render: 36ms)
+ GET /dashboard/resumes 200 in 47ms (compile: 1409µs, render: 46ms)
+ GET / 200 in 105ms (compile: 1664µs, render: 103ms)
+ GET /auth/register 200 in 53ms (compile: 2ms, render: 51ms)
+ GET /dashboard/applications 200 in 64ms (compile: 8ms, render: 56ms)
+ GET /dashboard/resumes 200 in 59ms (compile: 2ms, render: 57ms)
+ GET / 200 in 124ms (compile: 1738µs, render: 122ms)
+ GET /auth/register 200 in 60ms (compile: 1978µs, render: 58ms)
+ GET /dashboard/applications 200 in 58ms (compile: 3ms, render: 55ms)
+ GET /dashboard/resumes 200 in 58ms (compile: 2ms, render: 56ms)
+ GET / 200 in 109ms (compile: 1829µs, render: 107ms)
+ GET /auth/register 200 in 71ms (compile: 2ms, render: 69ms)
+ GET /dashboard/applications 200 in 58ms (compile: 2ms, render: 56ms)
+ GET /dashboard/resumes 200 in 54ms (compile: 3ms, render: 51ms)
+ GET / 200 in 105ms (compile: 2ms, render: 103ms)
+ GET /auth/register 200 in 66ms (compile: 10ms, render: 55ms)
+ GET /dashboard/applications 200 in 56ms (compile: 1650µs, render: 54ms)
+ GET /dashboard/resumes 200 in 45ms (compile: 3ms, render: 42ms)
+ GET / 200 in 100ms (compile: 1665µs, render: 99ms)
+ GET /dashboard/resumes 200 in 59ms (compile: 2ms, render: 57ms)
+ GET / 200 in 92ms (compile: 1544µs, render: 91ms)
+ GET /dashboard/resumes 200 in 45ms (compile: 2ms, render: 42ms)
+ GET /dashboard/resumes 200 in 44ms (compile: 1420µs, render: 42ms)
+ GET / 200 in 95ms (compile: 1494µs, render: 93ms)
+ GET / 200 in 84ms (compile: 2ms, render: 81ms)
+ GET /dashboard/resumes 200 in 46ms (compile: 1664µs, render: 44ms)
+ GET / 200 in 112ms (compile: 3ms, render: 109ms)
+ GET /dashboard/resumes 200 in 79ms (compile: 17ms, render: 61ms)
+ GET /dashboard/resumes 200 in 56ms (compile: 3ms, render: 52ms)
+ GET / 200 in 106ms (compile: 1846µs, render: 104ms)
+ GET / 200 in 89ms (compile: 1556µs, render: 87ms)
+ GET /dashboard/resumes 200 in 38ms (compile: 3ms, render: 35ms)
+ GET / 200 in 66ms (compile: 1712µs, render: 64ms)
+ GET / 200 in 64ms (compile: 9ms, render: 55ms)
+ GET / 200 in 46ms (compile: 2ms, render: 44ms)
+ GET / 200 in 34ms (compile: 1257µs, render: 33ms)
+ GET / 200 in 35ms (compile: 1264µs, render: 33ms)
+ GET / 200 in 75ms (compile: 5ms, render: 70ms)
+ GET / 200 in 69ms (compile: 5ms, render: 64ms)
+ GET / 200 in 48ms (compile: 3ms, render: 45ms)
+ GET / 200 in 42ms (compile: 1417µs, render: 41ms)
+ GET / 200 in 32ms (compile: 1759µs, render: 30ms)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+✓ Compiled in 18ms
+ GET /auth/login 200 in 72ms (compile: 17ms, render: 55ms)
+ GET /sw.js 404 in 70ms (compile: 29ms, render: 41ms)
+ GET /sw.js 404 in 18ms (compile: 2ms, render: 16ms)
+ GET / 200 in 30ms (compile: 1684µs, render: 29ms)
+ GET /sw.js 404 in 32ms (compile: 2ms, render: 30ms)
+ GET /auth/login 200 in 47ms (compile: 1904µs, render: 45ms)
+ GET /sw.js 404 in 19ms (compile: 1994µs, render: 17ms)
+ GET /dashboard/resumes 200 in 39ms (compile: 1452µs, render: 37ms)
+ GET /sw.js 404 in 18ms (compile: 2ms, render: 15ms)
+ GET /dashboard/applications 200 in 41ms (compile: 2ms, render: 39ms)
+ GET /sw.js 404 in 22ms (compile: 2ms, render: 20ms)
+ GET /dashboard/resumes 200 in 26ms (compile: 1486µs, render: 24ms)
+ GET /sw.js 404 in 22ms (compile: 1936µs, render: 20ms)
+ GET /dashboard/applications 200 in 43ms (compile: 5ms, render: 38ms)
+ GET /sw.js 404 in 22ms (compile: 4ms, render: 18ms)
+ GET /dashboard/applications 200 in 147ms (compile: 58ms, render: 89ms)
+ GET /dashboard/resumes 200 in 62ms (compile: 34ms, render: 28ms)
+ GET /auth/register 200 in 47ms (compile: 31ms, render: 16ms)
+ GET /auth/login 200 in 39ms (compile: 20ms, render: 19ms)
+ GET / 200 in 81ms (compile: 19ms, render: 62ms)
+ GET /dashboard/resumes 200 in 56ms (compile: 4ms, render: 52ms)
+ GET /dashboard/applications 200 in 75ms (compile: 16ms, render: 59ms)
+ GET /auth/register 200 in 70ms (compile: 19ms, render: 51ms)
+ GET /auth/login 200 in 110ms (compile: 9ms, render: 100ms)
+ GET / 200 in 146ms (compile: 12ms, render: 134ms)
+ GET /auth/register 200 in 45ms (compile: 2ms, render: 43ms)
+ GET /dashboard/resumes 200 in 45ms (compile: 23ms, render: 22ms)
+ GET /dashboard/applications 200 in 46ms (compile: 13ms, render: 32ms)
+ GET /auth/login 200 in 73ms (compile: 19ms, render: 53ms)
+ GET /auth/register 200 in 55ms (compile: 4ms, render: 52ms)
+ GET /dashboard/resumes 200 in 56ms (compile: 19ms, render: 36ms)
+ GET /dashboard/applications 200 in 56ms (compile: 12ms, render: 44ms)
+ GET / 200 in 132ms (compile: 12ms, render: 121ms)
+ GET /auth/register 200 in 56ms (compile: 11ms, render: 45ms)
+ GET /auth/login 200 in 57ms (compile: 2ms, render: 55ms)
+ GET /dashboard/applications 200 in 57ms (compile: 20ms, render: 37ms)
+ GET / 200 in 119ms (compile: 1091µs, render: 118ms)
+ GET /dashboard/resumes 200 in 62ms (compile: 1214µs, render: 60ms)
+ GET /auth/login 200 in 83ms (compile: 19ms, render: 64ms)
+ GET /auth/register 200 in 84ms (compile: 30ms, render: 54ms)
+ GET /dashboard/applications 200 in 60ms (compile: 3ms, render: 57ms)
+ GET /dashboard/resumes 200 in 56ms (compile: 4ms, render: 52ms)
+ GET / 200 in 124ms (compile: 11ms, render: 113ms)
+ GET /auth/login 200 in 60ms (compile: 1192µs, render: 59ms)
+ GET /auth/register 200 in 46ms (compile: 3ms, render: 43ms)
+ GET /dashboard/applications 200 in 50ms (compile: 1171µs, render: 49ms)
+ GET / 200 in 94ms (compile: 1309µs, render: 92ms)
+ GET /dashboard/resumes 200 in 41ms (compile: 1696µs, render: 39ms)
+ GET /auth/login 200 in 51ms (compile: 4ms, render: 47ms)
+ GET /auth/register 200 in 58ms (compile: 1982µs, render: 56ms)
+ GET /dashboard/applications 200 in 50ms (compile: 3ms, render: 47ms)
+ GET / 200 in 98ms (compile: 3ms, render: 95ms)
+ GET /dashboard/resumes 200 in 54ms (compile: 1373µs, render: 53ms)
+ GET /auth/login 200 in 73ms (compile: 5ms, render: 68ms)
+ GET / 200 in 103ms (compile: 7ms, render: 96ms)
+ GET /dashboard/applications 200 in 59ms (compile: 2ms, render: 57ms)
+ GET /dashboard/resumes 200 in 59ms (compile: 11ms, render: 48ms)
+ GET /dashboard/applications 200 in 46ms (compile: 3ms, render: 44ms)
+ GET /dashboard/resumes 200 in 67ms (compile: 6ms, render: 62ms)
+ GET / 200 in 113ms (compile: 19ms, render: 94ms)
+ GET /dashboard/resumes 200 in 55ms (compile: 1478µs, render: 53ms)
+ GET /dashboard/applications 200 in 58ms (compile: 9ms, render: 49ms)
+ GET / 200 in 103ms (compile: 5ms, render: 99ms)
+ GET /dashboard/resumes 200 in 49ms (compile: 3ms, render: 46ms)
+ GET /dashboard/applications 200 in 41ms (compile: 1132µs, render: 39ms)
+ GET / 200 in 81ms (compile: 1544µs, render: 79ms)
+ GET /dashboard/resumes 200 in 70ms (compile: 13ms, render: 58ms)
+ GET /dashboard/resumes 200 in 61ms (compile: 20ms, render: 41ms)
+ GET / 200 in 103ms (compile: 1261µs, render: 102ms)
+ GET /dashboard/applications 200 in 86ms (compile: 4ms, render: 82ms)
+ GET /dashboard/applications 200 in 58ms (compile: 5ms, render: 53ms)
+ GET / 200 in 119ms (compile: 1968µs, render: 117ms)
+ GET /dashboard/applications 200 in 53ms (compile: 12ms, render: 41ms)
+ GET /dashboard/resumes 200 in 54ms (compile: 5ms, render: 49ms)
+ GET / 200 in 91ms (compile: 1457µs, render: 90ms)
+ GET /dashboard/resumes 200 in 70ms (compile: 15ms, render: 56ms)
+ GET /dashboard/applications 200 in 79ms (compile: 2ms, render: 77ms)
+ GET / 200 in 109ms (compile: 2ms, render: 107ms)
+ GET /dashboard/resumes 200 in 67ms (compile: 17ms, render: 50ms)
+ GET /dashboard/applications 200 in 53ms (compile: 4ms, render: 49ms)
+ GET / 200 in 111ms (compile: 2ms, render: 109ms)
+ GET /dashboard/resumes 200 in 44ms (compile: 2ms, render: 42ms)
+ GET /dashboard/applications 200 in 43ms (compile: 1277µs, render: 41ms)
+ GET / 200 in 84ms (compile: 1266µs, render: 83ms)
+ GET /dashboard/resumes 200 in 37ms (compile: 1429µs, render: 35ms)
+ GET / 200 in 91ms (compile: 12ms, render: 80ms)
+ GET /dashboard/applications 200 in 58ms (compile: 1653µs, render: 57ms)
+ GET /dashboard/resumes 200 in 59ms (compile: 1715µs, render: 57ms)
+ GET /dashboard/applications 200 in 59ms (compile: 10ms, render: 49ms)
+ GET / 200 in 106ms (compile: 3ms, render: 103ms)
+ GET /dashboard/resumes 200 in 58ms (compile: 1723µs, render: 56ms)
+ GET /dashboard/applications 200 in 58ms (compile: 12ms, render: 46ms)
+ GET / 200 in 96ms (compile: 1142µs, render: 95ms)
+ GET /dashboard/resumes 200 in 86ms (compile: 17ms, render: 69ms)
+ GET /dashboard/applications 200 in 94ms (compile: 2ms, render: 92ms)
+ GET / 200 in 144ms (compile: 1973µs, render: 142ms)
+ GET /dashboard/resumes 200 in 92ms (compile: 21ms, render: 71ms)
+ GET /dashboard/applications 200 in 68ms (compile: 1980µs, render: 66ms)
+ GET / 200 in 143ms (compile: 2ms, render: 140ms)
+ GET /dashboard/resumes 200 in 63ms (compile: 3ms, render: 60ms)
+ GET / 200 in 115ms (compile: 7ms, render: 108ms)
+ GET /dashboard/resumes 200 in 63ms (compile: 12ms, render: 51ms)
+ GET /dashboard/applications 200 in 95ms (compile: 1445µs, render: 94ms)
+ GET /dashboard/resumes 200 in 70ms (compile: 1487µs, render: 69ms)
+ GET / 200 in 111ms (compile: 3ms, render: 108ms)
+ GET /dashboard/resumes 200 in 74ms (compile: 6ms, render: 68ms)
+ GET /dashboard/resumes 200 in 75ms (compile: 5ms, render: 70ms)
+ GET /dashboard/resumes 200 in 72ms (compile: 5ms, render: 68ms)
+ GET /dashboard/resumes 200 in 58ms (compile: 6ms, render: 52ms)
+ GET /dashboard/resumes 200 in 43ms (compile: 8ms, render: 35ms)
+ GET /dashboard/resumes 200 in 22ms (compile: 1843µs, render: 20ms)
+ GET /dashboard/resumes 200 in 61ms (compile: 4ms, render: 57ms)
+ GET /sw.js 404 in 115ms (compile: 39ms, render: 76ms)
+ GET /dashboard/applications 200 in 41ms (compile: 1935µs, render: 39ms)
+ GET /sw.js 404 in 25ms (compile: 1959µs, render: 23ms)
+ GET / 200 in 22ms (compile: 2ms, render: 20ms)
+ GET /auth/login 200 in 15ms (compile: 1765µs, render: 13ms)
+ GET / 200 in 19ms (compile: 3ms, render: 16ms)
+ GET / 200 in 61ms (compile: 30ms, render: 31ms)
+ GET / 200 in 13ms (compile: 1266µs, render: 12ms)
+ GET / 200 in 14ms (compile: 845µs, render: 13ms)
+ GET / 200 in 12ms (compile: 815µs, render: 11ms)
+ GET / 200 in 13ms (compile: 819µs, render: 13ms)
+ GET / 200 in 12ms (compile: 934µs, render: 11ms)
+ GET / 200 in 12ms (compile: 803µs, render: 11ms)
+ GET / 200 in 14ms (compile: 752µs, render: 13ms)
+ GET / 200 in 12ms (compile: 1019µs, render: 11ms)
+ GET / 200 in 12ms (compile: 832µs, render: 11ms)
+ GET / 200 in 17ms (compile: 753µs, render: 16ms)
+ GET / 200 in 12ms (compile: 876µs, render: 11ms)
+ GET / 200 in 10ms (compile: 770µs, render: 10ms)
+ GET / 200 in 11ms (compile: 766µs, render: 11ms)
+ GET / 200 in 14ms (compile: 1310µs, render: 13ms)
+ GET / 200 in 11ms (compile: 723µs, render: 10ms)
+ GET / 200 in 12ms (compile: 951µs, render: 11ms)
+ GET / 200 in 12ms (compile: 812µs, render: 11ms)
+ GET / 200 in 13ms (compile: 920µs, render: 12ms)
+ GET / 200 in 13ms (compile: 761µs, render: 12ms)
+✓ Compiled in 32ms
+✓ Compiled in 14ms
+⚠ Fast Refresh had to perform a full reload when ./components/ui/hand-drawn.tsx changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET / 200 in 11ms (compile: 3ms, render: 8ms)
+ GET / 200 in 104ms (compile: 18ms, render: 86ms)
+ GET / 200 in 78ms (compile: 1051µs, render: 77ms)
+ GET /sw.js 404 in 89ms (compile: 32ms, render: 57ms)
+ GET / 200 in 18ms (compile: 3ms, render: 15ms)
+ GET /dashboard/settings/privacy 200 in 257ms (compile: 232ms, render: 26ms)
+ GET /sw.js 404 in 17ms (compile: 2ms, render: 15ms)
+ GET /auth/register 200 in 67ms (compile: 23ms, render: 44ms)
+ GET /sw.js 404 in 22ms (compile: 2ms, render: 20ms)
+ GET /auth/register 200 in 70ms (compile: 10ms, render: 60ms)
+ GET /sw.js 404 in 31ms (compile: 3ms, render: 28ms)
+ GET /auth/register 200 in 13ms (compile: 2ms, render: 11ms)
+ GET /auth/register 200 in 10ms (compile: 1588µs, render: 8ms)
+ GET /auth/register 200 in 31ms (compile: 1767µs, render: 30ms)
+ GET /auth/login 200 in 62ms (compile: 50ms, render: 12ms)
