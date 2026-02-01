@@ -14,7 +14,7 @@ class SQLAlchemyPersonaRepository(PersonaRepository):
     async def get_by_id(self, persona_id: UUID) -> Persona | None:
         result = await self._session.execute(
             select(Persona).where(
-                Persona.id == persona_id, Persona.is_deleted.is_(False)
+                Persona.id == persona_id, Persona.deleted_at.is_(None)
             )
         )
         return result.scalar_one_or_none()
@@ -22,7 +22,7 @@ class SQLAlchemyPersonaRepository(PersonaRepository):
     async def get_by_user_id(self, user_id: UUID) -> Persona | None:
         result = await self._session.execute(
             select(Persona).where(
-                Persona.user_id == user_id, Persona.is_deleted.is_(False)
+                Persona.user_id == user_id, Persona.deleted_at.is_(None)
             )
         )
         return result.scalar_one_or_none()
