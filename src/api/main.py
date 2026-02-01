@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.core.config import settings
+from src.core.security.audit_log import AuditMiddleware
 
 # Import your modules' routers here as they are implemented
 from src.modules.identity.api.routes import router as identity_router
@@ -23,6 +24,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Audit Logging Middleware
+app.add_middleware(AuditMiddleware)
 
 
 @app.get("/health", tags=["System"])

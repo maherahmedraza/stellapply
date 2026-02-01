@@ -10,6 +10,7 @@ celery_app = Celery(
         "src.workers.tasks.job_scraping",
         "src.workers.tasks.auto_apply",
         "src.workers.tasks.embedding_update",
+        "src.workers.tasks.security",
     ],
 )
 
