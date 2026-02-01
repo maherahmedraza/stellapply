@@ -4652,3 +4652,6 @@ Error: ENOENT: no such file or directory, scandir '/home/maher/projects/stellapp
   syscall: 'scandir',
   path: '/home/maher/projects/stellapply/frontend/app'
 }
+✓ Compiled in 71ms
+✓ Compiled in 51ms
+✓ Compiled in 89ms
