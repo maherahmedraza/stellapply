@@ -1329,3 +1329,8 @@ Import trace:
  GET /auth/register 200 in 10ms (compile: 1588µs, render: 8ms)
  GET /auth/register 200 in 31ms (compile: 1767µs, render: 30ms)
  GET /auth/login 200 in 62ms (compile: 50ms, render: 12ms)
+ GET /dashboard/resumes 200 in 523ms (compile: 353ms, render: 170ms)
+ GET /dashboard/applications 200 in 87ms (compile: 50ms, render: 37ms)
+ GET /dashboard/settings/privacy 200 in 63ms (compile: 8ms, render: 55ms)
+ GET / 200 in 52ms (compile: 8ms, render: 44ms)
+ GET / 200 in 319ms (compile: 3ms, render: 316ms)
