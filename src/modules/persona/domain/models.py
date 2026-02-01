@@ -108,7 +108,7 @@ class Persona(BaseModel):
     )
 
     # AI Search data
-    summary_embedding: Mapped[Any | None] = mapped_column(Vector(384))
+    summary_embedding: Mapped[Any | None] = mapped_column(Vector(768))
     completeness_score: Mapped[float] = mapped_column(Float, default=0.0)
 
     # Relationships
@@ -165,7 +165,7 @@ class Experience(BaseModel):
     achievements: Mapped[list[str]] = mapped_column(ARRAY(Text), default=[])
     skills_used: Mapped[list[str]] = mapped_column(ARRAY(String(100)), default=[])
 
-    experience_embedding: Mapped[Any | None] = mapped_column(Vector(384))
+    experience_embedding: Mapped[Any | None] = mapped_column(Vector(768))
 
     persona: Mapped["Persona"] = relationship("Persona", back_populates="experiences")
 
@@ -267,7 +267,7 @@ class BehavioralAnswer(BaseModel):
     )
     # Encrypted answer text
     answer: Mapped[str] = mapped_column(EncryptedString, nullable=False)
-    answer_embedding: Mapped[Any | None] = mapped_column(Vector(384))
+    answer_embedding: Mapped[Any | None] = mapped_column(Vector(768))
 
     persona: Mapped["Persona"] = relationship(
         "Persona", back_populates="behavioral_answers"
