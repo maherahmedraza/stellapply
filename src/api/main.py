@@ -6,6 +6,7 @@ from src.core.config import settings
 # Import your modules' routers here as they are implemented
 from src.modules.identity.api.routes import router as identity_router
 from src.modules.persona.api.routes import router as persona_router
+from src.modules.resume.api.routes import router as resume_router
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -31,3 +32,4 @@ async def health_check() -> dict[str, str]:
 # Include Routers
 app.include_router(identity_router, prefix="/api/v1/auth", tags=["Identity"])
 app.include_router(persona_router, prefix="/api/v1/persona", tags=["Persona"])
+app.include_router(resume_router, prefix="/api/v1/resume", tags=["Resume"])
