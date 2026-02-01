@@ -53,18 +53,18 @@ export default function EditResumePage() {
     return (
         <div className="flex h-screen overflow-hidden">
             {/* Left Panel: Form */}
-            <div className="w-1/2 overflow-y-auto border-r border-gray-200 bg-gray-50 p-6">
+            <div className="w-1/2 overflow-y-auto border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-6">
                 <div className="mb-6">
-                    <h1 className="text-xl font-bold text-gray-900">Editor</h1>
-                    <p className="text-sm text-gray-500">Update your resume details</p>
+                    <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Editor</h1>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Update your resume details</p>
                 </div>
                 <ResumeForm initialData={resume} resumeId={id} />
             </div>
 
             {/* Right Panel: Preview */}
-            <div className="w-1/2 overflow-y-auto bg-gray-100 p-8 flex flex-col items-center">
+            <div className="w-1/2 overflow-y-auto bg-gray-100 dark:bg-gray-800 p-8 flex flex-col items-center">
                 <div className="w-full max-w-[210mm] mb-4 flex justify-between items-center">
-                    <h2 className="text-lg font-semibold text-gray-700">Preview</h2>
+                    <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-200">Preview</h2>
                     <button
                         onClick={handleAnalyze}
                         disabled={analyzing}
