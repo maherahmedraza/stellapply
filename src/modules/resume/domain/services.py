@@ -1,9 +1,8 @@
-from datetime import datetime
 from uuid import UUID
 
-from src.modules.resume.api.schemas import ResumeContent, ResumeCreate, ResumeUpdate
-from src.modules.resume.domain.models import Resume
+from src.modules.resume.domain.models import ATSAnalysis, Resume
 from src.modules.resume.domain.repository import ResumeRepository
+from src.modules.resume.domain.schemas import ResumeCreate, ResumeUpdate
 
 
 class ResumeService:
@@ -15,9 +14,10 @@ class ResumeService:
             user_id=schema.user_id,
             name=schema.name,
             template_id=schema.template_id,
-            content=schema.content.model_dump(),
+            content=schema.content,
             is_primary=schema.is_primary,
             version=1,
+            created_from=schema.created_from,
         )
         return await self._repository.save(resume)
 
@@ -37,9 +37,15 @@ class ResumeService:
         if schema.template_id is not None:
             resume.template_id = schema.template_id
         if schema.content is not None:
-            resume.content = schema.content.model_dump()
+            resume.content = schema.content
         if schema.is_primary is not None:
             resume.is_primary = schema.is_primary
+        if schema.ats_score is not None:
+            resume.ats_score = schema.ats_score
+        if schema.word_count is not None:
+            resume.word_count = schema.word_count
+        if schema.file_path is not None:
+            resume.file_path = schema.file_path
 
         resume.version += 1
         return await self._repository.save(resume)
@@ -47,31 +53,27 @@ class ResumeService:
     async def delete_resume(self, resume_id: UUID) -> None:
         await self._repository.delete(resume_id)
 
-    async def parse_resume_content(self, _raw_text: str) -> ResumeContent:
-        # TODO: Integrate with Gemini for actual parsing
-        # This is a placeholder for the AI parsing logic
-        return ResumeContent(
-            summary="Extracted summary placeholder",
-            experience=[],
-            education=[],
-            skills=["Python", "FastAPI"],
-            projects=[],
-        )
-
-    async def analyze_ats(self, resume_id: UUID) -> Resume:
+    async def analyze_ats(self, resume_id: UUID, job_id: UUID | None = None) -> Resume:
         resume = await self._repository.get_by_id(resume_id)
         if not resume:
             raise ValueError("Resume not found")
 
         # TODO: Integrate with AI worker for ATS analysis
-        resume.ats_score = 85
-        resume.analysis_results = {
-            "strengths": ["Clear structure", "Action-oriented language"],
-            "weaknesses": ["Missing quantitative metrics in some bullets"],
-            "recommendations": ["Add specific metrics for experience highlights"],
-        }
-        from datetime import UTC
-
-        resume.analyzed_at = datetime.now(UTC)
+        # For now, create a mock analysis record
+        score = 85.0
+        analysis = ATSAnalysis(
+            resume_id=resume.id,
+            job_id=job_id,
+            overall_score=score,
+            format_score=90.0,
+            content_score=80.0,
+            keyword_score=85.0,
+            recommendations=[
+                "Add specific metrics for experience highlights",
+                "Tailor summary to job description",
+            ],
+        )
+        resume.ats_score = score
+        resume.ats_analyses.append(analysis)
 
         return await self._repository.save(resume)

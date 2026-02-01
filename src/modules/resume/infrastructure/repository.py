@@ -13,14 +13,14 @@ class SQLAlchemyResumeRepository(ResumeRepository):
 
     async def get_by_id(self, resume_id: UUID) -> Resume | None:
         result = await self._session.execute(
-            select(Resume).where(Resume.id == resume_id, Resume.is_deleted.is_(False))
+            select(Resume).where(Resume.id == resume_id, Resume.deleted_at.is_(None))
         )
         return result.scalar_one_or_none()
 
     async def get_all_by_user_id(self, user_id: UUID) -> list[Resume]:
         result = await self._session.execute(
             select(Resume)
-            .where(Resume.user_id == user_id, Resume.is_deleted.is_(False))
+            .where(Resume.user_id == user_id, Resume.deleted_at.is_(None))
             .order_by(Resume.updated_at.desc())
         )
         return list(result.scalars().all())
@@ -30,7 +30,7 @@ class SQLAlchemyResumeRepository(ResumeRepository):
             select(Resume).where(
                 Resume.user_id == user_id,
                 Resume.is_primary,
-                Resume.is_deleted.is_(False),
+                Resume.deleted_at.is_(None),
             )
         )
         return result.scalar_one_or_none()
@@ -40,7 +40,11 @@ class SQLAlchemyResumeRepository(ResumeRepository):
             # Unset other primary resumes for this user
             await self._session.execute(
                 update(Resume)
-                .where(Resume.user_id == resume.user_id, Resume.is_primary)
+                .where(
+                    Resume.user_id == resume.user_id,
+                    Resume.is_primary,
+                    Resume.id != resume.id,
+                )
                 .values(is_primary=False)
             )
 
@@ -54,16 +58,16 @@ class SQLAlchemyResumeRepository(ResumeRepository):
             resume.soft_delete()
             self._session.add(resume)
 
-    async def get_template_by_id(self, template_id: str) -> ResumeTemplate | None:
+    async def get_template_by_id(self, template_id: UUID) -> ResumeTemplate | None:
         result = await self._session.execute(
             select(ResumeTemplate).where(
-                ResumeTemplate.id == template_id, ResumeTemplate.is_active
+                ResumeTemplate.id == template_id, ResumeTemplate.deleted_at.is_(None)
             )
         )
         return result.scalar_one_or_none()
 
     async def get_active_templates(self) -> list[ResumeTemplate]:
         result = await self._session.execute(
-            select(ResumeTemplate).where(ResumeTemplate.is_active)
+            select(ResumeTemplate).where(ResumeTemplate.deleted_at.is_(None))
         )
         return list(result.scalars().all())
