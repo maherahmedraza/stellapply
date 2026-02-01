@@ -12,6 +12,7 @@ from src.modules.identity.domain.models import User  # noqa: F401
 from src.modules.job_search.domain.models import Job, JobMatch  # noqa: F401
 from src.modules.persona.domain.models import Persona  # noqa: F401
 from src.modules.resume.domain.models import Resume, ResumeTemplate  # noqa: F401
+from src.core.security.audit_log import AuditEvent  # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
