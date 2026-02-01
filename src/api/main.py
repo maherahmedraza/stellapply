@@ -1,8 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.exceptions import RequestValidationError
+from sqlalchemy.exc import SQLAlchemyError
 
 from src.core.config import settings
 from src.core.security.audit_log import AuditMiddleware
+from src.api.exceptions import (
+    global_exception_handler,
+    validation_exception_handler,
+    sqlalchemy_exception_handler,
+)
 
 # Import your modules' routers here as they are implemented
 from src.modules.identity.api.routes import router as identity_router
@@ -27,6 +34,10 @@ app.add_middleware(
 
 # Audit Logging Middleware
 app.add_middleware(AuditMiddleware)
+
+app.add_exception_handler(Exception, global_exception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
+app.add_exception_handler(SQLAlchemyError, sqlalchemy_exception_handler)
 
 
 @app.get("/health", tags=["System"])
