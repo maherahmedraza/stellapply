@@ -14,6 +14,19 @@ class RegistrationService:
         self._repository = repository
 
     async def register_user(self, schema: UserCreate) -> User:
+        # 0. Sync with Keycloak first (if success, proceed to DB)
+        keycloak = KeycloakProvider()
+        try:
+            keycloak.create_user(
+                email=schema.email,
+                password=schema.password,
+                full_name=schema.full_name or "",
+            )
+        except Exception as e:
+            # If user already exists in Keycloak but not in DB, we'll hit this
+            # For now, let's assume if KC fails, we fail (unless user already exists)
+            if "already exists" not in str(e).lower():
+                raise ValueError(f"Identity provider error: {str(e)}")
         # 1. Check if user already exists
         email_hash = hashlib.sha256(schema.email.lower().encode()).hexdigest()
         existing_user = await self._repository.get_by_email_hash(email_hash)
@@ -48,14 +61,20 @@ class AuthService:
         self.keycloak = KeycloakProvider()
 
     def login(self, username: str, password: str) -> TokenResponse:
-        token_data = self.keycloak.get_token(username, password)
-        return TokenResponse(
-            access_token=token_data["access_token"],
-            refresh_token=token_data["refresh_token"],
-            expires_in=token_data["expires_in"],
-            refresh_expires_in=token_data["refresh_expires_in"],
-            token_type=token_data["token_type"],
-        )
+        try:
+            token_data = self.keycloak.get_token(username, password)
+            return TokenResponse(
+                access_token=token_data["access_token"],
+                refresh_token=token_data["refresh_token"],
+                expires_in=token_data["expires_in"],
+                refresh_expires_in=token_data["refresh_expires_in"],
+                token_type=token_data["token_type"],
+            )
+        except Exception as e:
+            import logging
+
+            logging.getLogger(__name__).error(f"Login failed for {username}: {str(e)}")
+            raise
 
     def refresh_token(self, refresh_token: str) -> TokenResponse:
         token_data = self.keycloak.refresh_token(refresh_token)

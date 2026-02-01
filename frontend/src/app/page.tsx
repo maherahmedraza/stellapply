@@ -32,16 +32,20 @@ export default function Home() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-8 relative">
-            <SketchButton variant="accent" className="text-3xl py-6 px-12 -rotate-2">
-              Start Your Journey
-              <ArrowRight className="w-8 h-8 ml-2" strokeWidth={3} />
-            </SketchButton>
+            <Link href="/auth/register">
+              <SketchButton variant="accent" className="text-3xl py-6 px-12 -rotate-2">
+                Start Your Journey
+                <ArrowRight className="w-8 h-8 ml-2" strokeWidth={3} />
+              </SketchButton>
+            </Link>
 
-            <div className="group cursor-pointer">
-              <span className="text-2xl font-bold border-b-2 border-dashed border-pencil-black pb-1 hover:text-ink-blue transition-colors">
-                How it works?
-              </span>
-            </div>
+            <Link href="#features">
+              <div className="group cursor-pointer">
+                <span className="text-2xl font-bold border-b-2 border-dashed border-pencil-black pb-1 hover:text-ink-blue transition-colors">
+                  How it works?
+                </span>
+              </div>
+            </Link>
 
             {/* Sketchy Arrow pointing to CTA */}
             <div className="absolute -left-20 top-1/2 -translate-y-1/2 hidden lg:block -rotate-12">
@@ -127,9 +131,9 @@ export default function Home() {
           </div>
           <h2 className="text-4xl font-marker mb-6">Built for winners.</h2>
           <div className="flex justify-center gap-8 font-handwritten text-xl mb-12 border-y border-white/10 py-6">
-            <Link href="#" className="hover:text-marker-red transition-colors">Privacy</Link>
-            <Link href="#" className="hover:text-marker-red transition-colors">Terms</Link>
-            <Link href="#" className="hover:text-marker-red transition-colors">Support</Link>
+            <Link href="/privacy" className="hover:text-marker-red transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-marker-red transition-colors">Terms</Link>
+            <Link href="/support" className="hover:text-marker-red transition-colors">Support</Link>
           </div>
           <p className="font-handwritten text-white/40">© 2026 Stellapply.ai - All rights reserved (I think)</p>
         </div>

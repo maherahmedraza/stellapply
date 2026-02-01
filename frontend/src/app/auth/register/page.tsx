@@ -6,7 +6,35 @@ import { Rocket, Mail, Lock, User, CheckCircle2, ArrowRight } from "lucide-react
 import { SketchButton, SketchCard, SketchInput, SketchCheckbox } from "@/components/ui/hand-drawn";
 
 export default function RegisterPage() {
+    const [full_name, setFullName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
     const [marketingConsent, setMarketingConsent] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const handleRegister = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setError(null);
+        try {
+            const res = await fetch("http://localhost:8000/api/v1/auth/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password, full_name }),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                const detail = Array.isArray(data.detail) ? data.detail[0].msg : data.detail;
+                throw new Error(detail || "Registration failed");
+            }
+            window.location.href = "/auth/login";
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-paper-bg dark:bg-background flex flex-col md:flex-row relative overflow-hidden">
@@ -58,7 +86,12 @@ export default function RegisterPage() {
                             <p className="text-xl font-handwritten text-pencil-black/60">It only takes a pencil stroke.</p>
                         </div>
 
-                        <div className="space-y-6">
+                        <form onSubmit={handleRegister} className="space-y-6" noValidate>
+                            {error && (
+                                <div className="bg-marker-red/10 border-2 border-marker-red p-4 wobble text-marker-red font-bold">
+                                    {error}
+                                </div>
+                            )}
                             <div>
                                 <label className="block text-xl font-bold mb-2 ml-2">Full Name</label>
                                 <div className="relative">
@@ -67,6 +100,9 @@ export default function RegisterPage() {
                                         type="text"
                                         placeholder="Leonardo da Vinci"
                                         className="pl-12 w-full"
+                                        value={full_name}
+                                        onChange={(e) => setFullName(e.target.value)}
+                                        required
                                     />
                                 </div>
                             </div>
@@ -79,6 +115,9 @@ export default function RegisterPage() {
                                         type="email"
                                         placeholder="leo@sketch.ai"
                                         className="pl-12 w-full"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        required
                                     />
                                 </div>
                             </div>
@@ -91,6 +130,9 @@ export default function RegisterPage() {
                                         type="password"
                                         placeholder="••••••••"
                                         className="pl-12 w-full"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        required
                                     />
                                 </div>
                             </div>
@@ -113,15 +155,20 @@ export default function RegisterPage() {
                                 />
                             </div>
 
-                            <SketchButton variant="accent" className="w-full text-2xl py-4 mt-4">
-                                Join Now
+                            <SketchButton
+                                type="submit"
+                                variant="accent"
+                                className="w-full text-2xl py-4 mt-4"
+                                disabled={isLoading}
+                            >
+                                {isLoading ? "Joining..." : "Join Now"}
                                 <ArrowRight className="w-6 h-6 ml-2" strokeWidth={3} />
                             </SketchButton>
+                        </form>
 
-                            <p className="text-center mt-6 font-handwritten text-lg text-pencil-black/60 leading-tight">
-                                By signing up, you agree to our <Link href="#" className="underline font-bold">Terms</Link> and <Link href="#" className="underline font-bold">Privacy</Link>. (Drawn with care).
-                            </p>
-                        </div>
+                        <p className="text-center mt-6 font-handwritten text-lg text-pencil-black/60 leading-tight">
+                            By signing up, you agree to our <Link href="#" className="underline font-bold">Terms</Link> and <Link href="#" className="underline font-bold">Privacy</Link>. (Drawn with care).
+                        </p>
                     </SketchCard>
 
                     <p className="text-center mt-8 font-handwritten text-xl">

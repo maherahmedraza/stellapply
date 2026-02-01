@@ -14,13 +14,13 @@ class SQLAlchemyJobRepository(JobRepository):
 
     async def get_by_id(self, job_id: UUID) -> Job | None:
         result = await self._session.execute(
-            select(Job).where(Job.id == job_id, Job.is_deleted.is_(False))
+            select(Job).where(Job.id == job_id, Job.deleted_at.is_(None))
         )
         return result.scalar_one_or_none()
 
     async def get_by_external_id(self, external_id: str) -> Job | None:
         result = await self._session.execute(
-            select(Job).where(Job.external_id == external_id, Job.is_deleted.is_(False))
+            select(Job).where(Job.external_id == external_id, Job.deleted_at.is_(None))
         )
         return result.scalar_one_or_none()
 
@@ -33,11 +33,15 @@ class SQLAlchemyJobRepository(JobRepository):
         self,
         query: str | None = None,
         embedding: list[float] | None = None,
+        location: str | None = None,
+        remote_only: bool = False,
+        salary_min: int | None = None,
         limit: int = 20,
         offset: int = 0,
     ) -> list[Job]:
-        stmt = select(Job).where(Job.is_deleted.is_(False))
+        stmt = select(Job).where(Job.deleted_at.is_(None))
 
+        # Text search filter
         if query:
             stmt = stmt.where(
                 (Job.title.ilike(f"%{query}%"))
@@ -45,6 +49,23 @@ class SQLAlchemyJobRepository(JobRepository):
                 | (Job.description.ilike(f"%{query}%"))
             )
 
+        # Location filter
+        if location:
+            stmt = stmt.where(Job.location.ilike(f"%{location}%"))
+
+        # Remote-only filter
+        if remote_only:
+            stmt = stmt.where(
+                (Job.work_setting == "remote") | (Job.location.ilike("%remote%"))
+            )
+
+        # Minimum salary filter
+        if salary_min:
+            stmt = stmt.where(
+                (Job.salary_min >= salary_min) | (Job.salary_max >= salary_min)
+            )
+
+        # Ordering: vector similarity or recency
         if embedding:
             # Vector similarity search using pgvector
             stmt = stmt.order_by(Job.description_embedding.cosine_distance(embedding))
@@ -60,7 +81,7 @@ class SQLAlchemyJobRepository(JobRepository):
             .where(
                 JobMatch.user_id == user_id,
                 JobMatch.job_id == job_id,
-                JobMatch.is_deleted.is_(False),
+                JobMatch.deleted_at.is_(None),
             )
             .options(joinedload(JobMatch.job))
         )
@@ -76,7 +97,7 @@ class SQLAlchemyJobRepository(JobRepository):
     ) -> list[JobMatch]:
         stmt = (
             select(JobMatch)
-            .where(JobMatch.user_id == user_id, JobMatch.is_deleted.is_(False))
+            .where(JobMatch.user_id == user_id, JobMatch.deleted_at.is_(None))
             .options(joinedload(JobMatch.job))
         )
 

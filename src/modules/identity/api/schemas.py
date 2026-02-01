@@ -13,6 +13,7 @@ class UserCreate(UserBase):
     password: str = Field(
         ..., min_length=8, description="User password (min 8 characters)"
     )
+    full_name: str | None = Field(default=None, description="User's full name")
 
 
 class UserResponse(UserBase):
