@@ -27,6 +27,7 @@ from src.modules.resume.api.truth_grounded_routes import (
 from src.agent.api import router as agent_router
 from src.agent.orchestrator import orchestrator
 from src.modules.applications.router import router as application_router
+from src.modules.profile.router import router as profile_router
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -81,3 +82,4 @@ app.include_router(
 app.include_router(job_router, prefix="/api/v1/jobs", tags=["Job Search"])
 app.include_router(gdpr_router, prefix="/api/v1/gdpr", tags=["GDPR/DSGVO"])
 app.include_router(agent_router, prefix="/api/v1/agent", tags=["Autonomous Agent"])
+app.include_router(profile_router, prefix="/api/v1/profile", tags=["Profile"])

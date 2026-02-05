@@ -5,3 +5,5 @@ import src.modules.identity.domain.models  # noqa
 import src.modules.persona.domain.models  # noqa
 import src.modules.resume.domain.models  # noqa
 import src.modules.job_search.domain.models  # noqa
+import src.modules.applications.models  # noqa
+import src.modules.profile.models  # noqa
