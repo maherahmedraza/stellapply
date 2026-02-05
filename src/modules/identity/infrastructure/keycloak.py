@@ -7,20 +7,21 @@ from src.core.config import settings
 
 class KeycloakProvider:
     def __init__(self) -> None:
+        # Keycloak 24+ doesn't use /auth path
+        server_url = settings.keycloak.URL.rstrip("/")
+
         self.openid = KeycloakOpenID(
-            server_url=settings.keycloak.URL + "/auth"
-            if "/auth" not in settings.keycloak.URL
-            else settings.keycloak.URL,
+            server_url=server_url,
             client_id=settings.keycloak.CLIENT_ID,
             realm_name=settings.keycloak.REALM,
             client_secret_key=settings.keycloak.CLIENT_SECRET,
         )
 
     def get_admin_client(self) -> KeycloakAdmin:
+        server_url = settings.keycloak.URL.rstrip("/")
+
         return KeycloakAdmin(
-            server_url=settings.keycloak.URL + "/auth"
-            if "/auth" not in settings.keycloak.URL
-            else settings.keycloak.URL,
+            server_url=server_url,
             username=settings.keycloak.ADMIN_USER,
             password=settings.keycloak.ADMIN_PASSWORD,
             realm_name=settings.keycloak.REALM,

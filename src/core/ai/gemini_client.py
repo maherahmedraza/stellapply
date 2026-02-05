@@ -24,17 +24,17 @@ logger = logging.getLogger(__name__)
 # Model configurations for specific tasks
 MODEL_CONFIGS = {
     "resume_enhancement": {
-        "model": "gemini-1.5-pro",  # Note: gemini-1.5 is the current stable
+        "model": "gemini-3.0-pro",  # Note: gemini-3.0 is the current stable
         "temperature": 0.3,
         "max_output_tokens": 2000,
     },
     "cover_letter": {
-        "model": "gemini-1.5-pro",
+        "model": "gemini-3.0-pro",
         "temperature": 0.7,
         "max_output_tokens": 1500,
     },
     "question_answering": {
-        "model": "gemini-1.5-flash",
+        "model": "gemini-3.0-flash",
         "temperature": 0.4,
         "max_output_tokens": 500,
     },

@@ -82,10 +82,16 @@ class ResumeVersionRead(ResumeVersionBase):
 # --- Resume Schemas ---
 class ResumeBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=255)
+    persona_id: uuid.UUID
+    target_role: str | None = Field(None, max_length=100)
+    target_industry: str | None = Field(None, max_length=100)
+    target_company: str | None = Field(None, max_length=100)
+    content_selection: dict[str, Any] = Field(default_factory=dict)
     content: dict[str, Any] = Field(default_factory=dict)
     is_primary: bool = False
     template_id: uuid.UUID | None = None
     created_from: ResumeSource = ResumeSource.SCRATCH
+    target_job_id: uuid.UUID | None = None
 
 
 class ResumeCreate(ResumeBase):
@@ -94,6 +100,10 @@ class ResumeCreate(ResumeBase):
 
 class ResumeUpdate(BaseModel):
     name: str | None = None
+    target_role: str | None = None
+    target_industry: str | None = None
+    target_company: str | None = None
+    content_selection: dict[str, Any] | None = None
     content: dict[str, Any] | None = None
     is_primary: bool | None = None
     template_id: uuid.UUID | None = None
@@ -118,3 +128,47 @@ class ResumeRead(ResumeBase):
     versions: list[ResumeVersionRead] = Field(default_factory=list)
 
     model_config = ConfigDict(from_attributes=True)
+
+
+# --- Rendered Resume Schemas (for UI/Export) ---
+class RenderedHeader(BaseModel):
+    name: str
+    email: str
+    phone: str | None = None
+    location: str | None = None
+    linkedin: str | None = None
+    github: str | None = None
+    portfolio: str | None = None
+
+
+class RenderedExperience(BaseModel):
+    id: uuid.UUID
+    company_name: str
+    job_title: str
+    location: str | None = None
+    start_date: str
+    end_date: str | None = None
+    description: str | None = None
+    bullets: list[str] = Field(default_factory=list)
+
+
+class RenderedEducation(BaseModel):
+    id: uuid.UUID
+    institution_name: str
+    degree_type: str
+    field_of_study: str
+    graduation_date: str
+
+
+class RenderedSkill(BaseModel):
+    name: str
+    level: int | None = None
+
+
+class RenderedResume(BaseModel):
+    header: RenderedHeader
+    summary: str | None = None
+    experiences: list[RenderedExperience] = Field(default_factory=list)
+    education: list[RenderedEducation] = Field(default_factory=list)
+    skills: list[RenderedSkill] = Field(default_factory=list)
+    certifications: list[dict[str, Any]] = Field(default_factory=list)

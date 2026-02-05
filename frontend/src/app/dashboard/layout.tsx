@@ -12,7 +12,7 @@ export default async function DashboardLayout({
     const session = await getSession()
 
     if (!session) {
-        redirect('/login')
+        redirect('/auth/login')
     }
 
     return (
@@ -20,7 +20,7 @@ export default async function DashboardLayout({
             <Sidebar user={session.user} />
             <div className="flex-1 flex flex-col overflow-hidden">
                 <Header user={session.user} />
-                <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 p-6">
+                <main className="flex-1 overflow-y-auto bg-background p-6 font-handwritten">
                     {children}
                 </main>
             </div>

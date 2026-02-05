@@ -13,9 +13,14 @@ from src.api.exceptions import (
 
 # Import your modules' routers here as they are implemented
 from src.modules.identity.api.routes import router as identity_router
+from src.modules.identity.api.settings_routes import router as settings_router
+from src.modules.billing.api.routes import router as billing_router
 from src.modules.job_search.api.routes import router as job_router
 from src.modules.persona.api.routes import router as persona_router
 from src.modules.resume.api.routes import router as resume_router
+from src.modules.resume.api.truth_grounded_routes import (
+    router as truth_grounded_resume_router,
+)
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -47,6 +52,11 @@ async def health_check() -> dict[str, str]:
 
 # Include Routers
 app.include_router(identity_router, prefix="/api/v1/auth", tags=["Identity"])
+app.include_router(settings_router, prefix="/api/v1/settings", tags=["Settings"])
+app.include_router(billing_router, prefix="/api/v1/billing", tags=["Billing"])
 app.include_router(persona_router, prefix="/api/v1/persona", tags=["Persona"])
 app.include_router(resume_router, prefix="/api/v1/resume", tags=["Resume"])
+app.include_router(
+    truth_grounded_resume_router, prefix="/api/v1/resume", tags=["Resume Enhancement"]
+)
 app.include_router(job_router, prefix="/api/v1/jobs", tags=["Job Search"])

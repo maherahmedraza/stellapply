@@ -1,12 +1,18 @@
 import uuid
-from datetime import date
+from datetime import UTC, date, datetime
+from enum import Enum as PyEnum
 from enum import StrEnum
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from src.modules.resume.domain.models import Resume
 
 from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
     ARRAY,
+    Boolean,
     Date,
+    DateTime,
     Enum,
     Float,
     ForeignKey,
@@ -14,7 +20,7 @@ from sqlalchemy import (
     String,
     Text,
 )
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.database.base_model import BaseModel
@@ -76,6 +82,14 @@ class CompanySize(StrEnum):
     ENTERPRISE = "ENTERPRISE"
 
 
+class SkillSource(PyEnum):
+    USER_DECLARED = "user_declared"  # User explicitly added
+    RESUME_PARSED = "resume_parsed"  # Extracted from uploaded resume
+    EXPERIENCE_INFERRED = "experience_inferred"  # Inferred from job descriptions
+    CERTIFICATION = "certification"  # From verified certification
+    VERIFIED = "verified"  # User confirmed inferred skill
+
+
 class Persona(BaseModel):
     """Main model for candidate persona, including PII and preferences."""
 
@@ -99,17 +113,34 @@ class Persona(BaseModel):
     location_state: Mapped[str | None] = mapped_column(String(100))
     location_country: Mapped[str | None] = mapped_column(String(100))
 
+    # Professional Links
+    linkedin_url: Mapped[str | None] = mapped_column(String(255))
+    github_url: Mapped[str | None] = mapped_column(String(255))
+    portfolio_url: Mapped[str | None] = mapped_column(String(255))
+    website_url: Mapped[str | None] = mapped_column(String(255))
+
+    # Professional Summary (can be AI-enhanced)
+    summary_original: Mapped[str | None] = mapped_column(Text)
+    summary_enhanced: Mapped[str | None] = mapped_column(Text)
+    summary_active: Mapped[str | None] = mapped_column(Text)
+
     # Preferences
-    work_authorization: Mapped[WorkAuthorization] = mapped_column(
-        Enum(WorkAuthorization), nullable=False, default=WorkAuthorization.NOT_REQUIRED
-    )
+    work_authorization: Mapped[list[str]] = mapped_column(ARRAY(String), default=[])
+    requires_sponsorship: Mapped[bool] = mapped_column(Boolean, default=False)
     remote_preference: Mapped[RemotePreference] = mapped_column(
         Enum(RemotePreference), nullable=False, default=RemotePreference.ANY
     )
 
     # AI Search data
-    summary_embedding: Mapped[Any | None] = mapped_column(Vector(768))
+    summary_embedding: Mapped[Vector | None] = mapped_column(Vector(768))
+    embedding: Mapped[Vector | None] = mapped_column(Vector(768))
+    embedding_updated_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True)
+    )
     completeness_score: Mapped[float] = mapped_column(Float, default=0.0)
+    last_updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC)
+    )
 
     # Relationships
     experiences: Mapped[list["Experience"]] = relationship(
@@ -117,15 +148,29 @@ class Persona(BaseModel):
         back_populates="persona",
         cascade="all, delete-orphan",
         lazy="selectin",
+        order_by="desc(Experience.start_date)",
     )
     educations: Mapped[list["Education"]] = relationship(
         "Education",
         back_populates="persona",
         cascade="all, delete-orphan",
         lazy="selectin",
+        order_by="desc(Education.graduation_date)",
     )
     skills: Mapped[list["Skill"]] = relationship(
         "Skill", back_populates="persona", cascade="all, delete-orphan", lazy="selectin"
+    )
+    certifications: Mapped[list["Certification"]] = relationship(
+        "Certification",
+        back_populates="persona",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+    projects: Mapped[list["Project"]] = relationship(
+        "Project",
+        back_populates="persona",
+        cascade="all, delete-orphan",
+        lazy="selectin",
     )
     career_preference: Mapped["CareerPreference"] = relationship(
         "CareerPreference",
@@ -139,6 +184,54 @@ class Persona(BaseModel):
         cascade="all, delete-orphan",
         lazy="selectin",
     )
+    resumes: Mapped[list["Resume"]] = relationship(
+        "Resume",
+        back_populates="persona",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
+    def get_verified_skills(self) -> list["Skill"]:
+        """Return only skills that are verified/declared (not just inferred)"""
+        verified_sources = [
+            SkillSource.USER_DECLARED,
+            SkillSource.CERTIFICATION,
+            SkillSource.VERIFIED,
+        ]
+        return [s for s in self.skills if s.source in verified_sources]
+
+    def get_all_facts(self) -> dict[str, Any]:
+        """Return all facts for truth-grounding in AI enhancement"""
+        return {
+            "skills": [
+                {
+                    "name": s.name,
+                    "level": s.proficiency_level,
+                    "verified": s.source != SkillSource.EXPERIENCE_INFERRED,
+                }
+                for s in self.skills
+            ],
+            "experiences": [
+                {
+                    "company": e.company_name,
+                    "title": e.job_title,
+                    "description": e.description_active,
+                    "achievements": e.achievements,
+                }
+                for e in self.experiences
+            ],
+            "education": [
+                {
+                    "institution": e.institution_name,
+                    "degree": str(e.degree_type),
+                    "field": e.field_of_study,
+                }
+                for e in self.educations
+            ],
+            "certifications": [
+                {"name": c.name, "issuer": c.issuer} for c in self.certifications
+            ],
+        }
 
     def __repr__(self) -> str:
         return (
@@ -157,17 +250,45 @@ class Experience(BaseModel):
     )
 
     company_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    company_url: Mapped[str | None] = mapped_column(String(255))
     job_title: Mapped[str] = mapped_column(String(255), nullable=False)
+    location: Mapped[str | None] = mapped_column(String(255))
+    employment_type: Mapped[str | None] = mapped_column(String(50))  # full_time, etc.
+
     start_date: Mapped[date] = mapped_column(Date, nullable=False)
     end_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    is_current: Mapped[bool] = mapped_column(Boolean, default=False)
 
-    description: Mapped[str | None] = mapped_column(Text)
+    # Original content (user-provided)
+    description_original: Mapped[str | None] = mapped_column(Text)
+    bullets_original: Mapped[list[str]] = mapped_column(ARRAY(Text), default=[])
+
+    # Enhanced content (AI-improved)
+    description_enhanced: Mapped[str | None] = mapped_column(Text)
+    bullets_enhanced: Mapped[list[str]] = mapped_column(ARRAY(Text), default=[])
+
+    # Active content (what's used in CVs)
+    description_active: Mapped[str | None] = mapped_column(Text)
+    bullets_active: Mapped[list[str]] = mapped_column(ARRAY(Text), default=[])
+
+    # Achievements (distinct from bullets)
     achievements: Mapped[list[str]] = mapped_column(ARRAY(Text), default=[])
+
+    # Skills used in this role
     skills_used: Mapped[list[str]] = mapped_column(ARRAY(String(100)), default=[])
 
-    experience_embedding: Mapped[Any | None] = mapped_column(Vector(768))
+    experience_embedding: Mapped[Vector | None] = mapped_column(Vector(768))
 
+    # Metadata
+    order: Mapped[int] = mapped_column(Integer, default=0)
+
+    # Relationships
     persona: Mapped["Persona"] = relationship("Persona", back_populates="experiences")
+    enhancement_history: Mapped[list["ExperienceEnhancement"]] = relationship(
+        "ExperienceEnhancement",
+        back_populates="experience",
+        cascade="all, delete-orphan",
+    )
 
     def __repr__(self) -> str:
         return f"<Experience(company={self.company_name}, title={self.job_title})>"
@@ -211,6 +332,18 @@ class Skill(BaseModel):
         Enum(SkillCategory), nullable=False, default=SkillCategory.TECHNICAL
     )
     proficiency_level: Mapped[int] = mapped_column(Integer, default=1)  # 1-5
+    years_of_experience: Mapped[int | None] = mapped_column(Integer)
+
+    # Source and verification
+    source: Mapped[SkillSource] = mapped_column(
+        Enum(SkillSource), nullable=False, default=SkillSource.USER_DECLARED
+    )
+    source_detail: Mapped[str | None] = mapped_column(String(255))
+    verified: Mapped[bool] = mapped_column(Boolean, default=False)
+    verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+    # Evidence (for inferred skills)
+    evidence: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=[])
 
     persona: Mapped["Persona"] = relationship("Persona", back_populates="skills")
 
@@ -267,7 +400,7 @@ class BehavioralAnswer(BaseModel):
     )
     # Encrypted answer text
     answer: Mapped[str] = mapped_column(EncryptedString, nullable=False)
-    answer_embedding: Mapped[Any | None] = mapped_column(Vector(768))
+    answer_embedding: Mapped[Vector | None] = mapped_column(Vector(768))
 
     persona: Mapped["Persona"] = relationship(
         "Persona", back_populates="behavioral_answers"
@@ -275,3 +408,74 @@ class BehavioralAnswer(BaseModel):
 
     def __repr__(self) -> str:
         return f"<BehavioralAnswer(type={self.question_type})>"
+
+
+class Certification(BaseModel):
+    """Professional certifications."""
+
+    __tablename__ = "persona_certifications"
+
+    persona_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("personas.id"), index=True, nullable=False
+    )
+
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    issuer: Mapped[str] = mapped_column(String(255), nullable=False)
+    issue_date: Mapped[date | None] = mapped_column(Date)
+    expiry_date: Mapped[date | None] = mapped_column(Date)
+    credential_id: Mapped[str | None] = mapped_column(String(255))
+    credential_url: Mapped[str | None] = mapped_column(String(500))
+
+    persona: Mapped["Persona"] = relationship(
+        "Persona", back_populates="certifications"
+    )
+
+
+class Project(BaseModel):
+    """Professional or personal projects."""
+
+    __tablename__ = "persona_projects"
+
+    persona_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("personas.id"), index=True, nullable=False
+    )
+
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text)
+    url: Mapped[str | None] = mapped_column(String(500))
+    github_url: Mapped[str | None] = mapped_column(String(500))
+    technologies: Mapped[list[str]] = mapped_column(ARRAY(String(100)), default=[])
+
+    persona: Mapped["Persona"] = relationship("Persona", back_populates="projects")
+
+
+class ExperienceEnhancement(BaseModel):
+    """Tracks AI enhancements made to an experience."""
+
+    __tablename__ = "experience_enhancements"
+
+    experience_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("persona_experiences.id"),
+        index=True,
+        nullable=False,
+    )
+
+    field_enhanced: Mapped[str] = mapped_column(String(50), nullable=False)
+    original_content: Mapped[str] = mapped_column(Text, nullable=False)
+    enhanced_content: Mapped[str] = mapped_column(Text, nullable=False)
+
+    enhancement_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    confidence_level: Mapped[str] = mapped_column(String(20), nullable=False)
+
+    # User verification
+    user_approved: Mapped[bool | None] = mapped_column(Boolean)
+    user_modified: Mapped[bool] = mapped_column(Boolean, default=False)
+    user_final_content: Mapped[str | None] = mapped_column(Text)
+
+    # Source tracking
+    sources_used: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=[])
+
+    experience: Mapped["Experience"] = relationship(
+        "Experience", back_populates="enhancement_history"
+    )

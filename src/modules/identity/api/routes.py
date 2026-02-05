@@ -36,8 +36,12 @@ async def login(
     try:
         return service.login(request.username, request.password)
     except Exception as e:
+        import logging
+
+        logging.error(f"Login failed for {request.username}: {e}")
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Invalid credentials: {str(e)}",
         ) from e
 
 
@@ -67,8 +71,10 @@ async def register(
             status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
         ) from e
     except Exception as e:
-        # Log unexpected errors here
+        import logging
+
+        logging.error(f"Registration failed for {schema.email}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An error occurred during registration",
+            detail=f"Registration error: {str(e)}",
         ) from e

@@ -13,17 +13,18 @@ class SQLAlchemyUserRepository(UserRepository):
 
     async def get_by_email_hash(self, email_hash: str) -> User | None:
         stmt = select(User).where(
-            User.email_hash == email_hash, User.is_deleted.is_(False)
+            User.email_hash == email_hash, User.deleted_at.is_(None)
         )
         result = await self._session.execute(stmt)
         return result.scalar_one_or_none()
 
     async def get_by_id(self, user_id: uuid.UUID) -> User | None:
-        stmt = select(User).where(User.id == user_id, User.is_deleted.is_(False))
+        stmt = select(User).where(User.id == user_id, User.deleted_at.is_(None))
         result = await self._session.execute(stmt)
         return result.scalar_one_or_none()
 
     async def save(self, user: User) -> User:
         self._session.add(user)
         await self._session.flush()  # Ensure ID is populated but don't commit yet
+        await self._session.commit()  # Commit the transaction
         return user

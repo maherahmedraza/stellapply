@@ -72,7 +72,9 @@ class StorageSettings(BaseSettings):
 class KeycloakSettings(BaseSettings):
     """Keycloak OIDC settings."""
 
-    model_config = SettingsConfigDict(env_prefix="KC_", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_prefix="KC_", env_file=".env", env_file_encoding="utf-8", extra="ignore"
+    )
 
     URL: str = "http://localhost:8081"
     REALM: str = "stellapply"
@@ -114,7 +116,7 @@ class Settings(BaseSettings):
     features: FeatureSettings = Field(default_factory=FeatureSettings)
 
     # Global CORS
-    ALLOWED_ORIGINS: list[str] = ["http://localhost:3000"]
+    ALLOWED_ORIGINS: list[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
 
     @field_validator("ENVIRONMENT")
     @classmethod

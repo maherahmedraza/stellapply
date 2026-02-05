@@ -1,7 +1,7 @@
 import uuid
 from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import String
+from sqlalchemy import String, Boolean, Integer, ForeignKey
 from sqlalchemy.dialects.postgresql import BYTEA, JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -40,3 +40,46 @@ class User(BaseModel):
     governance_metadata: Mapped[dict[str, Any]] = mapped_column(JSONB, default={})
 
     resumes: Mapped[list["Resume"]] = relationship("Resume", back_populates="user")
+    settings: Mapped["UserSettings | None"] = relationship(
+        "UserSettings", back_populates="user", uselist=False
+    )
+
+
+class UserSettings(BaseModel):
+    """User preferences and settings"""
+
+    __tablename__ = "user_settings"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id"), unique=True, nullable=False
+    )
+
+    # Display preferences
+    theme: Mapped[str] = mapped_column(String(20), default="system")
+    language: Mapped[str] = mapped_column(String(10), default="en")
+    timezone: Mapped[str] = mapped_column(String(50), default="UTC")
+    date_format: Mapped[str] = mapped_column(String(20), default="YYYY-MM-DD")
+
+    # Notification preferences
+    email_notifications: Mapped[bool] = mapped_column(Boolean, default=True)
+    push_notifications: Mapped[bool] = mapped_column(Boolean, default=True)
+    sms_notifications: Mapped[bool] = mapped_column(Boolean, default=False)
+    job_alerts: Mapped[bool] = mapped_column(Boolean, default=True)
+    weekly_digest: Mapped[bool] = mapped_column(Boolean, default=True)
+    quiet_hours_start: Mapped[str | None] = mapped_column(String(5), nullable=True)
+    quiet_hours_end: Mapped[str | None] = mapped_column(String(5), nullable=True)
+
+    # Job search preferences
+    match_threshold: Mapped[int] = mapped_column(Integer, default=70)
+    preferred_work_type: Mapped[str] = mapped_column(String(20), default="any")
+    salary_visible: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    # Automation preferences
+    auto_apply_enabled: Mapped[bool] = mapped_column(Boolean, default=False)
+    auto_apply_limit: Mapped[int] = mapped_column(Integer, default=5)
+    auto_apply_min_match: Mapped[int] = mapped_column(Integer, default=85)
+
+    user: Mapped["User"] = relationship("User", back_populates="settings")

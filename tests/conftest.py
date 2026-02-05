@@ -6,8 +6,8 @@ from testcontainers.postgres import PostgresContainer
 from testcontainers.redis import RedisContainer
 
 from src.core.config import Settings
-from src.core.database.connection import get_db_session
-from src.api.main import create_app
+from src.core.database.connection import get_db
+from src.api.main import app
 from src.core.database.base_model import Base
 
 
@@ -75,10 +75,8 @@ async def db_session(async_engine) -> AsyncGenerator[AsyncSession, None]:
 # Test client
 @pytest.fixture
 async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
-    app = create_app()
-
     # Override dependency
-    app.dependency_overrides[get_db_session] = lambda: db_session
+    app.dependency_overrides[get_db] = lambda: db_session
 
     async with AsyncClient(app=app, base_url="http://test") as ac:
         yield ac

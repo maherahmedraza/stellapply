@@ -18,7 +18,10 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     )
 
 
-async def sqlalchemy_exception_handler(request: Request, _exc: SQLAlchemyError):
+async def sqlalchemy_exception_handler(request: Request, exc: SQLAlchemyError):
+    import logging
+
+    logging.error(f"SQLAlchemy error: {type(exc).__name__}: {exc}")
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={"detail": "Database Error", "path": request.url.path},

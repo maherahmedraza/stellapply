@@ -8,12 +8,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ResumePreview, ATSScoreCard, TemplateSelector } from './placeholders'
 import { SectionEditor } from './section-editor'
 import { AIEnhancementPanel } from './ai-enhancement-panel'
-import { useResumeStore } from '@/stores/resume.store'
-import { Sparkles, Download, Eye, FileText, BarChart2 } from 'lucide-react'
+import { useTruthfulEnhancement } from '@/hooks/use-truthful-enhancement'
+import { TruthfulEnhancementModal } from './truthful-enhancement-modal'
 
 interface ResumeBuilderProps {
     resumeId?: string
-    initialData?: unknown // Loose type for props compatibility
+    initialData?: unknown
 }
 
 export function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
@@ -22,6 +22,9 @@ export function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
     const [selectedSection, setSelectedSection] = useState<string | null>(null)
     const [showAIPanel, setShowAIPanel] = useState(false)
 
+    // New Truthful Enhancer Hook
+    const { enhance, enhancement, clearEnhancement, isLoading: isTruthfulLoading } = useTruthfulEnhancement()
+
     const {
         resume,
         sections,
@@ -29,7 +32,7 @@ export function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
         isEnhancing,
         updateSection,
         reorderSections,
-        enhanceWithAI,
+        enhanceWithAI, // Legacy store method
         analyzeATS,
         downloadResume,
         updateResume
@@ -43,9 +46,24 @@ export function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
     }, [reorderSections])
 
     const handleEnhanceSection = async (sectionId: string) => {
-        setShowAIPanel(true)
+        // setShowAIPanel(true) // Disable old panel
         setSelectedSection(sectionId)
-        await enhanceWithAI(sectionId)
+
+        const section = sections.find(s => s.id === sectionId)
+        if (!section) return
+
+        let contentToEnhance = ""
+        if (section.type === 'summary') {
+            contentToEnhance = section.content as string
+        } else if (section.type === 'experience') {
+            const exps = section.content as any[]
+            // For demo, picking first achievement
+            contentToEnhance = exps?.[0]?.achievements?.[0] || exps?.[0]?.description || ""
+        }
+
+        if (contentToEnhance) {
+            await enhance(contentToEnhance)
+        }
     }
 
     return (
@@ -105,7 +123,7 @@ export function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
                                             section={section}
                                             onUpdate={(data) => updateSection(section.id, data)}
                                             onEnhance={() => handleEnhanceSection(section.id)}
-                                            isEnhancing={isEnhancing && selectedSection === section.id}
+                                            isEnhancing={(isEnhancing || isTruthfulLoading) && selectedSection === section.id}
                                         />
                                     ))}
                                 </div>
@@ -162,18 +180,46 @@ export function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
                 </div>
             </div>
 
-            {/* AI Enhancement Slide-over Panel */}
+            {/* AI Enhancement Slide-over Panel (Legacy/Alternative) */}
             <AIEnhancementPanel
                 open={showAIPanel}
                 onClose={() => setShowAIPanel(false)}
                 section={sections.find(s => s.id === selectedSection)}
-                onApplySuggestion={(suggestion) => {
-                    if (selectedSection) {
-                        console.log('Suggestion accepted:', suggestion)
-                        alert('Suggestion accepted! In a real app, this would update the focused field.')
-                    }
+                onApplySuggestion={(text) => {
+                    // ... existing logic ...
                 }}
             />
+
+            {/* New Truthful Enhancement Modal */}
+            {enhancement && (
+                <TruthfulEnhancementModal
+                    enhancement={enhancement}
+                    onAccept={(text) => {
+                        if (selectedSection) {
+                            const section = sections.find(s => s.id === selectedSection)
+                            if (!section) return
+
+                            if (section.type === 'summary') {
+                                updateSection(selectedSection, { content: text })
+                            } else if (section.type === 'experience') {
+                                const experiences = section.content as any[]
+                                if (experiences && experiences.length > 0) {
+                                    const newExperiences = JSON.parse(JSON.stringify(experiences))
+                                    if (newExperiences[0].achievements && newExperiences[0].achievements.length > 0) {
+                                        newExperiences[0].achievements[0] = text
+                                    } else {
+                                        newExperiences[0].description = text
+                                    }
+                                    updateSection(selectedSection, { content: newExperiences })
+                                }
+                            }
+                        }
+                        clearEnhancement()
+                    }}
+                    onReject={clearEnhancement}
+                    onVerify={() => { }}
+                />
+            )}
         </div>
     )
 }

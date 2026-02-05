@@ -7,7 +7,7 @@ from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from pydantic import validator
-from sqlalchemy import String, TypeDecorator
+from sqlalchemy import String, Text, TypeDecorator
 
 from src.core.config import settings
 
@@ -102,7 +102,7 @@ def decrypt_data(encrypted_data: str) -> str:
 class EncryptedString(TypeDecorator[str]):
     """SQLAlchemy type for transparent field-level encryption."""
 
-    impl = String
+    impl = Text
     cache_ok = True
 
     def process_bind_param(self, value: Any, _dialect: Any) -> Any:

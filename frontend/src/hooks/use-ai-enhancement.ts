@@ -1,40 +1,32 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
+import { resumeApi, EnhancementSuggestion, EnhancementRequest } from '@/lib/api/resume'
 
-export interface AISuggestion {
-    original: string
-    enhanced: string
-    metricsAdded: boolean
-}
+export type { EnhancementSuggestion as AISuggestion }
 
 export function useAIEnhancement(sectionId?: string) {
-    void sectionId; // Placeholder usage
-    const [suggestions, setSuggestions] = useState<AISuggestion[]>([
-        {
-            original: "Responsible for managing projects",
-            enhanced: "Led cross-functional teams of 10+ members to deliver 5 high-priority projects 20% ahead of schedule.",
-            metricsAdded: true
-        },
-        {
-            original: "Fixed bugs in the system",
-            enhanced: "Diagnosed and resolved 50+ critical production bugs, reducing system downtime by 15%.",
-            metricsAdded: true
-        }
-    ])
+    const [suggestions, setSuggestions] = useState<EnhancementSuggestion[]>([])
     const [isLoading, setIsLoading] = useState(false)
+    const [error, setError] = useState<string | null>(null)
     const [appliedSuggestions, setAppliedSuggestions] = useState<number[]>([])
 
-    const regenerate = async () => {
+    const fetchEnhancements = useCallback(async (content: string, type: "bullet_point" | "summary" | "description" = "bullet_point") => {
         setIsLoading(true)
-        await new Promise(resolve => setTimeout(resolve, 1500))
-        setSuggestions(prev => [
-            ...prev,
-            {
-                original: "New generated suggestion",
-                enhanced: "Enhanced version with stronger action verbs and quantifiable results.",
-                metricsAdded: false
-            }
-        ])
-        setIsLoading(false)
+        setError(null)
+        try {
+            const results = await resumeApi.getGroundedEnhancements({
+                original_content: content,
+                content_type: type
+            })
+            setSuggestions(results)
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Failed to generate enhancements")
+        } finally {
+            setIsLoading(false)
+        }
+    }, [])
+
+    const regenerate = async (content: string, type: "bullet_point" | "summary" | "description" = "bullet_point") => {
+        await fetchEnhancements(content, type)
     }
 
     const markAsApplied = (index: number) => {
@@ -44,8 +36,11 @@ export function useAIEnhancement(sectionId?: string) {
     return {
         suggestions,
         isLoading,
+        error,
+        fetchEnhancements,
         regenerate,
         appliedSuggestions,
-        markAsApplied
+        markAsApplied,
+        setSuggestions
     }
 }

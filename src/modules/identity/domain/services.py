@@ -1,4 +1,5 @@
 import hashlib
+import uuid
 
 from src.core.database.governance import DataClassification, RetentionPolicy
 from src.core.security.encryption import encrypt_data
@@ -12,6 +13,7 @@ from src.modules.identity.infrastructure.keycloak import KeycloakProvider
 class RegistrationService:
     def __init__(self, repository: UserRepository):
         self._repository = repository
+        self._keycloak = KeycloakProvider()
 
     async def register_user(self, schema: UserCreate) -> User:
         # 1. Check if user already exists
@@ -20,13 +22,32 @@ class RegistrationService:
         if existing_user:
             raise ValueError("User with this email already exists")
 
-        # 2. Prepare user data
+        # 2. Create user in Keycloak first
+        keycloak_admin = self._keycloak.get_admin_client()
+        keycloak_user_id = keycloak_admin.create_user(
+            {
+                "email": schema.email,
+                "username": schema.email,
+                "firstName": schema.name.split()[0] if schema.name else "User",
+                "lastName": " ".join(schema.name.split()[1:])
+                if schema.name and len(schema.name.split()) > 1
+                else "",
+                "enabled": True,
+                "emailVerified": True,  # For dev, skip email verification
+                "credentials": [
+                    {"type": "password", "value": schema.password, "temporary": False}
+                ],
+            }
+        )
+
+        # 3. Prepare local user data
         password_hash = get_password_hash(schema.password)
         # encrypt_data returns a str (base64 encoded), store it as bytes in BYTEA column
         email_encrypted = encrypt_data(schema.email).encode()
 
-        # 3. Create user entity
+        # 4. Create user entity in local DB
         user = User(
+            id=uuid.UUID(keycloak_user_id),
             email_encrypted=email_encrypted,
             email_hash=email_hash,
             password_hash=password_hash,
@@ -36,11 +57,16 @@ class RegistrationService:
                 "retention": RetentionPolicy.PERMANENT.value,
                 "consent_version": "1.0",
                 "consent_date": None,  # Will be set on registration complete
+                "keycloak_id": keycloak_user_id,
             },
         )
 
-        # 4. Save and return
-        return await self._repository.save(user)
+        # 5. Save and return
+        saved_user = await self._repository.save(user)
+        saved_user.email = (
+            schema.email
+        )  # Set temporary attribute for Pydantic validation
+        return saved_user
 
 
 class AuthService:
