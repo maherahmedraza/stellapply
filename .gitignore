@@ -74,3 +74,4 @@ Thumbs.db
 # Project specific
 tmp/
 test-results/
+*.log
