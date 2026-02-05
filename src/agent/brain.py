@@ -10,7 +10,7 @@ from src.core.config import settings
 logger = logging.getLogger(__name__)
 
 # Configure Gemini
-genai.configure(api_key=settings.GEMINI_API_KEY)
+genai.configure(api_key=settings.ai.GEMINI_API_KEY)
 
 
 class AgentAction(BaseModel):
