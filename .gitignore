@@ -74,9 +74,6 @@ Thumbs.db
 # Project specific
 tmp/
 test-results/
-<<<<<<< HEAD
-*.log
-=======
 
 # Secrets - NEVER COMMIT
 *.pem
@@ -106,4 +103,3 @@ docker-compose.local.yml
 .idea/workspace.xml
 .vscode/settings.json
 
->>>>>>> feature/resume-upload-gdpr-compliance

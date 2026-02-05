@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-export default function Page() {
-  return <div className="p-4">Placeholder Page</div>
-=======
 "use client";
 
 import React, { useState } from "react";
@@ -273,5 +269,4 @@ export default function JobMatchesPage() {
       )}
     </div>
   );
->>>>>>> feature/resume-upload-gdpr-compliance
 }

@@ -18,31 +18,6 @@ const navItems = [
 export function Sidebar({ user }: { user: User }) {
     void user
     return (
-<<<<<<< HEAD
-        <aside className="w-64 bg-card-bg border-r-2 border-dashed border-pencil-black/10 transition-colors flex flex-col h-full">
-            <div className="p-8">
-                <h1 className="text-3xl font-marker text-pencil-black dark:text-white -rotate-2">
-                    Stellapply
-                </h1>
-            </div>
-            <nav className="mt-4 px-4 space-y-2 font-handwritten text-xl">
-                {[
-                    { label: 'Dashboard', href: '/dashboard' },
-                    { label: 'My Persona', href: '/dashboard/persona' },
-                    { label: 'Job Search', href: '/dashboard/jobs' },
-                    { label: 'My Resumes', href: '/dashboard/resumes' },
-                    { label: 'Applications', href: '/dashboard/applications' },
-                    { label: 'Settings', href: '/dashboard/settings' },
-                ].map((item) => (
-                    <Link
-                        key={item.href}
-                        href={item.href}
-                        className="flex items-center px-4 py-3 text-pencil-black dark:text-white hover:bg-pencil-black/5 dark:hover:bg-white/5 wobble rounded-none transition-colors"
-                    >
-                        {item.label}
-                    </Link>
-                ))}
-=======
         <aside className="w-64 bg-white border-r-3 border-pencil-black flex flex-col">
             <div className="p-6 border-b-2 border-dashed border-pencil-black/20">
                 <Link href="/" className="flex items-center gap-3 group">
@@ -69,7 +44,6 @@ export function Sidebar({ user }: { user: User }) {
                         </Link>
                     )
                 })}
->>>>>>> feature/resume-upload-gdpr-compliance
             </nav>
 
             <div className="p-4 border-t-2 border-dashed border-pencil-black/20">

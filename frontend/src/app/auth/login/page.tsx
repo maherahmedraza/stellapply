@@ -25,24 +25,6 @@ export default function LoginPage() {
             const data = await res.json();
             if (!res.ok) throw new Error(data.detail || "Login failed");
 
-<<<<<<< HEAD
-            const { setUser, setTokens } = useAuthStore.getState();
-
-            // Decode JWT payload (base64) to get user info
-            const payload = data.access_token.split('.')[1];
-            const decoded = JSON.parse(atob(payload));
-
-            setUser({
-                id: decoded.sub,
-                email: decoded.email || '',
-                fullName: decoded.name || decoded.preferred_username || 'User',
-                tier: 'free'
-            });
-
-            setTokens(data.access_token, data.refresh_token || "");
-
-=======
->>>>>>> feature/resume-upload-gdpr-compliance
             localStorage.setItem("access_token", data.access_token);
             // Set cookie for middleware
             document.cookie = `access_token=${data.access_token}; path=/; max-age=3600; SameSite=Lax`;
@@ -136,19 +118,11 @@ export default function LoginPage() {
                                 <div className="w-full border-t-2 border-dashed border-pencil-black/20"></div>
                             </div>
                             <div className="relative flex justify-center text-sm">
-<<<<<<< HEAD
-                                <span className="px-2 bg-card-bg text-pencil-black/40 dark:text-pencil-black/60 font-bold uppercase tracking-widest transition-colors">Or continue with</span>
-                            </div>
-                        </div>
-
-                        <button type="button" className="w-full wobble border-2 border-pencil-black dark:border-white py-3 flex items-center justify-center gap-3 hover:bg-zinc-50 dark:hover:bg-white/5 transition-colors font-bold text-lg shadow-sketch-sm dark:shadow-none active:shadow-none translate-x-0 active:translate-x-[2px] active:translate-y-[2px]">
-=======
                                 <span className="px-2 bg-white text-pencil-black/40 font-bold uppercase tracking-widest">Or continue with</span>
                             </div>
                         </div>
 
                         <button type="button" className="w-full wobble border-2 border-pencil-black py-3 flex items-center justify-center gap-3 hover:bg-zinc-50 transition-colors font-bold text-lg shadow-sketch-sm active:shadow-none translate-x-0 active:translate-x-[2px] active:translate-y-[2px]">
->>>>>>> feature/resume-upload-gdpr-compliance
                             <Github className="w-6 h-6" />
                             Github
                         </button>
