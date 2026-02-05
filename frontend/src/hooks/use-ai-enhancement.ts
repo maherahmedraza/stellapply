@@ -33,6 +33,12 @@ export function useAIEnhancement(sectionId?: string) {
         setAppliedSuggestions(prev => [...prev, index])
     }
 
+    const clearSuggestions = useCallback(() => {
+        setSuggestions([])
+        setAppliedSuggestions([])
+        setError(null)
+    }, [])
+
     return {
         suggestions,
         isLoading,
@@ -41,6 +47,7 @@ export function useAIEnhancement(sectionId?: string) {
         regenerate,
         appliedSuggestions,
         markAsApplied,
-        setSuggestions
+        setSuggestions,
+        clearSuggestions
     }
 }

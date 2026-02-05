@@ -21,6 +21,7 @@ class RawJob:
     location: str
     description: str
     requirements: list[str]
+    tech_stack: list[str]  # Detected tech stack
     salary_range: str | None
     posted_date: datetime | None
     apply_url: str
@@ -47,6 +48,44 @@ class ScraperError(Exception):
 
 class BaseScraper(ABC):
     """Base class for all job scrapers"""
+
+    # Common tech stack keywords for detection
+    COMMON_TECH = [
+        "Python",
+        "JavaScript",
+        "TypeScript",
+        "React",
+        "Vue",
+        "Angular",
+        "Node.js",
+        "Django",
+        "FastAPI",
+        "Flask",
+        "PostgreSQL",
+        "MySQL",
+        "MongoDB",
+        "Redis",
+        "AWS",
+        "Azure",
+        "GCP",
+        "Docker",
+        "Kubernetes",
+        "Terraform",
+        "CI/CD",
+        "Rust",
+        "Go",
+        "Java",
+        "Spring",
+        "C#",
+        ".NET",
+        "GraphQL",
+        "REST",
+        "Koa",
+        "Express",
+        "Next.js",
+        "Tailwind",
+        "Sass",
+    ]
 
     def __init__(
         self,
@@ -107,6 +146,22 @@ class BaseScraper(ABC):
         except aiohttp.ClientError as e:
             self.logger.error(f"Request failed: {url} - {e}")
             raise ScraperError(f"Failed to fetch {url}") from e
+
+    def _detect_tech_stack(self, text: str) -> list[str]:
+        """Detect tech stack keywords from description text."""
+        if not text:
+            return []
+
+        detected = []
+        text_lower = text.lower()
+        for tech in self.COMMON_TECH:
+            # Match with word boundaries to avoid partial matches like 'Go' in 'Google'
+            import re
+
+            pattern = rf"\b{re.escape(tech.lower())}\b"
+            if re.search(pattern, text_lower):
+                detected.append(tech)
+        return detected
 
     def _normalize_location(self, raw_location: str) -> dict:
         """Normalize location string to structured data"""

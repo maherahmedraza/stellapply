@@ -11,7 +11,9 @@ from src.api.exceptions import (
     sqlalchemy_exception_handler,
 )
 
-# Import your modules' routers here as they are implemented
+# Include Routers
+# Import all models to ensure they are registered with the declarative base
+import src.core.database.all_models  # noqa
 from src.modules.identity.api.routes import router as identity_router
 from src.modules.identity.api.settings_routes import router as settings_router
 from src.modules.billing.api.routes import router as billing_router

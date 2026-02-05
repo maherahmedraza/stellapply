@@ -108,14 +108,17 @@ class GreenhouseScraper(BaseScraper):
 
     def _to_raw_job(self, data: dict, company: str) -> RawJob:
         """Convert Greenhouse API response to RawJob"""
+        content = data.get("content", "")
+        clean_desc = self._clean_html(content)
         return RawJob(
             external_id=f"{company}:{data['id']}",
             source=self.source_name,
             title=data["title"],
             company_name=data.get("company", {}).get("name", company.title()),
             location=data.get("location", {}).get("name", ""),
-            description=self._clean_html(data.get("content", "")),
-            requirements=self._extract_requirements(data.get("content", "")),
+            description=clean_desc,
+            requirements=self._extract_requirements(content),
+            tech_stack=self._detect_tech_stack(clean_desc),
             salary_range=None,  # Greenhouse doesn't expose salary in API
             posted_date=datetime.fromisoformat(
                 data["updated_at"].replace("Z", "+00:00")

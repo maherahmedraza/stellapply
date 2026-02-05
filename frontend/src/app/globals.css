@@ -16,305 +16,134 @@
  * - Playful imperfection
  */
 
-/* ============================================
-   BASE LAYER: CSS Custom Properties
-   ============================================ */
+@theme {
+  /* --- TYPOGRAPHY --- */
+  --font-heading: "Kalam", cursive;
+  --font-body: "Patrick Hand", cursive;
+  --font-mono: "Caveat", cursive;
 
-:root {
-  /* === COLOR TOKENS === */
-
-  /* Background Colors */
-  --color-background: 253 251 247;
-  /* #fdfbf7 - Warm Paper */
-  --color-background-alt: 255 255 255;
-  /* #ffffff - Clean Paper */
-  --color-background-muted: 229 224 216;
-  /* #e5e0d8 - Old Paper */
-  --color-background-accent: 255 249 196;
-  /* #fff9c4 - Post-it Yellow */
-
-  /* Foreground/Text Colors */
-  --color-foreground: 45 45 45;
-  /* #2d2d2d - Soft Pencil Black */
-  --color-foreground-muted: 107 100 89;
-  /* #6b6459 - Faded Pencil */
-  --color-foreground-subtle: 156 149 137;
-  /* #9c9589 - Light Pencil */
-
-  /* Accent Colors */
-  --color-accent-primary: 255 77 77;
-  /* #ff4d4d - Red Correction Marker */
-  --color-accent-secondary: 45 93 161;
-  /* #2d5da1 - Blue Ballpoint Pen */
-  --color-accent-tertiary: 76 175 80;
-  /* #4caf50 - Green Highlighter */
-  --color-accent-warning: 255 193 7;
-  /* #ffc107 - Yellow Highlighter */
-
-  /* Border Colors */
-  --color-border: 45 45 45;
-  /* #2d2d2d - Pencil Lead */
-  --color-border-muted: 200 194 184;
-  /* #c8c2b8 - Light Pencil */
-  --color-border-accent: 45 93 161;
-  /* #2d5da1 - Blue Ink */
-
-  /* Shadow Colors */
-  --color-shadow: 45 45 45;
-  /* #2d2d2d - Hard shadow */
-  --color-shadow-soft: 45 45 45 / 0.1;
-  /* Subtle shadow */
-
-  /* State Colors */
-  --color-success: 76 175 80;
-  /* #4caf50 */
-  --color-error: 244 67 54;
-  /* #f44336 */
-  --color-warning: 255 152 0;
-  /* #ff9800 */
-  --color-info: 33 150 243;
-  /* #2196f3 */
-
-  /* Interactive States */
-  --color-hover-bg: 229 224 216;
-  /* Muted background on hover */
-  --color-active-bg: 213 208 200;
-  /* Darker on active */
-  --color-focus-ring: 45 93 161 / 0.3;
-  /* Blue focus ring */
-
-  /* === TYPOGRAPHY TOKENS === */
-  --font-heading: 'Kalam', cursive;
-  --font-body: 'Patrick Hand', cursive;
-  --font-mono: 'Caveat', cursive;
-  /* For code-like elements */
-
-  /* Font Weights */
-  --font-weight-normal: 400;
-  --font-weight-bold: 700;
-
-  /* Line Heights */
-  --line-height-tight: 1.2;
-  --line-height-normal: 1.5;
-  --line-height-relaxed: 1.75;
-
-  /* Letter Spacing */
-  --letter-spacing-tight: -0.025em;
-  --letter-spacing-normal: 0;
-  --letter-spacing-wide: 0.025em;
-
-  /* === SPACING TOKENS === */
-  --spacing-xs: 0.25rem;
-  /* 4px */
-  --spacing-sm: 0.5rem;
-  /* 8px */
-  --spacing-md: 1rem;
-  /* 16px */
-  --spacing-lg: 1.5rem;
-  /* 24px */
-  --spacing-xl: 2rem;
-  /* 32px */
-  --spacing-2xl: 3rem;
-  /* 48px */
-  --spacing-3xl: 4rem;
-  /* 64px */
-  --spacing-section: 5rem;
-  /* 80px - Section padding */
-
-  /* === BORDER RADIUS TOKENS === */
-  /* 
-   * CRITICAL: These are the "wobbly" hand-drawn border radius values
-   * Format: top-left / top-right / bottom-right / bottom-left
-   * Using elliptical values for organic shapes
-   */
+  /* --- WOBBLY BORDER RADIUS --- */
   --radius-wobbly-sm: 255px 15px 225px 15px / 15px 225px 15px 255px;
-  --radius-wobbly-md: 185px 25px 185px 25px / 25px 185px 25px 185px;
-  --radius-wobbly-lg: 125px 35px 155px 35px / 35px 155px 35px 125px;
-  --radius-wobbly-xl: 95px 45px 105px 45px / 45px 105px 45px 95px;
+  --radius-wobbly-md: 15px 255px 15px 225px / 225px 15px 255px 15px;
+  --radius-wobbly-lg: 225px 15px 255px 15px / 15px 255px 15px 225px;
+  --radius-wobbly-button: 255px 25px 225px 25px / 25px 225px 25px 255px;
+  --radius-wobbly-card: 30px 255px 30px 255px / 255px 30px 255px 30px;
+  --radius-wobbly-input: 255px 20px 225px 20px / 20px 225px 20px 255px;
 
-  /* Asymmetric variants for variety */
-  --radius-wobbly-asymmetric-1: 40px 80px 60px 100px / 80px 40px 100px 60px;
-  --radius-wobbly-asymmetric-2: 100px 60px 80px 40px / 60px 100px 40px 80px;
-  --radius-wobbly-asymmetric-3: 70px 90px 50px 110px / 90px 50px 110px 70px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
 
-  /* Organic circle-ish shapes */
-  --radius-wobbly-circle: 63% 37% 54% 46% / 55% 48% 52% 45%;
-  --radius-wobbly-blob: 40% 60% 70% 30% / 40% 50% 60% 50%;
+  /* --- SHADOWS --- */
+  --shadow-hand-sm: 2px 2px 0px 0px var(--color-shadow);
+  --shadow-hand-md: 4px 4px 0px 0px var(--color-shadow);
+  --shadow-hand-lg: 6px 6px 0px 0px var(--color-shadow);
+  --shadow-hand-xl: 8px 8px 0px 0px var(--color-shadow);
 
-  /* === SHADOW TOKENS === */
-  /* Hard offset shadows - NO BLUR (critical for hand-drawn aesthetic) */
-  --shadow-sm: 2px 2px 0px 0px rgb(var(--color-shadow));
-  --shadow-md: 4px 4px 0px 0px rgb(var(--color-shadow));
-  --shadow-lg: 6px 6px 0px 0px rgb(var(--color-shadow));
-  --shadow-xl: 8px 8px 0px 0px rgb(var(--color-shadow));
+  --shadow-hand-hover: 2px 2px 0px 0px var(--color-shadow);
+  --shadow-hand-active: 0px 0px 0px 0px var(--color-shadow);
 
-  /* Soft shadows for subtle depth */
-  --shadow-soft-sm: 2px 2px 0px 0px rgb(var(--color-shadow-soft));
-  --shadow-soft-md: 3px 3px 0px 0px rgb(var(--color-shadow-soft));
-  --shadow-soft-lg: 4px 4px 0px 0px rgb(var(--color-shadow-soft));
+  /* --- SPACING --- */
+  --space-page: 1.5rem;
+  --space-section: 5rem;
+  --space-card: 1.5rem;
+  --space-stack: 1rem;
 
-  /* Colored shadows for accents */
-  --shadow-accent: 4px 4px 0px 0px rgb(var(--color-accent-primary));
-  --shadow-secondary: 4px 4px 0px 0px rgb(var(--color-accent-secondary));
-
-  /* === BORDER TOKENS === */
-  --border-width-sm: 1px;
-  --border-width-md: 2px;
-  --border-width-lg: 3px;
-  --border-width-xl: 4px;
-
-  /* === TRANSITION TOKENS === */
+  /* --- TRANSITIONS --- */
   --transition-fast: 100ms ease-out;
   --transition-normal: 200ms ease-out;
   --transition-slow: 300ms ease-out;
-  --transition-bounce: 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
-
-  /* === Z-INDEX TOKENS === */
-  --z-below: -1;
-  --z-base: 0;
-  --z-above: 10;
-  --z-dropdown: 100;
-  --z-sticky: 200;
-  --z-modal: 300;
-  --z-popover: 400;
-  --z-tooltip: 500;
-  --z-toast: 600;
-
-  /* === PAPER TEXTURE === */
-  --paper-dot-color: rgb(var(--color-background-muted));
-  --paper-dot-size: 1px;
-  --paper-dot-spacing: 24px;
-
-  /* === ROTATION VALUES === */
-  --rotate-subtle: 1deg;
-  --rotate-medium: 2deg;
-  --rotate-playful: 3deg;
 }
 
-/* ============================================
-   TAILWIND V4 THEME MAPPING
-   ============================================ */
+/* --- LIGHT THEME (Default) --- */
+:root {
+  --color-background: #fdfbf7;
+  --color-background-alt: #ffffff;
+  --color-background-muted: #f5f0e6;
 
-@theme {
-  /* Dynamic Colors mapped from variables */
-  --color-background: rgb(var(--color-background));
-  --color-foreground: rgb(var(--color-foreground));
-  --color-background-alt: rgb(var(--color-background-alt));
-  --color-background-muted: rgb(var(--color-background-muted));
-  --color-background-accent: rgb(var(--color-background-accent));
+  --color-foreground: #2d2d2d;
+  --color-foreground-muted: #5a5a5a;
+  --color-foreground-subtle: #8a8a8a;
 
-  --color-pencil-black: rgb(var(--color-foreground));
-  --color-muted-paper: rgb(var(--color-background-muted));
-  --color-postit-yellow: rgb(var(--color-background-accent));
+  --color-border: #2d2d2d;
+  --color-border-muted: #d4cec4;
+  --color-border-dashed: #9a9a9a;
 
-  --color-marker-red: rgb(var(--color-accent-primary));
-  --color-ink-blue: rgb(var(--color-accent-secondary));
+  --color-accent: #ff4d4d;
+  --color-accent-hover: #e63939;
+  --color-accent-secondary: #2d5da1;
+  --color-accent-secondary-hover: #1e4a82;
 
-  --color-border: rgb(var(--color-border));
-  --color-border-muted: rgb(var(--color-border-muted));
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
 
-  /* Semantic Shadcn-like mappings */
-  --color-card: rgb(var(--color-background-alt));
-  --color-card-foreground: rgb(var(--color-foreground));
-  --color-popover: rgb(var(--color-background-alt));
-  --color-popover-foreground: rgb(var(--color-foreground));
-  --color-primary: rgb(var(--color-accent-primary));
-  --color-primary-foreground: white;
-  --color-secondary: rgb(var(--color-accent-secondary));
-  --color-secondary-foreground: white;
-  --color-muted: rgb(var(--color-foreground-muted));
-  --color-muted-foreground: rgb(var(--color-foreground-subtle));
-  --color-accent: rgb(var(--color-background-muted));
-  --color-accent-foreground: rgb(var(--color-foreground));
+  --color-sticky-note: #fff9c4;
+  --color-tape: rgba(200, 200, 200, 0.5);
+  --color-tack: #ef4444;
+  --color-shadow: #2d2d2d;
 
-  /* Typography */
-  --font-handwritten: var(--font-body);
-  --font-marker: var(--font-heading);
-  --font-mono: var(--font-mono);
+  --texture-dots: radial-gradient(#e5e0d8 1px, transparent 1px);
+  --texture-dots-size: 24px 24px;
+  --texture-lines: repeating-linear-gradient(to bottom,
+      transparent,
+      transparent 23px,
+      #e5e0d8 24px);
 
-  /* Radius & Shadows */
-  --radius-wobbly-sm: var(--radius-wobbly-sm);
-  --radius-wobbly-md: var(--radius-wobbly-md);
-  --radius-wobbly-lg: var(--radius-wobbly-lg);
-
-  --shadow-sketch: var(--shadow-md);
-  --shadow-sketch-lg: var(--shadow-lg);
-  --shadow-sketch-sm: var(--shadow-sm);
+  /* Add mapping for tailwind v4 colors if not automatically picked up */
+  --color-card: var(--color-background-alt);
+  --color-popover: var(--color-background-alt);
 }
 
-/* ============================================
-   DARK MODE OVERRIDES
-   ============================================ */
-
+/* --- DARK THEME --- */
 .dark {
-  /* Background Colors - Warm dark tones, not pure black */
-  --color-background: 35 32 28;
-  /* #23201c - Dark Kraft Paper */
-  --color-background-alt: 45 42 38;
-  /* #2d2a26 - Cardboard */
-  --color-background-muted: 55 52 48;
-  /* #373430 - Aged Paper */
-  --color-background-accent: 60 55 35;
-  /* #3c3723 - Dark Post-it */
+  --color-background: #1a1a1e;
+  --color-background-alt: #242428;
+  --color-background-muted: #2a2a2e;
 
-  /* Foreground/Text Colors */
-  --color-foreground: 245 240 230;
-  /* #f5f0e6 - Cream White */
-  --color-foreground-muted: 180 175 165;
-  /* #b4afa5 - Faded Chalk */
-  --color-foreground-subtle: 130 125 115;
-  /* #827d73 - Dim Chalk */
+  --color-foreground: #f5f5f5;
+  --color-foreground-muted: #b0b0b0;
+  --color-foreground-subtle: #6a6a6a;
 
-  /* Accent Colors - Slightly muted for dark mode */
-  --color-accent-primary: 255 100 100;
-  /* #ff6464 - Soft Red */
-  --color-accent-secondary: 100 150 220;
-  /* #6496dc - Soft Blue */
-  --color-accent-tertiary: 100 200 110;
-  /* #64c86e - Soft Green */
+  --color-border: #f5f5f5;
+  --color-border-muted: #4a4a4e;
+  --color-border-dashed: #6a6a6e;
 
-  /* Border Colors */
-  --color-border: 200 195 185;
-  /* #c8c3b9 - Light on dark */
-  --color-border-muted: 100 95 85;
-  /* #645f55 - Subtle border */
-  --color-border-accent: 100 150 220;
-  /* #6496dc - Blue accent */
+  --color-accent: #ff6b6b;
+  --color-accent-hover: #ff5252;
+  --color-accent-secondary: #5c9aff;
+  --color-accent-secondary-hover: #4a8aef;
 
-  /* Shadow Colors - Lighter shadows on dark backgrounds */
-  --color-shadow: 0 0 0;
-  /* Pure black for contrast */
-  --color-shadow-soft: 0 0 0 / 0.3;
-  /* Subtle shadow */
+  --color-success: #4ade80;
+  --color-warning: #fbbf24;
+  --color-error: #f87171;
+  --color-info: #60a5fa;
 
-  /* Paper Texture - Adjusted for dark mode */
-  --paper-dot-color: rgb(var(--color-background-muted));
+  --color-sticky-note: #4a4520;
+  --color-tape: rgba(100, 100, 100, 0.4);
+  --color-tack: #f87171;
+  --color-shadow: rgba(0, 0, 0, 0.6);
+
+  --texture-dots: radial-gradient(#3a3a3e 1px, transparent 1px);
+  --texture-dots-size: 24px 24px;
 }
 
-/* ============================================
-   BASE STYLES
-   ============================================ */
-
+/* --- BASE STYLES --- */
 html {
   font-family: var(--font-body);
-  font-size: 16px;
-  line-height: var(--line-height-normal);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  color: var(--color-foreground);
+  background-color: var(--color-background);
+  background-image: var(--texture-dots);
+  background-size: var(--texture-dots-size);
 }
 
 body {
-  background-color: rgb(var(--color-background));
-  color: rgb(var(--color-foreground));
-
-  /* Paper texture background */
-  background-image: radial-gradient(var(--paper-dot-color) var(--paper-dot-size),
-      transparent var(--paper-dot-size));
-  background-size: var(--paper-dot-spacing) var(--paper-dot-spacing);
-
-  /* Smooth theme transitions */
-  transition: background-color var(--transition-slow),
-    color var(--transition-slow);
+  min-height: 100vh;
+  line-height: 1.6;
+  background-color: var(--color-background);
+  /* Ensure consistency for dark mode */
 }
 
 /* ============================================

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card"
 import { SketchButton } from "@/components/ui/hand-drawn"
@@ -48,9 +48,35 @@ interface ParsedResumeData {
 
 export default function PersonaPage() {
   const [uploadingResume, setUploadingResume] = useState(false)
-  const [completeness, setCompleteness] = useState(35)
+  const [completeness, setCompleteness] = useState(0)
   const [parseResult, setParseResult] = useState<ParsedResumeData | null>(null)
   const [showSuccess, setShowSuccess] = useState(false)
+
+  useEffect(() => {
+    const fetchPersona = async () => {
+      try {
+        const token = document.cookie
+          .split('; ')
+          .find(row => row.startsWith('access_token='))
+          ?.split('=')[1]
+
+        if (!token) return
+
+        const res = await fetch('http://localhost:8000/api/v1/persona/me', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+
+        if (res.ok) {
+          const data = await res.json()
+          setCompleteness(data.completeness_score || 0)
+        }
+      } catch (err) {
+        console.error("Failed to fetch persona completeness:", err)
+      }
+    }
+    fetchPersona()
+  }, [])
+
 
   const handleResumeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -83,13 +109,13 @@ export default function PersonaPage() {
           // Store parsed data in localStorage for the sub-pages to use
           localStorage.setItem('parsedPersona', JSON.stringify(data))
 
-          // Calculate completeness based on extracted data
-          let score = 35
+          // Calculate approximate completeness based on extracted data
+          let score = 0
           if (data.personal_info?.name) score += 10
-          if (data.personal_info?.email) score += 5
-          if (data.skills && data.skills.length > 0) score += 20
-          if (data.experience && data.experience.length > 0) score += 15
-          if (data.education && data.education.length > 0) score += 10
+          if (data.personal_info?.email) score += 10
+          if (data.skills && data.skills.length > 0) score += 10
+          if (data.experience && data.experience.length > 0) score += 30
+          if (data.education && data.education.length > 0) score += 20
           setCompleteness(Math.min(100, score))
 
           setShowSuccess(true)

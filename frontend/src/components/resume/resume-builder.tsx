@@ -1,42 +1,58 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { DndContext, closestCenter, DragEndEvent } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ResumePreview, ATSScoreCard, TemplateSelector } from './placeholders'
+import { useResumeStore, ExperienceContent } from '@/stores/resume.store'
+import {
+    FileText,
+    Eye,
+    BarChart2,
+    Sparkles,
+    Download,
+    Save,
+    AlertCircle,
+    Check
+} from 'lucide-react'
 import { SectionEditor } from './section-editor'
 import { AIEnhancementPanel } from './ai-enhancement-panel'
-import { useTruthfulEnhancement } from '@/hooks/use-truthful-enhancement'
-import { TruthfulEnhancementModal } from './truthful-enhancement-modal'
+import { cn } from '@/lib/utils'
 
 interface ResumeBuilderProps {
     resumeId?: string
-    initialData?: unknown
 }
 
 export function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
-    void resumeId;
     const [activeTab, setActiveTab] = useState('edit')
-    const [selectedSection, setSelectedSection] = useState<string | null>(null)
+    const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null)
     const [showAIPanel, setShowAIPanel] = useState(false)
-
-    // New Truthful Enhancer Hook
-    const { enhance, enhancement, clearEnhancement, isLoading: isTruthfulLoading } = useTruthfulEnhancement()
+    const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
 
     const {
         resume,
         sections,
         atsScore,
-        isEnhancing,
+        isLoading,
+        isSaving,
+        error,
         updateSection,
         reorderSections,
-        enhanceWithAI, // Legacy store method
         analyzeATS,
         downloadResume,
-        updateResume
+        updateResume,
+        loadResume,
+        saveResume,
+        clearError
     } = useResumeStore()
+
+    useEffect(() => {
+        if (resumeId) {
+            loadResume(resumeId)
+        }
+    }, [resumeId, loadResume])
 
     const handleDragEnd = useCallback((event: DragEndEvent) => {
         const { active, over } = event
@@ -45,181 +61,217 @@ export function ResumeBuilder({ resumeId }: ResumeBuilderProps) {
         }
     }, [reorderSections])
 
-    const handleEnhanceSection = async (sectionId: string) => {
-        // setShowAIPanel(true) // Disable old panel
-        setSelectedSection(sectionId)
-
-        const section = sections.find(s => s.id === sectionId)
-        if (!section) return
-
-        let contentToEnhance = ""
-        if (section.type === 'summary') {
-            contentToEnhance = section.content as string
-        } else if (section.type === 'experience') {
-            const exps = section.content as any[]
-            // For demo, picking first achievement
-            contentToEnhance = exps?.[0]?.achievements?.[0] || exps?.[0]?.description || ""
-        }
-
-        if (contentToEnhance) {
-            await enhance(contentToEnhance)
+    const handleSave = async () => {
+        setSaveStatus('saving')
+        try {
+            await saveResume()
+            setSaveStatus('saved')
+            setTimeout(() => setSaveStatus('idle'), 3000)
+        } catch (err) {
+            setSaveStatus('error')
+            setTimeout(() => setSaveStatus('idle'), 5000)
         }
     }
 
+    const handleEnhanceClick = (sectionId: string) => {
+        setSelectedSectionId(sectionId)
+        setShowAIPanel(true)
+    }
+
+    const handleApplySuggestion = (text: string) => {
+        if (!selectedSectionId) return
+
+        const section = sections.find(s => s.id === selectedSectionId)
+        if (!section) return
+
+        if (section.type === 'summary') {
+            updateSection(selectedSectionId, { content: text })
+        } else if (section.type === 'experience') {
+            const experiences = section.content as ExperienceContent[]
+            if (experiences && experiences.length > 0) {
+                const newExperiences = JSON.parse(JSON.stringify(experiences))
+                // For now, applying to the first achievement of the first experience
+                // In a real app, you'd pick the specific one
+                if (newExperiences[0].achievements && newExperiences[0].achievements.length > 0) {
+                    newExperiences[0].achievements[0] = text
+                } else {
+                    newExperiences[0].description = text
+                }
+                updateSection(selectedSectionId, { content: newExperiences })
+            }
+        }
+    }
+
+    if (isLoading) {
+        return <LoadingState />
+    }
+
     return (
-        <div className="flex h-full gap-6 p-6">
-            {/* Left Panel - Editor */}
-            <div className="flex-1 flex flex-col max-w-2xl">
-                <div className="flex items-center justify-between mb-4">
-                    <h1 className="text-2xl font-bold">Resume Builder</h1>
-                    <div className="flex gap-2">
-                        <Button
-                            variant="outline"
-                            onClick={() => analyzeATS()}
-                            className="gap-2"
-                        >
-                            <BarChart2 className="h-4 w-4" />
-                            Check ATS Score
-                        </Button>
-                        <Button
-                            onClick={() => setShowAIPanel(true)}
-                            className="gap-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700"
-                        >
-                            <Sparkles className="h-4 w-4" />
-                            AI Enhance
-                        </Button>
+        <div className="flex flex-col h-screen overflow-hidden bg-background">
+            {/* Top Toolbar */}
+            <header className="h-16 border-b-2 border-border bg-background-alt px-6 flex items-center justify-between z-10">
+                <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 wobbly-circle bg-accent flex items-center justify-center shadow-hand-sm">
+                        <FileText className="text-white h-5 w-5" />
+                    </div>
+                    <div>
+                        <h1 className="font-heading text-lg leading-tight">{resume?.title || 'New Resume'}</h1>
+                        <p className="text-[10px] uppercase tracking-widest text-foreground-subtle font-heading">
+                            {resume?.personaId ? 'Grounded in Persona' : 'Draft'}
+                        </p>
                     </div>
                 </div>
 
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-                    <TabsList className="grid w-full grid-cols-3">
-                        <TabsTrigger value="edit" className="gap-2">
-                            <FileText className="h-4 w-4" />
-                            Edit
-                        </TabsTrigger>
-                        <TabsTrigger value="template" className="gap-2">
-                            <Eye className="h-4 w-4" />
-                            Template
-                        </TabsTrigger>
-                        <TabsTrigger value="ats" className="gap-2">
-                            <BarChart2 className="h-4 w-4" />
-                            ATS Analysis
-                        </TabsTrigger>
-                    </TabsList>
+                <div className="flex items-center gap-3">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleSave}
+                        disabled={isSaving}
+                        className={cn(
+                            "wobbly-sm border-2 border-border shadow-hand-sm gap-2 transition-all",
+                            saveStatus === 'saved' && "border-success text-success bg-success/5"
+                        )}
+                    >
+                        {saveStatus === 'saving' ? (
+                            <div className="animate-spin h-4 w-4 border-2 border-accent border-t-transparent rounded-full" />
+                        ) : saveStatus === 'saved' ? (
+                            <Check className="h-4 w-4" />
+                        ) : (
+                            <Save className="h-4 w-4" />
+                        )}
+                        {saveStatus === 'saving' ? 'Saving...' : saveStatus === 'saved' ? 'Saved' : 'Save Draft'}
+                    </Button>
 
-                    <TabsContent value="edit" className="flex-1 overflow-auto">
-                        <DndContext
-                            collisionDetection={closestCenter}
-                            onDragEnd={handleDragEnd}
-                        >
-                            <SortableContext
-                                items={sections.map(s => s.id)}
-                                strategy={verticalListSortingStrategy}
+                    <div className="w-px h-6 bg-border mx-1" />
+
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => downloadResume('pdf')}
+                        className="wobbly-sm border-2 border-border shadow-hand-sm gap-2"
+                    >
+                        <Download className="h-4 w-4" />
+                        Export
+                    </Button>
+                </div>
+            </header>
+
+            <main className="flex-1 flex overflow-hidden">
+                {/* Left Panel - Editor */}
+                <div className="w-1/2 flex flex-col border-r-2 border-border bg-background overflow-hidden">
+                    {error && (
+                        <div className="p-4 bg-error/10 border-b-2 border-error text-error text-sm flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <AlertCircle className="h-4 w-4" />
+                                <span>{error}</span>
+                            </div>
+                            <Button variant="ghost" size="sm" onClick={clearError}>Dismiss</Button>
+                        </div>
+                    )}
+
+                    <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+                        <div className="p-4 border-b-2 border-dashed border-border flex items-center justify-between bg-background-muted/20">
+                            <TabsList className="bg-background-muted border-2 border-border wobbly-sm p-1">
+                                <TabsTrigger value="edit" className="gap-2 font-heading text-xs uppercase data-[state=active]:bg-background-alt">
+                                    <FileText className="h-3.5 w-3.5" />
+                                    Edit Content
+                                </TabsTrigger>
+                                <TabsTrigger value="template" className="gap-2 font-heading text-xs uppercase data-[state=active]:bg-background-alt">
+                                    <Eye className="h-3.5 w-3.5" />
+                                    Templates
+                                </TabsTrigger>
+                                <TabsTrigger value="ats" className="gap-2 font-heading text-xs uppercase data-[state=active]:bg-background-alt">
+                                    <BarChart2 className="h-3.5 w-3.5" />
+                                    ATS Score
+                                </TabsTrigger>
+                            </TabsList>
+
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => analyzeATS()}
+                                className="wobbly-sm border-2 border-border shadow-hand-sm font-heading text-[10px] uppercase tracking-wider"
                             >
-                                <div className="space-y-4 py-4">
-                                    {sections.map((section) => (
-                                        <SectionEditor
-                                            key={section.id}
-                                            section={section}
-                                            onUpdate={(data) => updateSection(section.id, data)}
-                                            onEnhance={() => handleEnhanceSection(section.id)}
-                                            isEnhancing={(isEnhancing || isTruthfulLoading) && selectedSection === section.id}
-                                        />
-                                    ))}
-                                </div>
-                            </SortableContext>
-                        </DndContext>
-                    </TabsContent>
+                                <Sparkles className="h-3 w-3 mr-1.5 text-accent" />
+                                Audit Resume
+                            </Button>
+                        </div>
 
-                    <TabsContent value="template">
-                        <TemplateSelector
-                            currentTemplate={resume?.templateId}
-                            onSelect={(templateId) => updateResume({ templateId })}
+                        <div className="flex-1 overflow-auto custom-scrollbar">
+                            <TabsContent value="edit" className="m-0 p-6 space-y-2 outline-none">
+                                <DndContext
+                                    collisionDetection={closestCenter}
+                                    onDragEnd={handleDragEnd}
+                                >
+                                    <SortableContext
+                                        items={sections.map(s => s.id)}
+                                        strategy={verticalListSortingStrategy}
+                                    >
+                                        {sections.map((section) => (
+                                            <SectionEditor
+                                                key={section.id}
+                                                section={section}
+                                                onUpdate={(data) => updateSection(section.id, data)}
+                                                onEnhance={() => handleEnhanceClick(section.id)}
+                                                isEnhancing={false} // Managed by AI panel now
+                                            />
+                                        ))}
+                                    </SortableContext>
+                                </DndContext>
+                            </TabsContent>
+
+                            <TabsContent value="template" className="m-0 p-6 outline-none">
+                                <TemplateSelector
+                                    currentTemplate={resume?.templateId}
+                                    onSelect={(templateId) => updateResume({ templateId })}
+                                />
+                            </TabsContent>
+
+                            <TabsContent value="ats" className="m-0 p-6 outline-none">
+                                <ATSScoreCard
+                                    score={atsScore}
+                                    onReanalyze={analyzeATS}
+                                />
+                            </TabsContent>
+                        </div>
+                    </Tabs>
+                </div>
+
+                {/* Right Panel - Preview */}
+                <div className="flex-1 bg-background-muted/30 flex flex-col p-8 overflow-auto">
+                    <div className="max-w-[800px] mx-auto w-full shadow-hand-xl wobbly-sm bg-white min-h-[1000px] p-12 border-2 border-border border-dashed">
+                        <ResumePreview
+                            resume={resume}
+                            sections={sections}
+                            template={resume?.templateId}
                         />
-                    </TabsContent>
-
-                    <TabsContent value="ats">
-                        <ATSScoreCard
-                            score={atsScore}
-                            onReanalyze={analyzeATS}
-                        />
-                    </TabsContent>
-                </Tabs>
-            </div>
-
-            {/* Right Panel - Preview */}
-            <div className="flex-1 flex flex-col border rounded-lg bg-white dark:bg-gray-800 overflow-hidden shadow-sm">
-                <div className="flex items-center justify-between p-4 border-b bg-gray-50 dark:bg-gray-900/50">
-                    <h2 className="font-semibold">Preview</h2>
-                    <div className="flex gap-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => downloadResume('pdf')}
-                        >
-                            <Download className="h-4 w-4 mr-2" />
-                            PDF
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => downloadResume('docx')}
-                        >
-                            <Download className="h-4 w-4 mr-2" />
-                            DOCX
-                        </Button>
                     </div>
                 </div>
+            </main>
 
-                <div className="flex-1 overflow-auto p-4 bg-gray-100 dark:bg-gray-900">
-                    <ResumePreview
-                        resume={resume}
-                        sections={sections}
-                        template={resume?.templateId}
-                    />
-                </div>
-            </div>
-
-            {/* AI Enhancement Slide-over Panel (Legacy/Alternative) */}
+            {/* AI Enhancement Slide-over Panel */}
             <AIEnhancementPanel
                 open={showAIPanel}
                 onClose={() => setShowAIPanel(false)}
-                section={sections.find(s => s.id === selectedSection)}
-                onApplySuggestion={(text) => {
-                    // ... existing logic ...
-                }}
+                section={sections.find(s => s.id === selectedSectionId)}
+                onApplySuggestion={handleApplySuggestion}
             />
+        </div>
+    )
+}
 
-            {/* New Truthful Enhancement Modal */}
-            {enhancement && (
-                <TruthfulEnhancementModal
-                    enhancement={enhancement}
-                    onAccept={(text) => {
-                        if (selectedSection) {
-                            const section = sections.find(s => s.id === selectedSection)
-                            if (!section) return
-
-                            if (section.type === 'summary') {
-                                updateSection(selectedSection, { content: text })
-                            } else if (section.type === 'experience') {
-                                const experiences = section.content as any[]
-                                if (experiences && experiences.length > 0) {
-                                    const newExperiences = JSON.parse(JSON.stringify(experiences))
-                                    if (newExperiences[0].achievements && newExperiences[0].achievements.length > 0) {
-                                        newExperiences[0].achievements[0] = text
-                                    } else {
-                                        newExperiences[0].description = text
-                                    }
-                                    updateSection(selectedSection, { content: newExperiences })
-                                }
-                            }
-                        }
-                        clearEnhancement()
-                    }}
-                    onReject={clearEnhancement}
-                    onVerify={() => { }}
-                />
-            )}
+function LoadingState() {
+    return (
+        <div className="h-screen w-full flex flex-col items-center justify-center bg-background gap-6">
+            <div className="relative">
+                <div className="w-20 h-20 wobbly-circle border-4 border-accent border-t-transparent animate-spin shadow-hand-md" />
+                <Sparkles className="h-6 w-6 text-accent absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+            </div>
+            <div className="text-center space-y-2">
+                <h2 className="font-heading text-xl text-foreground">Assembling your story...</h2>
+                <p className="font-body text-foreground-subtle animate-pulse">Loading grounded CV data</p>
+            </div>
         </div>
     )
 }

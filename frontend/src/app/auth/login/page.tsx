@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Rocket, Mail, Lock, ArrowRight, Github } from "lucide-react";
 import { SketchButton, SketchCard, SketchInput } from "@/components/ui/hand-drawn";
+import { useAuthStore } from "@/stores/auth.store";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
@@ -23,6 +24,21 @@ export default function LoginPage() {
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.detail || "Login failed");
+
+            const { setUser, setTokens } = useAuthStore.getState();
+
+            // Decode JWT payload (base64) to get user info
+            const payload = data.access_token.split('.')[1];
+            const decoded = JSON.parse(atob(payload));
+
+            setUser({
+                id: decoded.sub,
+                email: decoded.email || '',
+                fullName: decoded.name || decoded.preferred_username || 'User',
+                tier: 'free'
+            });
+
+            setTokens(data.access_token, data.refresh_token || "");
 
             localStorage.setItem("access_token", data.access_token);
             // Set cookie for middleware

@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import Link from "next/link";
+import { useAuthStore } from "@/stores/auth.store";
 import { ArrowRight, Sparkles, Zap, Target, MousePointer2, MoveDown } from "lucide-react";
 import {
   Button,
@@ -27,11 +28,11 @@ import {
 import { cn } from "@/lib/utils";
 
 export default function Home() {
-  useEffect(() => {
-    // Automatically log out when landing on the home page (clean state)
-    document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    localStorage.removeItem("access_token");
-  }, []);
+  const { isAuthenticated } = useAuthStore();
+  const ctaLink = isAuthenticated ? "/dashboard" : "/auth/register";
+  const ctaText = isAuthenticated ? "Go to Dashboard" : "Get Started For Free";
+
+
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -60,8 +61,8 @@ export default function Home() {
             </div>
 
             <Heading level="h1" decoration="none" className="mb-8 leading-[1.1] md:leading-[1.1]">
-              Apply to <span className="wavy-underline text-accent">10x More</span> Jobs <br className="hidden md:block" />
-              <span className="inline-block rotate-subtle bg-background-muted px-4 py-1 mt-2">Without the Stress</span>
+              Apply to <span className="wavy-underline text-marker-red dark:text-marker-red">10x More</span> Jobs <br className="hidden md:block" />
+              <span className="inline-block rotate-subtle bg-background-muted dark:bg-pencil-black/40 px-4 py-1 mt-2">Without the Stress</span>
             </Heading>
 
             <Text size="xl" variant="muted" className="max-w-2xl mx-auto mb-12 leading-relaxed">
@@ -70,8 +71,8 @@ export default function Home() {
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6 relative">
               <Button size="lg" className="-rotate-1 group" asChild>
-                <Link href="/auth/register">
-                  Get Started For Free
+                <Link href={ctaLink}>
+                  {ctaText}
                   <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" strokeWidth={2.5} />
                 </Link>
               </Button>
@@ -144,8 +145,8 @@ export default function Home() {
                   style={{ transform: `rotate(${feature.rotation}deg)` }}
                 >
                   <CardContent className="pt-10 flex flex-col items-center text-center">
-                    <div className="w-16 h-16 wobbly-sm bg-background flex items-center justify-center mb-6 shadow-hand-sm transition-transform group-hover:-translate-y-1 group-hover:rotate-6">
-                      <feature.icon className="w-8 h-8 text-accent" strokeWidth={2.5} />
+                    <div className="w-16 h-16 wobbly-sm bg-background flex items-center justify-center mb-6 shadow-hand-sm transition-transform group-hover:-translate-y-1 group-hover:rotate-6 border-2 border-pencil-black">
+                      <feature.icon className="w-8 h-8 text-ink-blue" strokeWidth={2.5} />
                     </div>
                     <Badge variant="primary" size="sm" className="mb-4">{feature.tag}</Badge>
                     <Heading level="h4" className="mb-4">{feature.title}</Heading>
@@ -184,9 +185,9 @@ export default function Home() {
             <Text size="lg" className="mb-10 max-w-lg mx-auto">
               Join 1,000+ applicants who have found their dream roles using StellarApply's hand-drawn AI edge.
             </Text>
-            <Button size="xl" className="group shadow-hand-lg">
-              <Link href="/auth/register" className="flex items-center">
-                Launch My Journey
+            <Button size="xl" className="group shadow-hand-lg" asChild>
+              <Link href={ctaLink} className="flex items-center">
+                {isAuthenticated ? "Go to Dashboard" : "Launch My Journey"}
                 <Sparkles className="ml-3 w-6 h-6 text-accent-warning fill-accent-warning transition-transform group-hover:scale-125" />
               </Link>
             </Button>

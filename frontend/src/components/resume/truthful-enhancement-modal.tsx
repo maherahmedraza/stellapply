@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { AlertTriangle, CheckCircle, HelpCircle, ArrowRight } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
-import { Typography } from '@/components/ui/typography'
+import { Text, Heading } from '@/components/ui/typography'
 import { Badge } from '@/components/ui/badge'
 
 // Export this type so it can be used by the parent component
@@ -86,16 +86,16 @@ export function TruthfulEnhancementModal({
                             <Badge variant="outline" className="self-start mb-2 uppercase text-[10px] tracking-widest opacity-50">
                                 Original
                             </Badge>
-                            <Typography variant="muted" className="italic">"{enhancement.originalText}"</Typography>
+                            <Text variant="muted" className="italic">"{enhancement.originalText}"</Text>
                         </div>
 
                         {/* Enhanced */}
                         <div className="p-4 wobbly-sm border-2 border-accent/30 bg-accent/5 flex flex-col relative">
-                            <Badge variant="accent" className="self-start mb-2 uppercase text-[10px] tracking-widest">
+                            <Badge variant="primary" className="self-start mb-2 uppercase text-[10px] tracking-widest">
                                 AI Sketch
                             </Badge>
                             <ArrowRight className="absolute -left-6 top-1/2 -translate-y-1/2 text-accent/30 hidden md:block" />
-                            <Typography className="font-bold">{enhancement.enhancedText}</Typography>
+                            <Text className="font-bold">{enhancement.enhancedText}</Text>
                         </div>
                     </div>
 
@@ -104,10 +104,10 @@ export function TruthfulEnhancementModal({
                         <CardContent className="p-4 flex items-start gap-3">
                             <HelpCircle className="h-5 w-5 text-accent shrink-0 mt-0.5" />
                             <div className="space-y-1">
-                                <Typography variant="h5" className="text-sm">Why this is truthful:</Typography>
-                                <Typography variant="muted" className="text-sm leading-relaxed">
+                                <Heading level="h5" className="text-sm">Why this is truthful:</Heading>
+                                <Text variant="muted" className="text-sm leading-relaxed">
                                     {enhancement.groundingExplanation}
-                                </Typography>
+                                </Text>
                             </div>
                         </CardContent>
                     </Card>
@@ -115,12 +115,12 @@ export function TruthfulEnhancementModal({
                     {/* Placeholder Verification */}
                     {placeholders.length > 0 && (
                         <div className="p-6 wobbly-md border-2 border-accent-warning/30 bg-accent-warning/5 space-y-4">
-                            <Typography variant="h4" className="text-accent-warning text-lg flex items-center gap-2">
+                            <Heading level="h4" className="text-accent-warning text-lg flex items-center gap-2">
                                 ⚠️ Fill in the Details
-                            </Typography>
-                            <Typography variant="muted" size="sm">
+                            </Heading>
+                            <Text variant="muted" size="sm">
                                 To keep your resume 100% honest, please provide the actual numbers or details for these placeholders:
-                            </Typography>
+                            </Text>
                             <div className="space-y-3">
                                 {placeholders.map((placeholder) => (
                                     <div key={placeholder} className="flex flex-col sm:flex-row sm:items-center gap-3">
@@ -139,9 +139,9 @@ export function TruthfulEnhancementModal({
                                     </div>
                                 ))}
                             </div>
-                            <Typography variant="subtle" size="xs" className="italic mt-4 opacity-70">
+                            <Text variant="subtle" size="sm" className="italic mt-4 opacity-70">
                                 Tip: Only use metrics you can defend in a real interview.
-                            </Typography>
+                            </Text>
                         </div>
                     )}
 

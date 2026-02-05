@@ -4,10 +4,17 @@ from fastapi.exceptions import RequestValidationError
 from sqlalchemy.exc import SQLAlchemyError
 
 
-async def global_exception_handler(request: Request, _exc: Exception):
+async def global_exception_handler(request: Request, exc: Exception):
+    import traceback
+
+    traceback.print_exc()
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={"detail": "Internal Server Error", "path": request.url.path},
+        content={
+            "detail": f"Internal Server Error: {str(exc)}",
+            "traceback": traceback.format_exc(),
+            "path": request.url.path,
+        },
     )
 
 

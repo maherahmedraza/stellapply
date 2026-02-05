@@ -1,51 +1,100 @@
 import { useState, useCallback } from 'react'
-import { resumeApi } from '@/lib/api/resume'
-import { TruthfulEnhancement } from '@/components/resume/truthful-enhancement-modal'
+import { fetcher } from '@/lib/api'
+
+export interface TruthfulEnhancement {
+    originalText: string
+    enhancedText: string
+    verificationStatus: 'verified' | 'plausible' | 'needs_confirmation' | 'rejected'
+    confidenceScore: number
+    sourcePersonaFields: string[]
+    defensibilityScore: number
+    interviewTalkingPoints: string[]
+    enhancementType: string
+    requiresConfirmation: boolean
+    confirmationPrompt?: string
+}
 
 export function useTruthfulEnhancement() {
     const [enhancement, setEnhancement] = useState<TruthfulEnhancement | null>(null)
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
-    const enhance = useCallback(async (content: string, role?: string) => {
+    const enhance = useCallback(async (
+        originalText: string,
+        sectionType: 'summary' | 'bullet_point' | 'description' = 'bullet_point'
+    ) => {
         setIsLoading(true)
         setError(null)
-        try {
-            const result = await resumeApi.enhanceTruthfully(content, role)
-            // Map API response to our UI interface if names differ, 
-            // but my Pydantic model uses snake_case and my interface currently uses camelCase in standard TS/React.
-            // Let's check the API response key names.
-            // The Python Pydantic model `TruthfulEnhancement` uses snake_case.
-            // The interface `TruthfulEnhancement` in modal uses camelCase.
-            // I need to map it here.
 
-            const mappedEnhancement: TruthfulEnhancement = {
-                originalText: result.original_text,
-                enhancedText: result.enhanced_text,
-                requiresVerification: result.requires_user_verification || false,
-                verificationPrompt: result.verification_question || result.verification_prompt,
-                metricsArePlaceholder: result.metrics_are_placeholder || false,
-                groundingExplanation: result.grounding_explanation || result.truthfulness_explanation,
-                enhancementType: result.enhancement_type
+        try {
+            const response = await fetcher('/api/v1/resume/enhance-truthful', {
+                method: 'POST',
+                body: JSON.stringify({
+                    original_text: originalText,
+                    section_type: sectionType
+                })
+            })
+
+            const data: TruthfulEnhancement = {
+                originalText: response.original_text,
+                enhancedText: response.enhanced_text,
+                verificationStatus: response.verification_status,
+                confidenceScore: response.confidence_score,
+                sourcePersonaFields: response.source_persona_fields,
+                defensibilityScore: response.defensibility_score,
+                interviewTalkingPoints: response.interview_talking_points,
+                enhancementType: response.enhancement_type,
+                requiresConfirmation: response.requires_confirmation,
+                confirmationPrompt: response.confirmation_prompt
             }
 
-            setEnhancement(mappedEnhancement)
-            return mappedEnhancement
+            setEnhancement(data)
+            return data
+
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Failed to generate enhancement")
-            return null
+            setError(err instanceof Error ? err.message : 'Failed to generate truthful enhancement')
+            throw err
         } finally {
             setIsLoading(false)
         }
     }, [])
 
-    const clearEnhancement = () => setEnhancement(null)
+    const confirmPlaceholders = useCallback(async (
+        enhancementId: string,
+        placeholderValues: Record<string, string>
+    ) => {
+        setIsLoading(true)
+        try {
+            const response = await fetcher('/api/v1/resume/confirm-enhancement', {
+                method: 'POST',
+                body: JSON.stringify({
+                    enhancement_id: enhancementId,
+                    placeholder_values: placeholderValues
+                })
+            })
+
+            setEnhancement(prev => prev ? {
+                ...prev,
+                enhancedText: response.final_text,
+                verificationStatus: 'verified',
+                requiresConfirmation: false
+            } : null)
+
+            return response.final_text
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to confirm enhancement')
+            throw err
+        } finally {
+            setIsLoading(false)
+        }
+    }, [])
 
     return {
+        enhance,
+        confirmPlaceholders,
         enhancement,
         isLoading,
         error,
-        enhance,
-        clearEnhancement
+        clearEnhancement: () => setEnhancement(null)
     }
 }

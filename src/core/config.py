@@ -1,7 +1,7 @@
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import Field, field_validator
+from pydantic import Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -34,15 +34,33 @@ class SecuritySettings(BaseSettings):
 
     model_config = SettingsConfigDict(env_prefix="SECURITY_", extra="ignore")
 
-    SECRET_KEY: str = Field(
-        default="super-secret-key-that-is-at-least-32-chars-long", min_length=32
+    SECRET_KEY: SecretStr = Field(
+        ...,  # Required - no default
+        min_length=32,
+        description="REQUIRED: Set via SECURITY_SECRET_KEY environment variable",
     )
-    ENCRYPTION_KEY: str = Field(
-        default="another-very-long-secret-key-for-encryption-32", min_length=32
+    ENCRYPTION_KEY: SecretStr = Field(
+        ...,  # Required - no default
+        min_length=32,
+        description="REQUIRED: Set via SECURITY_ENCRYPTION_KEY environment variable",
     )
     ALGORITHM: str = "RS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=30, ge=1)
     REFRESH_TOKEN_EXPIRE_DAYS: int = Field(default=7, ge=1)
+
+    @field_validator("SECRET_KEY", "ENCRYPTION_KEY", mode="before")
+    @classmethod
+    def validate_not_default(cls, v: str) -> str:
+        dangerous_defaults = [
+            "super-secret",
+            "password",
+            "changeme",
+            "secret",
+            "default",
+        ]
+        if any(d in v.lower() for d in dangerous_defaults):
+            raise ValueError("Using insecure default secret - set a proper value!")
+        return v
 
 
 class AISettings(BaseSettings):
@@ -124,6 +142,31 @@ class Settings(BaseSettings):
         if v == "production":
             cls.DEBUG = False
         return v
+
+    @model_validator(mode="after")
+    def validate_production_settings(self) -> "Settings":
+        """Ensure production environment has proper configuration."""
+        if self.ENVIRONMENT == "production":
+            # Check for development defaults
+            if self.DEBUG:
+                raise ValueError("DEBUG must be False in production")
+
+            if "localhost" in self.db.URL:
+                raise ValueError("Production database URL cannot be localhost")
+
+            if "localhost" in self.redis.URL:
+                raise ValueError("Production Redis URL cannot be localhost")
+
+            if not self.ai.GEMINI_API_KEY:
+                raise ValueError("GEMINI_API_KEY required in production")
+
+            if len(self.ALLOWED_ORIGINS) == 0:
+                raise ValueError("ALLOWED_ORIGINS must be set in production")
+
+            if any("localhost" in origin for origin in self.ALLOWED_ORIGINS):
+                raise ValueError("localhost not allowed in production CORS origins")
+
+        return self
 
 
 @lru_cache

@@ -20,21 +20,28 @@ class EncryptionError(Exception):
     pass
 
 
+import os
+import base64
+from typing import Any, Tuple
+
+
 class EncryptionService:
-    """Service for field-level encryption using Fernet and PBKDF2 key derivation."""
+    """
+    Service for field-level encryption using Fernet.
+    Each encryption operation uses a unique random salt.
+    """
+
+    SALT_LENGTH = 16
 
     def __init__(self, master_key: str | None = None):
-        master_secret = (master_key or settings.security.SECRET_KEY).encode()
+        master_secret = master_key or settings.security.SECRET_KEY.get_secret_value()
+        if isinstance(master_secret, str):
+            master_secret = master_secret.encode()
         self.master_key = master_secret
         self._iterations = 100_000
-        # For simple field encryption, we use a fixed salt for deterministic
-        # derivation if needed, but standard Fernet handles its own IV/Salt
-        # per message. Here we derive a stable key for the Fernet instance.
-        self._key = self._derive_key(b"stellapply-static-salt")
-        self._fernet = Fernet(self._key)
 
     def _derive_key(self, salt: bytes) -> bytes:
-        """Derive a 32-byte key using PBKDF2."""
+        """Derive a 32-byte key using PBKDF2 with provided salt."""
         kdf = PBKDF2HMAC(
             algorithm=hashes.SHA256(),
             length=32,
@@ -44,21 +51,48 @@ class EncryptionService:
         return base64.urlsafe_b64encode(kdf.derive(self.master_key))
 
     def encrypt_field(self, plaintext: str) -> str:
-        """Encrypt a string and return base64 encoded ciphertext."""
+        """
+        Encrypt a string with a random salt.
+        Returns: base64(salt + ciphertext)
+        """
         if not plaintext:
             return plaintext
+
         try:
-            return self._fernet.encrypt(plaintext.encode()).decode()
+            # Generate random salt for this encryption
+            salt = os.urandom(self.SALT_LENGTH)
+            key = self._derive_key(salt)
+            fernet = Fernet(key)
+
+            ciphertext = fernet.encrypt(plaintext.encode())
+
+            # Prepend salt to ciphertext
+            combined = salt + ciphertext
+            return base64.urlsafe_b64encode(combined).decode()
+
         except Exception as e:
             logger.error(f"Encryption failed: {str(e)}")
             raise EncryptionError("Failed to encrypt data") from e
 
-    def decrypt_field(self, ciphertext: str) -> str:
-        """Decrypt a base64 encoded ciphertext."""
-        if not ciphertext:
-            return ciphertext
+    def decrypt_field(self, encrypted_data: str) -> str:
+        """
+        Decrypt data encrypted with encrypt_field.
+        """
+        if not encrypted_data:
+            return encrypted_data
+
         try:
-            return self._fernet.decrypt(ciphertext.encode()).decode()
+            combined = base64.urlsafe_b64decode(encrypted_data.encode())
+
+            # Extract salt and ciphertext
+            salt = combined[: self.SALT_LENGTH]
+            ciphertext = combined[self.SALT_LENGTH :]
+
+            key = self._derive_key(salt)
+            fernet = Fernet(key)
+
+            return fernet.decrypt(ciphertext).decode()
+
         except Exception as e:
             logger.error(f"Decryption failed: {str(e)}")
             raise EncryptionError("Failed to decrypt data") from e

@@ -31,26 +31,99 @@ class TokenPair(BaseModel):
     token_type: str = "bearer"
 
 
+import os
+import uuid
+import logging
+from collections.abc import Callable
+from datetime import UTC, datetime, timedelta
+from typing import Any
+
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+from jose import JWTError, jwt
+from pydantic import BaseModel
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.backends import default_backend
+
+from src.core.config import settings
+from src.core.infrastructure.redis import redis_provider
+
+logger = logging.getLogger(__name__)
+
+
 class JWTHandler:
-    """Enterprise JWT handler with RS256, Refresh tokens, and Revocation."""
+    """Enterprise JWT handler with RS256 asymmetric signing."""
 
     def __init__(self) -> None:
-        # In a real RS256 setup, we would load .pem files.
-        # For this implementation, we allow fallback to HS256 if RS256 keys
-        # aren't provided but the logic is prepared for RS256.
-        self.secret_key = settings.security.SECRET_KEY
         self.algorithm = settings.security.ALGORITHM
         self.access_expire = settings.security.ACCESS_TOKEN_EXPIRE_MINUTES
         self.refresh_expire_days = settings.security.REFRESH_TOKEN_EXPIRE_DAYS
+
+        # Load keys based on algorithm
+        if self.algorithm.startswith("RS"):
+            self._load_rsa_keys()
+        else:
+            # Fallback to symmetric for HS256
+            self.secret_key = settings.security.SECRET_KEY.get_secret_value()
+            self.public_key = self.secret_key
+
+    def _load_rsa_keys(self) -> None:
+        """Load RSA keys from files or environment."""
+        private_key_path = os.getenv("JWT_PRIVATE_KEY_PATH", "keys/private.pem")
+        public_key_path = os.getenv("JWT_PUBLIC_KEY_PATH", "keys/public.pem")
+
+        # Try loading from files
+        try:
+            if os.path.exists(private_key_path):
+                with open(private_key_path, "rb") as f:
+                    self.secret_key = serialization.load_pem_private_key(
+                        f.read(), password=None, backend=default_backend()
+                    )
+            else:
+                # Fallback to environment variable
+                private_key_pem = os.getenv("JWT_PRIVATE_KEY")
+                if not private_key_pem:
+                    # For dev, we might want a warning or a default,
+                    # but the review says "no default" for production.
+                    # We'll use the SECRET_KEY as a placeholder IF NOT PRODUCTION,
+                    # but let's follow the review's strictness.
+                    raise ValueError(
+                        "RS256 algorithm requires private key. "
+                        "Set JWT_PRIVATE_KEY_PATH or JWT_PRIVATE_KEY environment variable."
+                    )
+                self.secret_key = serialization.load_pem_private_key(
+                    private_key_pem.encode(), password=None, backend=default_backend()
+                )
+
+            if os.path.exists(public_key_path):
+                with open(public_key_path, "rb") as f:
+                    self.public_key = serialization.load_pem_public_key(
+                        f.read(), backend=default_backend()
+                    )
+            else:
+                public_key_pem = os.getenv("JWT_PUBLIC_KEY")
+                if not public_key_pem:
+                    # Try to derive public key from private key if not provided
+                    self.public_key = self.secret_key.public_key()
+                else:
+                    self.public_key = serialization.load_pem_public_key(
+                        public_key_pem.encode(), backend=default_backend()
+                    )
+        except Exception as e:
+            logger.error(f"Failed to load RSA keys: {e}")
+            # If in development, maybe generate or fallback, but let's be strict for now
+            raise
 
     def _create_token(self, data: dict[str, Any], expires_delta: timedelta) -> str:
         to_encode = data.copy()
         now = datetime.now(UTC)
         expire = now + expires_delta
 
-        to_encode.update({"exp": expire, "iat": now, "jti": str(uuid.uuid4())})
+        to_encode.update(
+            {"exp": expire, "iat": now, "jti": str(uuid.uuid4()), "nbf": now}
+        )
 
-        return str(jwt.encode(to_encode, self.secret_key, algorithm=self.algorithm))
+        return jwt.encode(to_encode, self.secret_key, algorithm=self.algorithm)
 
     def create_access_token(self, user_id: str, roles: list[str], tier: str) -> str:
         payload: dict[str, Any] = {"sub": user_id, "roles": roles, "tier": tier}
@@ -62,7 +135,17 @@ class JWTHandler:
 
     async def verify_token(self, token: str) -> TokenPayload:
         try:
-            payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
+            payload = jwt.decode(
+                token,
+                self.public_key,
+                algorithms=[self.algorithm],
+                options={
+                    "verify_exp": True,
+                    "verify_iat": True,
+                    "verify_nbf": True,
+                    "require": ["exp", "iat", "sub", "jti"],
+                },
+            )
             token_data = TokenPayload(**payload)
 
             # Check revocation in Redis
@@ -70,6 +153,13 @@ class JWTHandler:
                 raise JWTError("Token has been revoked")
 
             return token_data
+
+        except jwt.ExpiredSignatureError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token has expired",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
         except JWTError as e:
             logger.error(f"Token verification failed: {str(e)}")
             raise HTTPException(
@@ -90,8 +180,9 @@ class JWTHandler:
         payload = await self.verify_token(refresh_token)
 
         # 2. Check if it's actually a refresh token
+        # We need to decode again to check 'type' as TokenPayload doesn't have it
         raw_payload = jwt.decode(
-            refresh_token, self.secret_key, algorithms=[self.algorithm]
+            refresh_token, self.public_key, algorithms=[self.algorithm]
         )
         if raw_payload.get("type") != "refresh":
             raise HTTPException(status_code=400, detail="Invalid token type")

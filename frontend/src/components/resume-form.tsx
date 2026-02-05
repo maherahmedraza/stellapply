@@ -42,12 +42,14 @@ export function ResumeForm({ initialData, resumeId }: ResumeFormProps) {
         e.preventDefault();
         setLoading(true);
         try {
+            let id = resumeId;
             if (resumeId) {
-                await api.put(`/api/v1/resumes/${resumeId}`, formData);
+                await api.put(`/api/v1/resume/${resumeId}`, formData);
             } else {
-                await api.post("/api/v1/resumes", formData);
+                const res = await api.post("/api/v1/resume", formData);
+                id = res.id;
             }
-            router.push("/dashboard/resumes");
+            router.push(`/dashboard/resumes/${id}`);
             router.refresh();
         } catch (error) {
             console.error("Failed to save resume:", error);
@@ -89,8 +91,8 @@ export function ResumeForm({ initialData, resumeId }: ResumeFormProps) {
                                             type="button"
                                             onClick={() => setFormData({ ...formData, template_id: t })}
                                             className={`wobble px-4 py-2 border-2 font-handwritten font-bold capitalize transition-all ${formData.template_id === t
-                                                    ? "bg-ink-blue text-white border-pencil-black shadow-sketch-sm rotate-2"
-                                                    : "bg-white text-pencil-black/40 border-pencil-black/20 hover:border-pencil-black/40"
+                                                ? "bg-ink-blue text-white border-pencil-black shadow-sketch-sm rotate-2"
+                                                : "bg-white text-pencil-black/40 border-pencil-black/20 hover:border-pencil-black/40"
                                                 }`}
                                         >
                                             {t.replace("_v1", "")}

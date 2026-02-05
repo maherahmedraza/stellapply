@@ -7,19 +7,33 @@ from src.modules.resume.domain.models import Resume, ResumeTemplate
 from src.modules.resume.domain.repository import ResumeRepository
 
 
+from sqlalchemy.orm import selectinload
+
+
 class SQLAlchemyResumeRepository(ResumeRepository):
     def __init__(self, session: AsyncSession):
         self._session = session
 
     async def get_by_id(self, resume_id: UUID) -> Resume | None:
         result = await self._session.execute(
-            select(Resume).where(Resume.id == resume_id, Resume.deleted_at.is_(None))
+            select(Resume)
+            .options(
+                selectinload(Resume.sections),
+                selectinload(Resume.ats_analyses),
+                selectinload(Resume.versions),
+            )
+            .where(Resume.id == resume_id, Resume.deleted_at.is_(None))
         )
         return result.scalar_one_or_none()
 
     async def get_all_by_user_id(self, user_id: UUID) -> list[Resume]:
         result = await self._session.execute(
             select(Resume)
+            .options(
+                selectinload(Resume.sections),
+                selectinload(Resume.ats_analyses),
+                selectinload(Resume.versions),
+            )
             .where(Resume.user_id == user_id, Resume.deleted_at.is_(None))
             .order_by(Resume.updated_at.desc())
         )
@@ -27,7 +41,13 @@ class SQLAlchemyResumeRepository(ResumeRepository):
 
     async def get_primary_by_user_id(self, user_id: UUID) -> Resume | None:
         result = await self._session.execute(
-            select(Resume).where(
+            select(Resume)
+            .options(
+                selectinload(Resume.sections),
+                selectinload(Resume.ats_analyses),
+                selectinload(Resume.versions),
+            )
+            .where(
                 Resume.user_id == user_id,
                 Resume.is_primary,
                 Resume.deleted_at.is_(None),
@@ -49,8 +69,10 @@ class SQLAlchemyResumeRepository(ResumeRepository):
             )
 
         self._session.add(resume)
-        await self._session.flush()
-        return resume
+        await self._session.commit()
+
+        # Re-fetch with relationships
+        return await self.get_by_id(resume.id)
 
     async def delete(self, resume_id: UUID) -> None:
         resume = await self.get_by_id(resume_id)

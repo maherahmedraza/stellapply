@@ -118,12 +118,19 @@ class PersonaService:
             job_title=schema.job_title,
             start_date=schema.start_date,
             end_date=schema.end_date,
-            description=schema.description,
+            description_original=schema.description,
+            description_active=schema.description,
             achievements=schema.achievements,
             skills_used=schema.skills_used,
             experience_embedding=schema.experience_embedding,
         )
-        return await self._repository.add_experience(experience)
+        exp = await self._repository.add_experience(experience)
+
+        # Recalculate completeness
+        persona.completeness_score = self._calculate_completeness(persona)
+        await self._repository.save(persona)
+
+        return exp
 
     async def update_experience(
         self, user_id: UUID, experience_id: UUID, schema: ExperienceUpdate
@@ -139,6 +146,9 @@ class PersonaService:
         persona = await self._repository.get_by_user_id(user_id)
         if persona:
             await self._repository.delete_experience(persona.id, experience_id)
+            # Recalculate completeness
+            persona.completeness_score = self._calculate_completeness(persona)
+            await self._repository.save(persona)
 
     # =============== Education Methods ===============
 
@@ -157,7 +167,13 @@ class PersonaService:
             graduation_date=schema.graduation_date,
             gpa=schema.gpa,
         )
-        return await self._repository.add_education(education)
+        edu = await self._repository.add_education(education)
+
+        # Recalculate completeness
+        persona.completeness_score = self._calculate_completeness(persona)
+        await self._repository.save(persona)
+
+        return edu
 
     async def update_education(
         self, user_id: UUID, education_id: UUID, schema: EducationUpdate
@@ -171,6 +187,9 @@ class PersonaService:
         persona = await self._repository.get_by_user_id(user_id)
         if persona:
             await self._repository.delete_education(persona.id, education_id)
+            # Recalculate completeness
+            persona.completeness_score = self._calculate_completeness(persona)
+            await self._repository.save(persona)
 
     # =============== Skill Methods ===============
 
@@ -187,7 +206,13 @@ class PersonaService:
             category=schema.category,
             proficiency_level=schema.proficiency_level,
         )
-        return await self._repository.add_skill(skill)
+        s = await self._repository.add_skill(skill)
+
+        # Recalculate completeness
+        persona.completeness_score = self._calculate_completeness(persona)
+        await self._repository.save(persona)
+
+        return s
 
     async def update_skill(
         self, user_id: UUID, skill_id: UUID, schema: SkillUpdate
@@ -201,6 +226,9 @@ class PersonaService:
         persona = await self._repository.get_by_user_id(user_id)
         if persona:
             await self._repository.delete_skill(persona.id, skill_id)
+            # Recalculate completeness
+            persona.completeness_score = self._calculate_completeness(persona)
+            await self._repository.save(persona)
 
     # =============== Career Preference Methods ===============
 
@@ -218,4 +246,10 @@ class PersonaService:
             raise ValueError(
                 "Persona not found. Please create a persona first by saving Basic Info."
             )
-        return await self._repository.update_career_preference(persona.id, schema)
+        pref = await self._repository.update_career_preference(persona.id, schema)
+
+        # Recalculate completeness
+        persona.completeness_score = self._calculate_completeness(persona)
+        await self._repository.save(persona)
+
+        return pref

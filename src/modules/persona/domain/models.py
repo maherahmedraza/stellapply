@@ -54,6 +54,7 @@ class DegreeType(StrEnum):
     DOCTORATE = "DOCTORATE"
     PROFESSIONAL = "PROFESSIONAL"
     CERTIFICATION = "CERTIFICATION"
+    CERTIFICATE = "CERTIFICATION"  # Alias for frontend compatibility
     OTHER = "OTHER"
 
 
@@ -125,7 +126,9 @@ class Persona(BaseModel):
     summary_active: Mapped[str | None] = mapped_column(Text)
 
     # Preferences
-    work_authorization: Mapped[list[str]] = mapped_column(ARRAY(String), default=[])
+    work_authorization: Mapped[WorkAuthorization] = mapped_column(
+        Enum(WorkAuthorization), nullable=False, default=WorkAuthorization.NOT_REQUIRED
+    )
     requires_sponsorship: Mapped[bool] = mapped_column(Boolean, default=False)
     remote_preference: Mapped[RemotePreference] = mapped_column(
         Enum(RemotePreference), nullable=False, default=RemotePreference.ANY
@@ -281,6 +284,10 @@ class Experience(BaseModel):
 
     # Metadata
     order: Mapped[int] = mapped_column(Integer, default=0)
+
+    @property
+    def description(self) -> str | None:
+        return self.description_active or self.description_original
 
     # Relationships
     persona: Mapped["Persona"] = relationship("Persona", back_populates="experiences")

@@ -11,6 +11,7 @@ from pydantic import BaseModel
 from src.api.middleware.auth import get_current_user
 from src.core.database.connection import get_db
 from src.modules.resume.api.schemas import ResumeCreate, ResumeResponse, ResumeUpdate
+from src.modules.resume.domain.schemas import RenderedResume
 from src.modules.resume.domain.services import ResumeService
 from src.modules.resume.infrastructure.repository import SQLAlchemyResumeRepository
 
@@ -229,11 +230,15 @@ async def upload_and_parse_resume(
 # =============== Existing Resume CRUD Endpoints ===============
 
 
+from src.modules.persona.infrastructure.repository import SQLAlchemyPersonaRepository
+
+
 async def get_resume_service(
     db: AsyncSession = Depends(get_db),
 ) -> ResumeService:
     repository = SQLAlchemyResumeRepository(db)
-    return ResumeService(repository)
+    persona_repository = SQLAlchemyPersonaRepository(db)
+    return ResumeService(repository, persona_repository)
 
 
 @router.get("/", response_model=list[ResumeResponse])
@@ -362,5 +367,24 @@ async def analyze_resume(
             status_code=status.HTTP_403_FORBIDDEN, detail="Access denied"
         )
 
-    analyzed_resume = await service.analyze_ats(resume_id)
-    return ResumeResponse.model_validate(analyzed_resume)
+
+@router.get("/{resume_id}/render", response_model=RenderedResume)
+async def render_resume(
+    resume_id: UUID,
+    current_user: dict[str, Any] = Depends(get_current_user),
+    service: ResumeService = Depends(get_resume_service),
+) -> RenderedResume:
+    """Get the fully rendered resume content (grounded in Persona)."""
+    resume = await service.get_resume(resume_id)
+    if not resume:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Resume not found"
+        )
+
+    user_id_str = current_user.get("sub")
+    if user_id_str and resume.user_id != UUID(user_id_str):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Access denied"
+        )
+
+    return await service.render_resume(resume_id)

@@ -9,7 +9,7 @@ from typing import Any, TypeVar
 from uuid import UUID, uuid4
 
 from fastapi import Request, Response
-from sqlalchemy import DateTime, Enum, String, Text, select
+from sqlalchemy import DateTime, Enum, String, Text, select, text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -94,49 +94,67 @@ class AuditLogger:
         new_value: dict[str, Any] | None = None,
         metadata: dict[str, Any] | None = None,
     ) -> AuditEvent:
-        """Create and persist a new audit event with hash chaining."""
-        # Get latest event hash
-        stmt = select(AuditEvent).order_by(AuditEvent.timestamp.desc()).limit(1)
-        result = await self.db.execute(stmt)
-        last_event = result.scalar_one_or_none()
-        prev_hash = last_event.hash_chain if last_event else "initial-seed"
+        """
+        Create and persist a new audit event with hash chaining.
+        Uses database-level locking to prevent race conditions.
+        """
+        # Use advisory lock to serialize audit log writes
+        # 1234567890 is a constant key for audit logging serialization
+        lock_key = 1234567890
 
-        # Prepare encrypted PII
-        ip_encrypted = encryption_service.encrypt_field(ip_address)
-        ua_fingerprint = hashlib.sha256(user_agent.encode()).hexdigest()
+        try:
+            # Acquire transaction-level advisory lock
+            await self.db.execute(text(f"SELECT pg_advisory_xact_lock({lock_key})"))
 
-        old_val_enc = (
-            encryption_service.encrypt_field(json.dumps(old_value))
-            if old_value
-            else None
-        )
-        new_val_enc = (
-            encryption_service.encrypt_field(json.dumps(new_value))
-            if new_value
-            else None
-        )
+            # Now safe to get the latest event hash without race conditions
+            stmt = (
+                select(AuditEvent.hash_chain)
+                .order_by(AuditEvent.timestamp.desc())
+                .limit(1)
+            )
+            result = await self.db.execute(stmt)
+            prev_hash = result.scalar_one_or_none() or "initial-seed"
 
-        event = AuditEvent(
-            user_id=user_id,
-            action=action,
-            resource_type=resource_type,
-            resource_id=resource_id,
-            ip_address_encrypted=ip_encrypted,
-            user_agent_hash=ua_fingerprint,
-            request_id=request_id,
-            old_value_encrypted=old_val_enc,
-            new_value_encrypted=new_val_enc,
-            metadata_json=metadata,
-            hash_chain="pending",  # Placeholder
-        )
+            # Prepare encrypted PII
+            ip_encrypted = encryption_service.encrypt_field(ip_address)
+            ua_fingerprint = hashlib.sha256(user_agent.encode()).hexdigest()
 
-        # We need to set timestamp explicitly if we calculate hash before commit
-        event.timestamp = datetime.now(UTC)
-        event.hash_chain = self._calculate_hash(event, prev_hash)
+            old_val_enc = (
+                encryption_service.encrypt_field(json.dumps(old_value))
+                if old_value
+                else None
+            )
+            new_val_enc = (
+                encryption_service.encrypt_field(json.dumps(new_value))
+                if new_value
+                else None
+            )
 
-        self.db.add(event)
-        await self.db.commit()
-        return event
+            event = AuditEvent(
+                user_id=user_id,
+                action=action,
+                resource_type=resource_type,
+                resource_id=resource_id,
+                ip_address_encrypted=ip_encrypted,
+                user_agent_hash=ua_fingerprint,
+                request_id=request_id,
+                old_value_encrypted=old_val_enc,
+                new_value_encrypted=new_val_enc,
+                metadata_json=metadata,
+                timestamp=datetime.now(UTC),
+                hash_chain="pending",
+            )
+
+            event.hash_chain = self._calculate_hash(event, prev_hash)
+
+            self.db.add(event)
+            await self.db.commit()
+            return event
+
+        except Exception as e:
+            logger.error(f"Failed to log audit event: {e}")
+            await self.db.rollback()
+            raise
 
     async def get_user_audit_trail(
         self, user_id: str, start_date: datetime, end_date: datetime

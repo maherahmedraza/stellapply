@@ -1,26 +1,43 @@
+import asyncio
+import functools
+import logging
 from datetime import UTC, datetime
+from typing import Any, Callable, TypeVar
 from uuid import UUID
 
 from celery import shared_task
-
-from src.core.database.connection import AsyncSessionLocal
+from src.core.database.connection import get_db_context
 from src.modules.auto_apply.domain.models import QueueStatus
 from src.modules.auto_apply.domain.repository import ApplicationQueueRepository
+from src.modules.auto_apply.infrastructure.browser.form_filler import ApplicationResult
 
-# from src.modules.auto_apply.services.auto_apply_service import AutoApplyService # Assuming existence or will create stub?
-# The prompt mentions AutoApplyService. I'll need to check if it exists or implement logic directly/stub.
-# Given previous step, I have FormFiller. AutoApplyService likely wraps FormFiller.
-# I will use FormFiller directly if AutoApplyService is not found, or define a basic service wrapper.
-# For now, I'll strictly follow the prompt's structure but adapt to what I have.
-# Checking existing services
-from src.modules.auto_apply.infrastructure.browser.form_filler import (
-    ApplicationResult,
-)
+logger = logging.getLogger(__name__)
 
-# I need to obtain FormFiller dependencies: Detector, PersonaService, QuestionAnswerer.
-# Integration in a Celery task requires dependency injection or factory.
+T = TypeVar("T")
 
-# Let's assume a Service Factory or helper exists. If not, I'll instantiate here (not ideal but functional).
+
+def async_to_sync(f: Callable[..., Any]) -> Callable[..., Any]:
+    """
+    Decorator to run an async function in a synchronous context.
+    Properly manages event loops for Celery workers.
+    """
+
+    @functools.wraps(f)
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+
+        if loop.is_running():
+            # If already running (not typical for Celery but possible),
+            # we need a different strategy like running in a separate thread
+            return asyncio.run_coroutine_threadsafe(f(*args, **kwargs), loop).result()
+        else:
+            return loop.run_until_complete(f(*args, **kwargs))
+
+    return wrapper
 
 
 @shared_task(
@@ -30,69 +47,59 @@ from src.modules.auto_apply.infrastructure.browser.form_filler import (
     retry_backoff=True,
     name="src.workers.tasks.auto_apply.apply_job_task",
 )
-def apply_job_task(self, queue_item_id: str):
-    """Process a single job application"""
-    import asyncio
+@async_to_sync
+async def apply_job_task(self, queue_item_id: str):
+    """
+    Process a single job application.
+    Bridged to async execution via decorator.
+    """
+    async with get_db_context() as session:
+        repo = ApplicationQueueRepository(session)
 
-    async def _process_application():
-        async with AsyncSessionLocal() as session:
-            repo = ApplicationQueueRepository(session)
-            # We need redis for QueueManager but for just updating status here we might only need repo + FormFiller
-            # The prompt code re-instantiated QueueManager.
+        queue_item = await repo.get(UUID(queue_item_id))
+        if not queue_item:
+            logger.error(f"Queue item {queue_item_id} not found")
+            return "Item not found"
 
-            queue_item = await repo.get(UUID(queue_item_id))
-            if not queue_item:
-                return "Item not found"
+        if queue_item.status == QueueStatus.CANCELLED:
+            return "Cancelled"
 
-            if queue_item.status == QueueStatus.CANCELLED:
-                return "Cancelled"
+        # Update to IN_PROGRESS
+        queue_item.status = QueueStatus.IN_PROGRESS
+        queue_item.last_attempt_at = datetime.now(UTC)
+        queue_item.attempt_count += 1
+        await repo.update(queue_item)
+        await session.commit()
 
-            # Update to IN_PROGRESS
-            queue_item.status = QueueStatus.IN_PROGRESS
-            queue_item.last_attempt_at = datetime.now(UTC)
-            queue_item.attempt_count += 1
+        try:
+            # Placeholder for actual browser execution
+            result = ApplicationResult(
+                success=True, filled_fields=[], errors=[], pages_processed=1
+            )
+
+            if result.success:
+                queue_item.status = QueueStatus.COMPLETED
+                queue_item.screenshot_path = "path/to/screenshot.png"
+            else:
+                error_msg = f"Application failed: {result.errors}"
+                queue_item.last_error = error_msg
+                queue_item.status = QueueStatus.FAILED
+
+            await repo.update(queue_item)
+            await session.commit()
+
+        except Exception as e:
+            logger.error(f"Error processing job application: {e}", exc_info=True)
+            queue_item.last_error = str(e)
+            queue_item.status = QueueStatus.FAILED
             await repo.update(queue_item)
 
-            try:
-                # Instantiate dependencies for FormFiller
-                # This is heavy for a task, usually done via DI container.
-                # using a placeholder for the actual browser execution logic
-                # effectively mocking the 'AutoApplyService.apply_to_job' call from the prompt
-                # until we wire up the full DI.
+            # Use self.retry if retryable, otherwise re-raise
+            if self.request.retries < self.max_retries:
+                await session.commit()
+                raise self.retry(exc=e)
 
-                # result = await auto_apply_service.apply_to_job(...)
+            await session.commit()
+            raise e
 
-                # Placeholder result for now to allow compiling
-                # In real flow:
-                # 1. Start browser
-                # 2. Login (if needed)
-                # 3. Fill form
-                result = ApplicationResult(
-                    success=True, filled_fields=[], errors=[], pages_processed=1
-                )
-
-                if result.success:
-                    queue_item.status = QueueStatus.COMPLETED
-                    queue_item.screenshot_path = "path/to/screenshot.png"  # Placeholder
-                    # Update rate limits (redis increment) - omitted for brevity/scope
-                else:
-                    raise Exception(f"Application failed: {result.errors}")
-
-                await repo.update(queue_item)
-
-            except Exception as e:
-                queue_item.last_error = str(e)
-                queue_item.status = QueueStatus.FAILED  # Or SCHEDULED if retryable
-                await repo.update(queue_item)
-                # Ensure we re-raise for Celery retry if needed
-                # raise self.retry(exc=e)
-                raise e
-
-            return str(queue_item.status)
-
-    # Bridge async to sync for Celery
-    loop = asyncio.get_event_loop()
-    if loop.is_closed():
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-    return loop.run_until_complete(_process_application())
+        return str(queue_item.status)

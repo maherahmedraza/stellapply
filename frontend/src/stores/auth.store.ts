@@ -44,12 +44,21 @@ export const useAuthStore = create<AuthState>()(
                 state.refreshToken = refreshToken
             }),
 
-            logout: () => set((state) => {
-                state.user = null
-                state.accessToken = null
-                state.refreshToken = null
-                state.isAuthenticated = false
-            }),
+            logout: () => {
+                // Clear state
+                set((state) => {
+                    state.user = null
+                    state.accessToken = null
+                    state.refreshToken = null
+                    state.isAuthenticated = false
+                })
+
+                // Clear cookies
+                document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+
+                // Redirect to login
+                window.location.href = "/auth/login"
+            },
 
             refreshAuth: async () => {
                 const { refreshToken } = get()
@@ -81,6 +90,8 @@ export const useAuthStore = create<AuthState>()(
             name: 'auth-storage',
             storage: createJSONStorage(() => localStorage),
             partialize: (state) => ({
+                user: state.user,
+                isAuthenticated: state.isAuthenticated,
                 accessToken: state.accessToken,
                 refreshToken: state.refreshToken,
             }),

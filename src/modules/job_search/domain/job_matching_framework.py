@@ -7,7 +7,7 @@ Uses multi-dimensional scoring with explainability.
 
 import re
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Protocol, runtime_checkable
 from uuid import UUID
@@ -89,6 +89,7 @@ class MatchExplanation:
     # Interview preparation
     likely_interview_questions: list[str]
     talking_points: list[str]
+    defense_points: list[str]  # Pivot points for gaps
 
 
 @dataclass
@@ -450,7 +451,7 @@ class JobMatchingFramework:
 
     def _calculate_experience_duration(self, experience) -> float:
         start = experience.start_date
-        end = experience.end_date or datetime.now().date()
+        end = experience.end_date or datetime.now(timezone.utc).date()
         days = (end - start).days
         return days / 365.0
 
@@ -849,6 +850,11 @@ class JobMatchingFramework:
         # Generate talking points
         talking_points = self._generate_talking_points(matched_skills, persona, job)
 
+        # Generate defense points (pivot points for gaps)
+        defense_points = self._generate_defense_points(
+            skill_matches, requirement_matches
+        )
+
         return MatchExplanation(
             overall_score=overall_score,
             match_level=match_level,
@@ -863,6 +869,7 @@ class JobMatchingFramework:
             recommendations=recommendations,
             likely_interview_questions=interview_questions,
             talking_points=talking_points,
+            defense_points=defense_points,
         )
 
     def _generate_likely_questions(
@@ -916,12 +923,41 @@ class JobMatchingFramework:
             if exp.achievements:
                 points.append(f"Highlight: {exp.achievements[0]} at {exp.company_name}")
 
-        # Company research point
-        points.append(
-            f"Research {job.company}'s recent news and mention specific interest"
-        )
-
         return points
+
+    def _generate_defense_points(
+        self,
+        skill_matches: list[SkillMatch],
+        requirement_matches: list[RequirementMatch],
+    ) -> list[str]:
+        """Generate pivot points to defend gaps in an interview."""
+        defense = []
+
+        # Defense for missing skills
+        missing = [sm.skill_name for sm in skill_matches if sm.match_type == "none"]
+        for skill in missing[:3]:
+            defense.append(
+                f"For {skill}: Discuss your rapid learning ability and successful "
+                "onboarding with similar tools in the past."
+            )
+
+        # Defense for experience deficit
+        for rm in requirement_matches:
+            if rm.requirement_name == "Years of Experience" and not rm.is_met:
+                defense.append(
+                    "For Experience: Focus on the high impact and variety of projects "
+                    "you handled, demonstrating seniority beyond years."
+                )
+
+        # Defense for education
+        for rm in requirement_matches:
+            if rm.requirement_name == "Education" and not rm.is_met:
+                defense.append(
+                    f"For {rm.requirement_value}: Pivot to your deep practical experience "
+                    "and relevant certifications that exceed theoretical knowledge."
+                )
+
+        return defense[:5]
 
     # === Batch Matching for Job Feed ===
 
