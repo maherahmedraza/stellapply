@@ -1,7 +1,7 @@
-from typing import List
+from typing import List, Dict, Any, Optional
 
 from playwright.async_api import Page
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class FormField(BaseModel):
@@ -11,6 +11,10 @@ class FormField(BaseModel):
     label: str | None
     selector: str
     required: bool = False
+    placeholder: str | None = None
+    options: List[Dict[str, str]] = Field(
+        default_factory=list
+    )  # For select: [{text: "USA", value: "US"}]
 
 
 class FormDetector:
@@ -22,57 +26,69 @@ class FormDetector:
         """
         Scan the page for inputs, selects, and textareas.
         """
-        # This is a simplified detection logic.
-        # A robust version would use evaluate() to run JS in the browser context
-        # to properly associate labels with inputs (for attributes, aria-labels, closest text).
-
-        fields = []
-
-        # Detect standard inputs
-        inputs = await page.locator("input, select, textarea").all()
-
-        for i, element in enumerate(inputs):
-            # We need to execute JS to get attributes efficiently
-            # For this MVP, we'll try to get basic attributes if possible
-            # But iterating locators in Python is slow.
-            # Better to use page.evaluate() to get all data at once.
-            pass
-
-        # Optimized approach using JS execution
+        # Optimized approach using JS execution to get deep details
         field_data = await page.evaluate("""() => {
             const inputs = Array.from(document.querySelectorAll('input, select, textarea'));
+            
             return inputs.map(el => {
                 let labelText = null;
+                
+                // Strategy 1: Explicit label with 'for'
                 if (el.id) {
                     const label = document.querySelector(`label[for="${el.id}"]`);
                     if (label) labelText = label.innerText;
                 }
+                
+                // Strategy 2: Nested inside label
                 if (!labelText && el.closest('label')) {
-                    labelText = el.closest('label').innerText;
+                    const clone = el.closest('label').cloneNode(true);
+                    // Remove the input itself from clone to get just text
+                    const inputInClone = clone.querySelector('input, select, textarea');
+                    if (inputInClone) inputInClone.remove();
+                    labelText = clone.innerText;
                 }
                 
+                // Strategy 3: Aria-label
+                if (!labelText) {
+                    labelText = el.getAttribute('aria-label');
+                }
+
+                // Clean label
+                if (labelText) labelText = labelText.trim();
+
+                // Get options for select
+                let options = [];
+                if (el.tagName === 'SELECT') {
+                    options = Array.from(el.options).map(opt => ({
+                        text: opt.innerText.trim(),
+                        value: opt.value
+                    }));
+                }
+
                 return {
                     name: el.name || null,
                     id: el.id || null,
                     type: el.type || el.tagName.toLowerCase(),
-                    label: labelText || el.placeholder || el.getAttribute('aria-label') || null,
+                    label: labelText,
+                    placeholder: el.placeholder || null,
                     required: el.required || false,
-                    // We generate a unique selector logic here or assume basic tag logic
-                    // For simplicity in Python we might rely on ID or Name if available
+                    options: options
                 };
             });
         }""")
 
+        fields = []
         for data in field_data:
-            # Construct a simple selector
+            # Construct a safe simple selector
             selector = ""
             if data["id"]:
                 selector = f"#{CSS.escape(data['id'])}"
             elif data["name"]:
                 selector = f"[name='{data['name']}']"
             else:
-                # Fallback, tricky without unique path.
-                # For now skip if no ID or Name
+                # Fallback: try to construct a unique selector if possible
+                # This logic is fragile without unique ID/Name.
+                # Ideally we'd get a full path from JS, but for now we skip tricky ones.
                 continue
 
             fields.append(
@@ -83,6 +99,8 @@ class FormDetector:
                     label=data["label"],
                     selector=selector,
                     required=data["required"],
+                    placeholder=data["placeholder"],
+                    options=data["options"],
                 )
             )
 

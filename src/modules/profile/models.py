@@ -56,6 +56,21 @@ class UserProfile(BaseModel):
         JSONB, nullable=False, server_default="{}"
     )
 
+    # Extended Profile Sections (Encrypted for Privacy)
+    experience: Mapped[str] = mapped_column(
+        EncryptedString, nullable=False, default="[]"
+    )
+    education: Mapped[str] = mapped_column(
+        EncryptedString, nullable=False, default="[]"
+    )
+    skills: Mapped[str] = mapped_column(EncryptedString, nullable=False, default="[]")
+    languages: Mapped[str] = mapped_column(
+        EncryptedString, nullable=False, default="[]"
+    )
+    certifications: Mapped[str] = mapped_column(
+        EncryptedString, nullable=False, default="[]"
+    )
+
     # Vector Embedding for Semantic Search
     embedding: Mapped[Vector] = mapped_column(Vector(768), nullable=True)
 

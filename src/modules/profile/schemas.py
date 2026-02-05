@@ -1,15 +1,17 @@
-from datetime import datetime
-from typing import Literal
 import uuid
+from datetime import date
+from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, EmailStr, HttpUrl
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, HttpUrl
+
+# --- Sub-Schemas ---
 
 
 class AddressSchema(BaseModel):
     street: str | None = None
     city: str | None = None
     state: str | None = None
-    postal_code: str | None = None
+    zip_code: str | None = None
     country: str | None = None
 
 
@@ -17,78 +19,115 @@ class PersonalInfoSchema(BaseModel):
     first_name: str
     last_name: str
     email: EmailStr
-    phone: str | None = None
-    date_of_birth: str | None = None
+    phone: str
+    date_of_birth: date | None = None
     nationality: str | None = None
+    gender: str | None = None
+    salutation: str | None = None
     address: AddressSchema | None = None
     linkedin_url: HttpUrl | None = None
     github_url: HttpUrl | None = None
     portfolio_url: HttpUrl | None = None
-    visa_status: str | None = None
+    website_url: HttpUrl | None = None
     work_authorization: str | None = None
-    gender: str | None = None
-    disability_status: str | None = None
-    veteran_status: str | None = None
+    drivers_license: str | None = None
+    willing_to_relocate: bool | None = None
+    profile_photo_path: str | None = None
 
 
-class LocationPreference(BaseModel):
-    city: str
-    country: str
-    radius_km: int = 25
+class ExperienceSchema(BaseModel):
+    company: str
+    title: str
+    location: str | None = None
+    start_date: date
+    end_date: date | None = None  # None = current
+    is_current: bool = False
+    description: str | None = None
+    achievements: list[str] = Field(default_factory=list)
+    technologies: list[str] = Field(default_factory=list)
+    employment_type: str | None = None  # full_time, part_time, contract, internship
 
 
-class SalaryExpectations(BaseModel):
-    min: int
-    max: int
-    currency: str = "EUR"
-    period: Literal["annual", "monthly", "hourly"] = "annual"
-    negotiable: bool = True
+class EducationSchema(BaseModel):
+    institution: str
+    degree: str
+    field_of_study: str
+    start_date: date | None = None
+    graduation_date: date | None = None
+    gpa: str | None = None
+    honors: str | None = None
+    thesis_title: str | None = None
+    relevant_coursework: list[str] = Field(default_factory=list)
+
+
+class LanguageSchema(BaseModel):
+    language: str
+    proficiency: str  # native, fluent, advanced, intermediate, basic, A1-C2
+
+
+class CertificationSchema(BaseModel):
+    name: str
+    issuer: str
+    date_obtained: date | None = None
+    expiry_date: date | None = None
+    credential_id: str | None = None
+    url: HttpUrl | None = None
 
 
 class SearchPreferencesSchema(BaseModel):
-    target_roles: list[str] = Field(default_factory=list)
+    target_roles: list[str]
     target_industries: list[str] = Field(default_factory=list)
-    experience_level: Literal["junior", "mid", "senior", "lead", "executive"] | None = (
-        None
+    locations: list[str] = Field(default_factory=list)
+    remote_preference: Literal["remote_only", "hybrid", "onsite", "flexible"] = (
+        "flexible"
     )
-    job_types: list[str] = Field(default_factory=list)  # full_time, contract, etc.
-    remote_preference: Literal["onsite", "hybrid", "remote", "any"] = "hybrid"
-    locations: list[LocationPreference] = Field(default_factory=list)
-    willing_to_relocate: bool = False
-    salary_expectations: SalaryExpectations | None = None
-    start_date: str | None = None
-    notice_period: str | None = None
+    job_types: list[str] = Field(default_factory=lambda: ["full_time"])
+    min_salary: int | None = None
+    max_salary: int | None = None
+    salary_currency: str = "EUR"
     company_size_preference: list[str] = Field(default_factory=list)
-    languages_required: list[str] = Field(default_factory=list)
-    travel_tolerance: str | None = None
+    excluded_companies: list[str] = Field(default_factory=list)
+    excluded_keywords: list[str] = Field(default_factory=list)
+    min_experience_match: float = 0.6
+    max_commute_minutes: int | None = None
+    start_date_earliest: date | None = None
 
 
 class AgentRulesSchema(BaseModel):
+    """User-defined rules that govern agent behavior."""
+
+    auto_apply: bool = False
     max_applications_per_day: int = 10
-    max_applications_per_week: int = 40
-    blacklisted_companies: list[str] = Field(default_factory=list)
-    blacklisted_domains: list[str] = Field(default_factory=list)
-    require_salary_listed: bool = False
-    min_match_score: int = 70
-    auto_apply: bool = True
-    pause_on_weekends: bool = True
-    preferred_application_hours: str = "09:00-18:00"
-    skip_cover_letter_if_optional: bool = False
-    cover_letter_tone: str = "professional"
-    answer_optional_questions: bool = True
-    preferred_job_boards: list[str] = Field(default_factory=list)
+    max_applications_per_week: int = 30
+    skip_if_requires_cover_letter: bool = False
+    skip_if_requires_assessment: bool = True
+    skip_if_salary_below: int | None = None
+    preferred_application_language: str = "en"
+    apply_schedule: dict = Field(
+        default_factory=lambda: {
+            "days": ["mon", "tue", "wed", "thu", "fri"],
+            "hours": {"start": 9, "end": 18},
+        }
+    )
+    always_upload_resume: bool = True
+    always_upload_cover_letter: bool = False
+    custom_rules: list[str] = Field(default_factory=list)
 
 
 class ApplicationAnswersSchema(BaseModel):
-    why_interested_template: str | None = None
-    greatest_strength: str | None = None
-    greatest_weakness: str | None = None
-    where_see_yourself_5_years: str | None = None
-    why_leaving_current: str | None = None
+    """Pre-configured answers to common application questions."""
+
+    salary_expectation: str | None = None
     earliest_start_date: str | None = None
-    referral_source: str | None = None
-    how_did_you_hear: str = "Job Board"
+    years_of_experience: str | None = None
+    willing_to_travel: str | None = None
+    require_sponsorship: str | None = None
+    notice_period: str | None = None
+    why_interested_template: str | None = None
+    cover_letter_default: str | None = None
+    strengths: str | None = None
     custom_answers: dict[str, str] = Field(default_factory=dict)
+    pattern_answers: dict[str, str] = Field(default_factory=dict)
 
 
 class ResumeStrategySchema(BaseModel):
@@ -97,42 +136,69 @@ class ResumeStrategySchema(BaseModel):
     auto_tailor: bool = True
 
 
-class UserProfileBase(BaseModel):
-    pass
+# --- Full Profile & API Models ---
 
 
-class UserProfileCreate(UserProfileBase):
+class FullProfile(BaseModel):
+    """Complete profile used by the agent."""
+
     personal_info: PersonalInfoSchema
+    experience: list[ExperienceSchema] = Field(default_factory=list)
+    education: list[EducationSchema] = Field(default_factory=list)
+    skills: list[str] = Field(default_factory=list)
+    languages: list[LanguageSchema] = Field(default_factory=list)
+    certifications: list[CertificationSchema] = Field(default_factory=list)
     search_preferences: SearchPreferencesSchema
     agent_rules: AgentRulesSchema
     application_answers: ApplicationAnswersSchema
     resume_strategy: ResumeStrategySchema
+    resume_file_path: str | None = None
+    cover_letter_file_path: str | None = None
+
+
+class ProfileCompletenessReport(BaseModel):
+    overall_score: float
+    sections: dict[str, dict]  # e.g. {"personal_info": {"score": 90, "missing": [...]}}
+    critical_missing: list[str]
+    recommendations: list[str]
+
+
+# --- Wrappers for API Responses (Backward Compatibility aliases) ---
+# We keep UserProfileResponse matching FullProfile structure but with DB metadata
+
+
+class UserProfileResponse(FullProfile):
+    id: uuid.UUID
+    user_id: uuid.UUID
+    completeness: float = 0.0
+    created_at: date  # Simplified from datetime for schema match, or keep datetime
+    updated_at: date  # ditto
+
+    model_config = ConfigDict(from_attributes=True)
+
+    # Override validators if needed for datetime->date conversion
 
 
 class UserProfileUpdate(BaseModel):
+    """Allow partial updates to any section"""
+
     personal_info: PersonalInfoSchema | None = None
+    experience: list[ExperienceSchema] | None = None
+    education: list[EducationSchema] | None = None
+    skills: list[str] | None = None
+    languages: list[LanguageSchema] | None = None
+    certifications: list[CertificationSchema] | None = None
     search_preferences: SearchPreferencesSchema | None = None
     agent_rules: AgentRulesSchema | None = None
     application_answers: ApplicationAnswersSchema | None = None
     resume_strategy: ResumeStrategySchema | None = None
 
 
-class UserProfileResponse(BaseModel):
-    id: uuid.UUID
-    user_id: uuid.UUID
+class UserProfileCreate(BaseModel):
+    """Initial creation schema"""
+
     personal_info: PersonalInfoSchema
     search_preferences: SearchPreferencesSchema
     agent_rules: AgentRulesSchema
     application_answers: ApplicationAnswersSchema
     resume_strategy: ResumeStrategySchema
-    completeness: float = 0.0  # Computed field
-    created_at: datetime
-    updated_at: datetime
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class ProfileCompletenessResponse(BaseModel):
-    overall: float
-    sections: dict[str, float]
-    missing_fields: list[str]

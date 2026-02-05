@@ -1,113 +1,288 @@
+import base64
 import json
 import logging
-from typing import Any, Dict, List
+from datetime import datetime
+from typing import Any
 
-import google.generativeai as genai
-from pydantic import BaseModel, Field
+# Updated import for google.generativeai
+try:
+    import google.generativeai as genai
+except ImportError:
+    # Fallback or stub for running without api key in some envs
+    genai = None
 
+from pydantic import ValidationError
+
+from src.agent.models.schemas import AgentAction, PageContext
 from src.core.config import settings
+from src.modules.profile.schemas import UserProfileResponse
 
 logger = logging.getLogger(__name__)
 
 # Configure Gemini
-genai.configure(api_key=settings.ai.GEMINI_API_KEY)
-
-
-class AgentAction(BaseModel):
-    """
-    Structured output representing the next action the agent should take.
-    """
-
-    action_type: str = Field(
-        ...,
-        description="Type of action: 'click', 'type', 'navigate', 'scroll', 'wait', 'finish', 'fail'",
-    )
-    selector: str | None = Field(
-        None, description="CSS or XPath selector for the element to interact with"
-    )
-    value: str | None = Field(
-        None, description="Value to type/fill or URL to navigate to"
-    )
-    description: str = Field(
-        ..., description="Thinking process/reasoning for this action"
-    )
-
-
-class PageContext(BaseModel):
-    """
-    Context provided to the Brain about the current page state.
-    """
-
-    url: str
-    title: str
-    dom_snippet: str  # Simplified DOM or accessibility tree
-    screenshot_b64: str | None = None
+if settings.ai.GEMINI_API_KEY:
+    genai.configure(api_key=settings.ai.GEMINI_API_KEY)
 
 
 class AgentBrain:
     """
-    The decision engine powered by Google Gemini.
+    The unified, stateful decision engine powered by Google Gemini.
     """
 
-    def __init__(self, model_name: str = "gemini-1.5-flash"):
+    def __init__(
+        self, profile: UserProfileResponse, model_name: str = "gemini-2.0-flash-exp"
+    ):
+        """
+        Brain is initialized ONCE per agent run with the user's profile.
+        Profile stays in memory for the entire session.
+        """
+        self.profile = profile
+        self.conversation_history: list[dict[str, Any]] = []
+        self.action_count = 0
+        self.page_action_count = 0
+        self.current_url = ""
+
+        # Initialize model
+        # Using gemini-1.5-flash as default if 2.0 not specified/available
+        # Adjust based on availability
+        self.model_name = model_name
         self.model = genai.GenerativeModel(
             model_name, generation_config={"response_mime_type": "application/json"}
         )
 
-    async def decide_next_action(
-        self,
-        task_description: str,
-        page_context: PageContext,
-        previous_actions: List[Dict[str, Any]],
-    ) -> AgentAction:
+    def _build_system_prompt(self, goal: str) -> str:
         """
-        Ask the LLM what to do next based on the current page and task.
+        Build a comprehensive system prompt with full profile injection.
         """
+        p = self.profile
+        pi = p.personal_info
+        sp = p.search_preferences
+
+        # Format Experience
+        experience_text = ""
+        for exp in p.experience:
+            experience_text += (
+                f"- {exp.title} at {exp.company} ({exp.start_date} - {exp.end_date or 'Present'})\n"
+                f"  Location: {exp.location}\n"
+                f"  Description: {exp.description}\n"
+            )
+
+        # Format Education
+        education_text = ""
+        for edu in p.education:
+            education_text += f"- {edu.degree} in {edu.field_of_study} from {edu.institution} ({edu.end_date})\n"
+
+        # Format Answers
+        answers_text = ""
+        if p.application_answers:
+            # Iterate over all fields that are not None
+            for k, v in p.application_answers.model_dump(exclude_none=True).items():
+                answers_text += f"Q: {k} -> A: {v}\n"
+
+        # Format Rules
+        rules_text = ""
+        if p.agent_rules:
+            for k, v in p.agent_rules.model_dump(exclude_none=True).items():
+                rules_text += f"- {k}: {v}\n"
+
+        # Salary formatting
+        salary_info = "Not specified"
+        if sp.salary_expectations:
+            salary_info = f"{sp.salary_expectations.min} - {sp.salary_expectations.max} {sp.salary_expectations.currency}"
 
         prompt = f"""
-        You are an autonomous browser agent. Your goal is: {task_description}
+        You are an AI agent that helps a user apply to jobs by navigating websites.
+        
+        ## YOUR USER'S COMPLETE PROFILE:
+        
+        ### Personal Information:
+        - Full Name: {pi.first_name} {pi.last_name}
+        - Email: {pi.email}
+        - Phone: {pi.phone}
+        - Location: {pi.address.city}, {pi.address.country if pi.address else ""}
+        - LinkedIn: {pi.linkedin_url}
+        - Portfolio: {pi.portfolio_url}
+        
+        ### Professional Experience:
+        {experience_text}
+        
+        ### Education:
+        {education_text}
+        
+        ### Skills:
+        - Technical: {", ".join(p.skills)} (Check consistency with Experience)
+        
+        ### Pre-answered Application Questions:
+        {answers_text}
+        
+        ### Agent Rules:
+        {rules_text}
+        
+        ### Search Preferences:
+        - Target Roles: {", ".join(sp.target_roles)}
+        - Salary: {salary_info}
+        
+        ## YOUR CURRENT GOAL:
+        {goal}
+        
+        ## RULES:
+        1. Only define ONE action at a time.
+        2. Respond with valid JSON matching AgentAction schema.
+        3. Do NOT fabricate information. If a required field is missing from profile, request HUMAN_HANDOFF.
+        4. Prefer 'click' on 'Apply' or 'Submit' buttons.
+        5. If CAPTCHA is detected, request HUMAN_HANDOFF.
+        6. Return TASK_COMPLETE if you see a success confirmation.
+        """
+        return prompt
 
-        Current Page:
-        - URL: {page_context.url}
-        - Title: {page_context.title}
-
-        Page Content (Simplified):
-        ```html
-        {page_context.dom_snippet}
-        ```
-
-        History:
-        {json.dumps(previous_actions, indent=2)}
-
-        Decide the next action. Return JSON matching the AgentAction schema.
-        Valid action_types: 'click', 'type', 'navigate', 'scroll', 'wait', 'finish', 'fail'.
+    async def decide_next_action(
+        self, goal: str, page_context: PageContext, error_context: str | None = None
+    ) -> AgentAction:
+        """
+        Decide the next action based on goal, profile, history, and current page.
         """
 
-        try:
-            # If screenshot is present, we can use multimodal input (future enhancement)
-            # For now, text-based
-            response = await self.model.generate_content_async(prompt)
-            data = json.loads(response.text)
-            return AgentAction(**data)
-        except Exception as e:
-            logger.error(f"Brain freeze: {e}")
+        # Track page changes
+        if page_context.url != self.current_url:
+            self.current_url = page_context.url
+            self.page_action_count = 0
+
+        self.action_count += 1
+        self.page_action_count += 1
+
+        # Loop detection (simple)
+        if self.page_action_count > 15:
             return AgentAction(
-                action_type="fail", description=f"Error in decision process: {str(e)}"
+                thinking="I have been stuck on this page for too many steps.",
+                action_type="human_handoff",
+                confidence=0.0,
+                expected_result="Human intervention",
             )
+
+        system_instructions = self._build_system_prompt(goal)
+
+        # Build Context Prompt
+        history_snippet = json.dumps(self.conversation_history[-5:], indent=2)
+
+        # Token Management: Truncate DOM if too large (naive)
+        dom_snippet = page_context.dom_snippet
+        if len(dom_snippet) > 20000:
+            dom_snippet = dom_snippet[:20000] + "...(truncated)"
+
+        user_prompt = f"""
+        ## WHAT YOU SEE RIGHT NOW:
+        URL: {page_context.url}
+        Title: {page_context.title}
+        
+        ## PAGE DOM (Snippet):
+        ```html
+        {dom_snippet}
+        ```
+        
+        ## FORMS DETECTED:
+        {json.dumps(page_context.forms, indent=2)}
+        
+        ## HISTORY (Last 5 actions):
+        {history_snippet}
+        
+        {f"## PREVIOUS ERROR: {error_context}" if error_context else ""}
+        
+        Decide the next action.
+        """
+
+        if page_context.screenshot_b64:
+            user_prompt += "\n\nI have attached a screenshot of the page. Use it to verify layout and find buttons."
+
+        # Prepare arguments
+        parts = [system_instructions + "\n\n" + user_prompt]
+
+        # Multimodal
+        if page_context.screenshot_b64:
+            try:
+                image_bytes = base64.b64decode(page_context.screenshot_b64)
+                parts.append({"mime_type": "image/jpeg", "data": image_bytes})
+            except Exception as e:
+                logger.error(f"Failed to decode screenshot: {e}")
+
+        # Retry Logic
+        for attempt in range(3):
+            try:
+                response = await self.model.generate_content_async(parts)
+                text = response.text.strip()
+
+                # Unwrap markdown
+                if text.startswith("```"):
+                    if "```json" in text:
+                        text = text.split("```json")[1].split("```")[0].strip()
+                    else:
+                        text = text.split("```")[1].split("```")[0].strip()
+
+                data = json.loads(text)
+                action = AgentAction(**data)
+
+                # Save to memory
+                self._record_action(page_context.url, action)
+
+                return action
+
+            except (json.JSONDecodeError, ValidationError, Exception) as e:
+                logger.warning(f"Brain generation error (attempt {attempt + 1}): {e}")
+                if attempt < 2:
+                    parts[0] += (
+                        f"\n\nERROR: Your previous response was invalid JSON: {e}\nReturn ONLY valid JSON matching the schema."
+                    )
+                else:
+                    return AgentAction(
+                        thinking=f"Failed to generate valid action after 3 attempts. Error: {e}",
+                        action_type="fail",
+                        confidence=0.0,
+                        expected_result="Fail safely",
+                    )
+
+    def _record_action(self, url: str, action: AgentAction):
+        self.conversation_history.append(
+            {
+                "step": self.action_count,
+                "url": url,
+                "action": action.model_dump(),
+                "timestamp": datetime.now().isoformat(),
+            }
+        )
+        # Keep window small
+        if len(self.conversation_history) > 20:
+            self.conversation_history.pop(0)
 
     async def extract_data(self, content: str, schema: dict) -> dict:
         """
-        Extract specific structured data from raw content (e.g., job details).
+        Extract structured data.
         """
         prompt = f"""
-        Extract data from the following text based on the schema:
+        Extract data from the text based on schema:
+        {json.dumps(schema, indent=2)}
         
         Text:
-        {content[:10000]}... (truncated)
-
-        Schema:
-        {json.dumps(schema, indent=2)}
+        {content[:15000]}...
         """
+        try:
+            response = await self.model.generate_content_async(prompt)
+            text = response.text.replace("```json", "").replace("```", "")
+            return json.loads(text)
+        except Exception:
+            return {}
 
-        response = await self.model.generate_content_async(prompt)
-        return json.loads(response.text)
+    async def score_job(self, job: Any, profile: UserProfileResponse) -> float:
+        """
+        Score a job (Orchestrator helper).
+        """
+        prompt = f"""
+        Rate job 0.0-1.0 match for user.
+        Job: {job.title} at {job.company}
+        User Roles: {profile.search_preferences.target_roles}
+        Return JSON: {{"score": 0.5}}
+        """
+        try:
+            response = await self.model.generate_content_async(prompt)
+            text = response.text.replace("```json", "").replace("```", "")
+            return float(json.loads(text).get("score", 0.0))
+        except:
+            return 0.5
