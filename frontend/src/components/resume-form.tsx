@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { api } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { SketchButton, SketchCard, SketchInput } from "@/components/ui/hand-drawn";
-import { Save, X, Sparkles, FileText, User, Mail, Phone, Info } from "lucide-react";
+import { Save, X, Sparkles, FileText, User, Mail, Phone, Info, Upload, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 
 interface ResumeFormProps {
     initialData?: any;
@@ -14,6 +14,12 @@ interface ResumeFormProps {
 export function ResumeForm({ initialData, resumeId }: ResumeFormProps) {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const [uploading, setUploading] = useState(false);
+    const [uploadStatus, setUploadStatus] = useState<'idle' | 'success' | 'error'>('idle');
+    const [uploadMessage, setUploadMessage] = useState('');
+    const [isDragging, setIsDragging] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
     const [formData, setFormData] = useState({
         name: initialData?.name || "",
         template_id: initialData?.template_id || "modern_v1",
@@ -38,6 +44,82 @@ export function ResumeForm({ initialData, resumeId }: ResumeFormProps) {
         }));
     }, [personalInfo]);
 
+    // Handle file upload
+    const handleFileUpload = useCallback(async (file: File) => {
+        const validTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+        if (!validTypes.includes(file.type) && !file.name.endsWith('.docx') && !file.name.endsWith('.pdf')) {
+            setUploadStatus('error');
+            setUploadMessage('Please upload a PDF or DOCX file');
+            return;
+        }
+
+        if (file.size > 10 * 1024 * 1024) {
+            setUploadStatus('error');
+            setUploadMessage('File size exceeds 10MB limit');
+            return;
+        }
+
+        setUploading(true);
+        setUploadStatus('idle');
+        setUploadMessage('');
+
+        try {
+            const formDataUpload = new FormData();
+            formDataUpload.append('file', file);
+
+            const response = await api.post('/api/v1/resume/upload', formDataUpload, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+
+            if (response.data.status === 'success') {
+                const data = response.data.data;
+
+                // Auto-fill the form with extracted data
+                setPersonalInfo({
+                    name: data.personal_info?.full_name || '',
+                    email: data.personal_info?.email || '',
+                    phone: data.personal_info?.phone || '',
+                    summary: data.professional_summary || '',
+                    location: data.personal_info?.location || '',
+                });
+
+                setFormData(prev => ({
+                    ...prev,
+                    name: `Resume - ${data.personal_info?.full_name || 'Imported'}`,
+                    content: {
+                        ...prev.content,
+                        experience: data.experiences || [],
+                        education: data.education || [],
+                        skills: data.skills || [],
+                    },
+                }));
+
+                setUploadStatus('success');
+                setUploadMessage('Resume parsed successfully! Fields have been auto-filled.');
+            }
+        } catch (error: any) {
+            console.error('Upload failed:', error);
+            setUploadStatus('error');
+            setUploadMessage(error.response?.data?.detail || 'Failed to parse resume. Please try again.');
+        } finally {
+            setUploading(false);
+        }
+    }, []);
+
+    const handleDrop = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(false);
+        const file = e.dataTransfer.files[0];
+        if (file) handleFileUpload(file);
+    }, [handleFileUpload]);
+
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = () => setIsDragging(false);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -61,6 +143,64 @@ export function ResumeForm({ initialData, resumeId }: ResumeFormProps) {
 
     return (
         <form onSubmit={handleSubmit} className="max-w-4xl mx-auto space-y-12 pb-20">
+            {/* Upload Section */}
+            <SketchCard decoration="tape" className="p-8 rotate-0.5">
+                <h2 className="text-3xl font-marker text-pencil-black mb-4 flex items-center gap-3">
+                    <Upload className="w-8 h-8 text-ink-blue" />
+                    Import Existing Resume
+                </h2>
+                <p className="font-handwritten text-lg text-pencil-black/70 mb-6">
+                    Upload your PDF or DOCX resume and let AI auto-fill the form for you!
+                </p>
+
+                <div
+                    onDrop={handleDrop}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onClick={() => fileInputRef.current?.click()}
+                    className={`relative border-3 border-dashed p-8 text-center cursor-pointer transition-all wobble ${isDragging
+                            ? 'border-ink-blue bg-ink-blue/10 scale-102'
+                            : 'border-pencil-black/30 hover:border-pencil-black/60 hover:bg-muted-paper/30'
+                        }`}
+                >
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept=".pdf,.docx,.doc"
+                        onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0])}
+                        className="hidden"
+                    />
+
+                    {uploading ? (
+                        <div className="flex flex-col items-center gap-4">
+                            <Loader2 className="w-12 h-12 text-ink-blue animate-spin" />
+                            <span className="font-marker text-xl">Parsing with AI...</span>
+                        </div>
+                    ) : (
+                        <div className="flex flex-col items-center gap-4">
+                            <Upload className="w-12 h-12 text-pencil-black/40" />
+                            <span className="font-marker text-xl">Drop your resume here</span>
+                            <span className="font-handwritten text-sm text-pencil-black/60">
+                                or click to browse (PDF, DOCX - max 10MB)
+                            </span>
+                        </div>
+                    )}
+                </div>
+
+                {uploadStatus !== 'idle' && (
+                    <div className={`mt-4 p-4 flex items-center gap-3 wobble ${uploadStatus === 'success'
+                            ? 'bg-postit-green/20 border-2 border-pencil-black'
+                            : 'bg-marker-red/10 border-2 border-marker-red'
+                        }`}>
+                        {uploadStatus === 'success'
+                            ? <CheckCircle2 className="w-6 h-6 text-pencil-black" />
+                            : <AlertCircle className="w-6 h-6 text-marker-red" />
+                        }
+                        <span className="font-handwritten text-lg">{uploadMessage}</span>
+                    </div>
+                )}
+            </SketchCard>
+
             <div className="flex flex-col md:flex-row gap-8">
                 <div className="flex-1 space-y-8">
                     <SketchCard decoration="none" className="rotate-0.5 shadow-sketch-lg p-8">

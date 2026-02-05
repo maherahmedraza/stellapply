@@ -16,10 +16,21 @@ class JobSearchService:
         self,
         query: str | None = None,
         embedding: list[float] | None = None,
+        location: str | None = None,
+        remote_only: bool = False,
+        salary_min: int | None = None,
         limit: int = 20,
         offset: int = 0,
     ) -> list[Job]:
-        return await self._repository.search_jobs(query, embedding, limit, offset)
+        return await self._repository.search_jobs(
+            query=query,
+            embedding=embedding,
+            location=location,
+            remote_only=remote_only,
+            salary_min=salary_min,
+            limit=limit,
+            offset=offset,
+        )
 
     async def get_user_matches(
         self, user_id: UUID, status: str | None = None, limit: int = 20, offset: int = 0

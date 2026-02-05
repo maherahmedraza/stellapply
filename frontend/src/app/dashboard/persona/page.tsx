@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -313,4 +314,8 @@ export default function PersonaPage() {
       </div>
     </div>
   )
+=======
+export default function Page() {
+  return <div className="p-4">Placeholder Page</div>
+>>>>>>> feature/resume-upload-gdpr-compliance
 }

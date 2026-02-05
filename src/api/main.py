@@ -1,19 +1,20 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.exc import SQLAlchemyError
 
-from src.core.config import settings
-from src.core.security.audit_log import AuditMiddleware
 from src.api.exceptions import (
     global_exception_handler,
-    validation_exception_handler,
     sqlalchemy_exception_handler,
+    validation_exception_handler,
 )
+from src.core.config import settings
+from src.core.security.audit_log import AuditMiddleware
 
 # Include Routers
 # Import all models to ensure they are registered with the declarative base
 import src.core.database.all_models  # noqa
+from src.modules.gdpr.api.routes import router as gdpr_router
 from src.modules.identity.api.routes import router as identity_router
 from src.modules.identity.api.settings_routes import router as settings_router
 from src.modules.billing.api.routes import router as billing_router
@@ -62,3 +63,4 @@ app.include_router(
     truth_grounded_resume_router, prefix="/api/v1/resume", tags=["Resume Enhancement"]
 )
 app.include_router(job_router, prefix="/api/v1/jobs", tags=["Job Search"])
+app.include_router(gdpr_router, prefix="/api/v1", tags=["GDPR/DSGVO"])

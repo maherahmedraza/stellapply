@@ -8,7 +8,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class DatabaseSettings(BaseSettings):
     """Database connection and pool settings."""
 
-    model_config = SettingsConfigDict(env_prefix="DB_", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=".env", env_file_encoding="utf-8", env_prefix="DB_", extra="ignore"
+    )
 
     URL: str = Field(
         default="postgresql+asyncpg://stellapply:password@localhost:5432/stellapply",
@@ -22,7 +24,9 @@ class DatabaseSettings(BaseSettings):
 class RedisSettings(BaseSettings):
     """Redis cache and session settings."""
 
-    model_config = SettingsConfigDict(env_prefix="REDIS_", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=".env", env_file_encoding="utf-8", env_prefix="REDIS_", extra="ignore"
+    )
 
     URL: str = Field(default="redis://localhost:6379/0")
     USE_SSL: bool = Field(default=False)
@@ -32,7 +36,12 @@ class RedisSettings(BaseSettings):
 class SecuritySettings(BaseSettings):
     """Security, JWT, and Encryption settings."""
 
-    model_config = SettingsConfigDict(env_prefix="SECURITY_", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        env_prefix="SECURITY_",
+        extra="ignore",
+    )
 
     SECRET_KEY: SecretStr = Field(
         ...,  # Required - no default
@@ -66,7 +75,9 @@ class SecuritySettings(BaseSettings):
 class AISettings(BaseSettings):
     """AI Service settings for Gemini and embeddings."""
 
-    model_config = SettingsConfigDict(env_prefix="AI_", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=".env", env_file_encoding="utf-8", env_prefix="AI_", extra="ignore"
+    )
 
     GEMINI_API_KEY: str | None = None
     GEMINI_MODEL: str = "gemini-1.5-pro"
@@ -77,7 +88,12 @@ class AISettings(BaseSettings):
 class StorageSettings(BaseSettings):
     """Object storage settings (MinIO/S3)."""
 
-    model_config = SettingsConfigDict(env_prefix="STORAGE_", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        env_prefix="STORAGE_",
+        extra="ignore",
+    )
 
     ENDPOINT: str = "localhost:9000"
     ACCESS_KEY: str = "minioadmin"

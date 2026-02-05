@@ -31,6 +31,9 @@ class JobMatchAnalysis(BaseModel):
     weaknesses: list[str] = Field(default_factory=list)
     fit_explanation: str | None = None
     missing_skills: list[str] = Field(default_factory=list)
+    matching_skills: list[str] = Field(default_factory=list)
+    skills_match_count: int = 0
+    total_required_skills: int = 0
 
 
 class JobMatchResponse(BaseModel):
@@ -42,7 +45,22 @@ class JobMatchResponse(BaseModel):
     status: str
     created_at: datetime
 
+    # LinkedIn-style match indicators
+    is_top_applicant: bool = False  # True if 90%+ match
+    match_percentile: int = 0  # e.g., "Top 5% of applicants"
+
     model_config = ConfigDict(from_attributes=True)
+
+
+class JobSearchParams(BaseModel):
+    """Parameters for location-based job search."""
+
+    query: str | None = None
+    location: str | None = None
+    remote_only: bool = False
+    radius_miles: int = 50
+    salary_min: int | None = None
+    use_persona_preferences: bool = True  # Auto-apply persona settings
 
 
 class JobMatchUpdate(BaseModel):

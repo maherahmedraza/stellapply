@@ -5152,4 +5152,8 @@ cffi = ["cffi (>=1.17,<2.0) ; platform_python_implementation != \"PyPy\" and pyt
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4.0"
+<<<<<<< HEAD
 content-hash = "294f68a5754aef9b6d883b09b3da1d7890912fab43e137c7c7c8f06d3d54b507"
+=======
+content-hash = "01ca4afe2ac8df72d31bdf6f72d412913aeb5755fca4a50acee252a81d0941ab"
+>>>>>>> feature/resume-upload-gdpr-compliance

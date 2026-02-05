@@ -21,7 +21,11 @@ export default function RegisterPage() {
             const res = await fetch("http://localhost:8000/api/v1/auth/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
+<<<<<<< HEAD
                 body: JSON.stringify({ email, password, name: full_name }),
+=======
+                body: JSON.stringify({ email, password, full_name }),
+>>>>>>> feature/resume-upload-gdpr-compliance
             });
             const data = await res.json();
             if (!res.ok) {

@@ -1,4 +1,6 @@
 from typing import Any
+import logging
+import traceback
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,6 +16,7 @@ from src.modules.identity.api.schemas import (
 from src.modules.identity.domain.services import AuthService, RegistrationService
 from src.modules.identity.infrastructure.repository import SQLAlchemyUserRepository
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
@@ -36,9 +39,7 @@ async def login(
     try:
         return service.login(request.username, request.password)
     except Exception as e:
-        import logging
-
-        logging.error(f"Login failed for {request.username}: {e}")
+        logger.error(f"Login failed for {request.username}: {e}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Invalid credentials: {str(e)}",
@@ -71,10 +72,9 @@ async def register(
             status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
         ) from e
     except Exception as e:
-        import logging
-
-        logging.error(f"Registration failed for {schema.email}: {e}", exc_info=True)
+        logger.error(f"Registration error for {schema.email}: {str(e)}")
+        logger.error(traceback.format_exc())
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Registration error: {str(e)}",
+            detail=f"An error occurred during registration: {str(e)}",
         ) from e

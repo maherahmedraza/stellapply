@@ -120,6 +120,30 @@ class GeminiClient:
 
             return schema.model_validate_json(response.text)
 
+    async def generate_with_image(
+        self, prompt: str, image_data: str, mime_type: str, **kwargs: Any
+    ) -> str:
+        """Generate content with an image input (multimodal)."""
+        async with self.limiter:
+            model_name = kwargs.pop("model", "gemini-1.5-pro")
+            model = self._get_model(model_name)
+
+            # Create image part for multimodal input
+            image_part = {
+                "mime_type": mime_type,
+                "data": image_data,  # Base64 encoded
+            }
+
+            config = GenerationConfig(**kwargs)
+            response = await model.generate_content_async(
+                [prompt, image_part],
+                generation_config=config,
+                request_options={"timeout": 60},
+            )
+
+            self._update_token_counts(response)
+            return cast(str, response.text)
+
     async def generate_with_context(
         self,
         system: str,

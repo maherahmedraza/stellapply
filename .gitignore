@@ -74,4 +74,36 @@ Thumbs.db
 # Project specific
 tmp/
 test-results/
+<<<<<<< HEAD
 *.log
+=======
+
+# Secrets - NEVER COMMIT
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+secrets/
+.secrets/
+*secret*
+*credentials*
+*.credentials
+service-account*.json
+firebase*.json
+
+# API Keys and tokens (common patterns)
+*api_key*
+*apikey*
+*token*
+*.token
+
+# Docker secrets
+docker-compose.override.yml
+docker-compose.local.yml
+
+# IDE settings with potential secrets
+.idea/workspace.xml
+.vscode/settings.json
+
+>>>>>>> feature/resume-upload-gdpr-compliance

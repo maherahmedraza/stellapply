@@ -20,7 +20,11 @@ export default async function DashboardLayout({
             <Sidebar user={session.user} />
             <div className="flex-1 flex flex-col overflow-hidden">
                 <Header user={session.user} />
+<<<<<<< HEAD
                 <main className="flex-1 overflow-y-auto bg-background p-6 font-handwritten">
+=======
+                <main className="flex-1 overflow-y-auto bg-paper-bg p-6">
+>>>>>>> feature/resume-upload-gdpr-compliance
                     {children}
                 </main>
             </div>

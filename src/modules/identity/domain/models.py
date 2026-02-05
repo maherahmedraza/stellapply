@@ -44,6 +44,24 @@ class User(BaseModel):
         "UserSettings", back_populates="user", uselist=False
     )
 
+    @property
+    def email(self) -> str:
+        """Decrypts and returns the user email."""
+        from src.core.security.encryption import decrypt_data
+
+        # Decode BYTEA to string before decryption if stored as bytes
+        enc_data = self.email_encrypted
+        if isinstance(enc_data, bytes):
+            enc_data = enc_data.decode()
+        return decrypt_data(enc_data)
+
+    @email.setter
+    def email(self, value: str) -> None:
+        """Encrypts and sets the user email."""
+        from src.core.security.encryption import encrypt_data
+
+        self.email_encrypted = encrypt_data(value).encode()
+
 
 class UserSettings(BaseModel):
     """User preferences and settings"""

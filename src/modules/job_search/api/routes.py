@@ -26,14 +26,30 @@ async def get_job_service(
 @router.get("/jobs", response_model=list[JobResponse])
 async def search_jobs(
     query: str | None = None,
+    location: str | None = None,
+    remote_only: bool = False,
+    salary_min: int | None = None,
     limit: int = 20,
     offset: int = 0,
-    _current_user: dict[str, Any] = Depends(get_current_user),  # noqa: B008
+    current_user: dict[str, Any] = Depends(get_current_user),  # noqa: B008
     service: JobSearchService = Depends(get_job_service),  # noqa: B008
 ) -> list[JobResponse]:
-    # In a full implementation, we'd fetch the user's latest persona embedding
-    # to provide personalized recommendations here.
-    jobs = await service.search_jobs(query=query, limit=limit, offset=offset)
+    """
+    Search jobs with location-based filtering.
+
+    - **query**: Keywords to search in job titles/descriptions
+    - **location**: Target location (city, state, or country)
+    - **remote_only**: Filter to remote-only positions
+    - **salary_min**: Minimum salary filter
+    """
+    jobs = await service.search_jobs(
+        query=query,
+        location=location,
+        remote_only=remote_only,
+        salary_min=salary_min,
+        limit=limit,
+        offset=offset,
+    )
     return [JobResponse.model_validate(j) for j in jobs]
 
 

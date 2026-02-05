@@ -1,8 +1,8 @@
+import logging
 from typing import Any
 from uuid import UUID
 import io
 import re
-import logging
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,9 +14,9 @@ from src.modules.resume.api.schemas import ResumeCreate, ResumeResponse, ResumeU
 from src.modules.resume.domain.schemas import RenderedResume
 from src.modules.resume.domain.services import ResumeService
 from src.modules.resume.infrastructure.repository import SQLAlchemyResumeRepository
+from src.modules.persona.infrastructure.repository import SQLAlchemyPersonaRepository
 
 logger = logging.getLogger(__name__)
-
 router = APIRouter()
 
 
@@ -60,177 +60,7 @@ class ResumeParseResponse(BaseModel):
     summary: str | None = None
 
 
-# =============== Helper functions for parsing ===============
-
-
-def extract_email(text: str) -> str | None:
-    match = re.search(r"[\w\.-]+@[\w\.-]+\.\w+", text)
-    return match.group(0) if match else None
-
-
-def extract_phone(text: str) -> str | None:
-    match = re.search(r"[\+\d][\d\s\-\(\)]{8,}", text)
-    return match.group(0).strip() if match else None
-
-
-def extract_linkedin(text: str) -> str | None:
-    match = re.search(r"linkedin\.com/in/[\w\-]+", text)
-    return f"https://{match.group(0)}" if match else None
-
-
-def extract_github(text: str) -> str | None:
-    match = re.search(r"github\.com/[\w\-]+", text)
-    return f"https://{match.group(0)}" if match else None
-
-
-def parse_resume_text(text: str) -> ResumeParseResponse:
-    """Parse extracted text into structured resume data."""
-    lines = text.strip().split("\n")
-
-    # Extract personal info
-    personal_info = ParsedPersonalInfo(
-        name=lines[0][:100] if lines else None,  # First line often is name
-        email=extract_email(text),
-        phone=extract_phone(text),
-        linkedin=extract_linkedin(text),
-        github=extract_github(text),
-    )
-
-    # Extract skills - look for common patterns
-    skills = []
-    skill_keywords = [
-        "python",
-        "java",
-        "javascript",
-        "typescript",
-        "sql",
-        "spark",
-        "kafka",
-        "aws",
-        "azure",
-        "gcp",
-        "docker",
-        "kubernetes",
-        "airflow",
-        "dbt",
-        "postgresql",
-        "mysql",
-        "mongodb",
-        "redis",
-        "elasticsearch",
-        "react",
-        "angular",
-        "vue",
-        "node",
-        "fastapi",
-        "django",
-        "flask",
-        "git",
-        "linux",
-        "terraform",
-        "jenkins",
-        "ci/cd",
-        "agile",
-        "scrum",
-        "machine learning",
-        "data engineering",
-        "etl",
-        "data modeling",
-    ]
-    text_lower = text.lower()
-    for skill in skill_keywords:
-        if skill in text_lower:
-            skills.append(skill.title() if len(skill) > 3 else skill.upper())
-
-    return ResumeParseResponse(
-        success=True,
-        message=f"Extracted resume data. Found {len(skills)} skills.",
-        personal_info=personal_info,
-        skills=skills[:20],  # Limit to 20 skills
-        experience=[],  # Would need more sophisticated parsing
-        education=[],
-    )
-
-
-# =============== Resume Parse Endpoint ===============
-
-
-@router.post("/upload", response_model=ResumeParseResponse)
-async def upload_and_parse_resume(
-    file: UploadFile = File(...),
-    current_user: dict[str, Any] = Depends(get_current_user),
-) -> ResumeParseResponse:
-    """Upload and parse a resume file (PDF, DOC, DOCX, or TXT)."""
-
-    allowed_types = {
-        "application/pdf",
-        "application/msword",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        "text/plain",
-    }
-
-    if file.content_type not in allowed_types:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Unsupported file type: {file.content_type}. Allowed: PDF, DOC, DOCX, TXT",
-        )
-
-    try:
-        content = await file.read()
-        text = ""
-
-        if file.content_type == "application/pdf":
-            try:
-                import pypdf
-
-                pdf_reader = pypdf.PdfReader(io.BytesIO(content))
-                text = "\n".join(page.extract_text() for page in pdf_reader.pages)
-            except ImportError:
-                # Fallback if pypdf not available
-                logger.warning("pypdf not installed, returning mock data")
-                return ResumeParseResponse(
-                    success=True,
-                    message="PDF parsing requires pypdf. Using mock data for demo.",
-                    personal_info=ParsedPersonalInfo(
-                        name="Imported from Resume",
-                        email=current_user.get("email", "user@example.com"),
-                    ),
-                    skills=["Python", "SQL", "Data Engineering"],
-                )
-        elif file.content_type == "text/plain":
-            text = content.decode("utf-8")
-        else:
-            # For DOC/DOCX, would need python-docx
-            return ResumeParseResponse(
-                success=True,
-                message="DOC/DOCX parsing would require python-docx. Using basic extraction.",
-                personal_info=ParsedPersonalInfo(name="Imported User"),
-                skills=[],
-            )
-
-        if not text.strip():
-            return ResumeParseResponse(
-                success=False, message="Could not extract text from the uploaded file."
-            )
-
-        result = parse_resume_text(text)
-        logger.info(
-            f"Parsed resume for user {current_user.get('sub')}: found {len(result.skills)} skills"
-        )
-        return result
-
-    except Exception as e:
-        logger.error(f"Error parsing resume: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error parsing resume: {str(e)}",
-        )
-
-
-# =============== Existing Resume CRUD Endpoints ===============
-
-
-from src.modules.persona.infrastructure.repository import SQLAlchemyPersonaRepository
+# =============== Resume Service Dependency ===============
 
 
 async def get_resume_service(
@@ -239,6 +69,9 @@ async def get_resume_service(
     repository = SQLAlchemyResumeRepository(db)
     persona_repository = SQLAlchemyPersonaRepository(db)
     return ResumeService(repository, persona_repository)
+
+
+# =============== Resume CRUD Endpoints ===============
 
 
 @router.get("/", response_model=list[ResumeResponse])
@@ -349,6 +182,9 @@ async def delete_resume(
     await service.delete_resume(resume_id)
 
 
+# =============== AI & Rendering Endpoints ===============
+
+
 @router.post("/{resume_id}/analyze", response_model=ResumeResponse)
 async def analyze_resume(
     resume_id: UUID,
@@ -366,6 +202,9 @@ async def analyze_resume(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Access denied"
         )
+
+    analyzed_resume = await service.analyze_ats(resume_id)
+    return ResumeResponse.model_validate(analyzed_resume)
 
 
 @router.get("/{resume_id}/render", response_model=RenderedResume)
@@ -388,3 +227,56 @@ async def render_resume(
         )
 
     return await service.render_resume(resume_id)
+
+
+@router.post("/upload")
+async def upload_resume(
+    file: UploadFile = File(...),
+    current_user: dict[str, Any] = Depends(get_current_user),
+) -> dict[str, Any]:
+    """
+    Upload and parse a resume file using Gemini AI.
+    """
+    if not file.filename:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Filename is required",
+        )
+
+    file_ext = file.filename.lower().split(".")[-1]
+    if file_ext not in ("pdf", "docx", "doc"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Only PDF and DOCX files are supported",
+        )
+
+    content = await file.read()
+    if len(content) > 10 * 1024 * 1024:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail="File size exceeds 10MB limit",
+        )
+
+    try:
+        from src.core.ai.gemini_client import GeminiClient
+        from src.core.config import settings
+        from src.modules.resume.ai.resume_parser import ResumeParser
+
+        # Use the correct setting name from our updated config
+        gemini_client = GeminiClient(api_key=settings.ai.GEMINI_API_KEY)
+        parser = ResumeParser(gemini_client)
+
+        extracted = await parser.parse_resume(content, file.filename)
+        form_data = parser.convert_to_form_data(extracted)
+
+        return {
+            "status": "success",
+            "message": "Resume parsed successfully",
+            "data": form_data,
+        }
+    except Exception as e:
+        logger.error(f"Resume parsing failed: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to parse resume. Please try again or enter data manually.",
+        ) from e
