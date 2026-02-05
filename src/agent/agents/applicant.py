@@ -34,20 +34,29 @@ class ApplicantAgent(BaseAgent):
 
             apply_goal = "Find the apply button, fill out the application form with the provided persona data, and submit."
 
-            # We inject persona data into the prompt context via the autonomous loop's brain call needs.
-            # Currently BaseAgent.autonomous_loop calls brain.decide_next_action which primarily takes page context.
-            # We should enhance BaseAgent or override autonomous_loop to include persona data in the prompt.
-            # For this MVP, we will assume the Brain can "see" the persona data if we pass it in the task description
-            # or if we subclass the autonomous loop.
+            # We inject profile data into the prompt context via the goal description.
+            # The Brain uses this to decide what values to type into fields.
 
-            # Let's verify if we need to enhance the BaseAgent's separate brain method...
-            # The BaseAgent calls `self.brain.decide_next_action(goal, ...)`
-            # We can bake the persona data into the `goal` string for the Brain to know what values to use.
+            profile_data = payload.get("profile_data", {})
+            # Fallback to legacy persona_data if profile_data is empty
+            if not profile_data:
+                profile_data = payload.get("persona_data", {})
 
-            persona_summary = str(payload.get("persona_data", {}))
-            enhanced_goal = f"{apply_goal} Use this data: {persona_summary}"
+            # Format profile data for the prompt
+            import json
 
-            result = await self.autonomous_loop(enhanced_goal, max_steps=15)
+            profile_str = json.dumps(profile_data, indent=2)
+
+            enhanced_goal = (
+                f"{apply_goal}\n\n"
+                f"USER PROFILE DATA:\n"
+                f"{profile_str}\n\n"
+                "INSTRUCTIONS: Use the above profile data to fill out the form. "
+                "If a field matches a profile attribute, use that value. "
+                "For open-ended questions, use the 'application_answers' or 'personal_info'."
+            )
+
+            result = await self.autonomous_loop(enhanced_goal, max_steps=20)
 
             return result
 

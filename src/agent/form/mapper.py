@@ -26,16 +26,23 @@ class FormMapper:
         # We ask the brain to generate the mapping
         # We treat this as a data extraction/transformation task
         prompt = f"""
-        Map the User Persona data to the Form Fields.
+        Map the User Profile data to the Form Fields.
         
-        User Persona:
+        User Profile:
         {persona}
         
         Form Fields:
         {fields_schema}
         
-        Return a JSON object where keys are the 'selector' from Form Fields and values are the corresponding values from Persona.
-        If a field cannot be filled from persona, ignore it or infer a reasonable default if obvious.
+        Return a JSON object where keys are the 'selector' from Form Fields and values are the corresponding values from the Profile.
+        
+        MAPPING RULES:
+        1. 'personal_info' contains basic contact details.
+        2. 'application_answers' contains common QA responses (strengths, weaknesses, etc.).
+        3. 'search_preferences' might contain location or role preferences.
+        4. If a field matches a key in the profile, use it.
+        5. For boolean fields (checkboxes), infer from the data (e.g. "relocate": true).
+        6. If data is missing, leave the value null.
         """
 
         # We need a method in Brain that accepts raw prompt for flexibility
