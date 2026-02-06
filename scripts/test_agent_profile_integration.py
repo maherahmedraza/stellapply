@@ -3,6 +3,8 @@ import uuid
 import logging
 from unittest.mock import MagicMock, patch
 
+# Ensure all models are loaded to avoid relationship errors
+import src.core.database.all_models  # noqa
 from src.core.database.connection import get_db_context
 from src.modules.identity.domain.models import User
 from src.modules.profile.models import UserProfile

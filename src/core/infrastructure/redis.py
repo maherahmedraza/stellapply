@@ -147,6 +147,17 @@ class RedisProvider:
         except Exception:
             return False
 
+    async def publish(self, channel: str, message: str) -> int:
+        """Publish a message to a channel."""
+        try:
+            await self.ensure_connected()
+            if not self._client:
+                return 0
+            return await self._client.publish(channel, message)  # type: ignore
+        except Exception as e:
+            logger.warning(f"Redis PUBLISH failed for {channel}: {e}")
+            return 0
+
 
 # Singleton instance
 redis_provider = RedisProvider()

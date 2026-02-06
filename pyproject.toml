@@ -40,6 +40,8 @@ dependencies = [
     "numpy (>=2.4.2,<3.0.0)",
     "pypdf (>=6.6.2,<7.0.0)",
     "asgiref (>=3.11.1,<4.0.0)",
+    "structlog (>=25.5.0,<26.0.0)",
+    "fake-useragent (>=2.2.0,<3.0.0)",
 ]
 
 [dependency-groups]

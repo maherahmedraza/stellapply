@@ -1,216 +1,269 @@
 import asyncio
-import json
 import logging
-import uuid
-from datetime import UTC, datetime
-from typing import Any, Dict
+from datetime import datetime
+from uuid import UUID
+from typing import List, Optional
 
-from fastapi import WebSocket, WebSocketDisconnect
-from redis.asyncio import Redis
-
-from src.agent.models.schemas import (
-    AgentState,
-    AgentStatus,
-    AgentTaskCreate,
-    AgentTaskResponse,
-    AgentType,
-    TaskPriority,
-    TaskStatus,
+from src.agent.brain import AgentBrain
+from src.agent.agents.scout import ScoutAgent
+from src.agent.agents.registrar import RegistrarAgent
+from src.agent.agents.applicant import ApplicantAgent
+from src.agent.browser.pool import BrowserPool
+from src.agent.models.pipeline import (
+    PipelineConfig,
+    PipelineResult,
+    PipelineState,
+    DiscoveredJob,
+    ScoredJob,
+    ApplicationAttempt,
 )
-from src.agent.tasks.celery_app import celery_app
-from src.core.config import settings
+from src.modules.profile.schemas import UserProfileResponse
 
 logger = logging.getLogger(__name__)
 
 
 class AgentOrchestrator:
     """
-    Coordinator for the autonomous agent system.
-
-    This class runs as a singleton service within the API layer (or as a standalone service).
-    It manages:
-    1.  **Task Dispatch:** Receiving high-level user intents and converting them into
-        task queues (Celery) for specific agents.
-    2.  **Real-time Monitoring:** Maintaining WebSocket connections with the frontend
-        to stream agent activities (logs, screenshots, decisions).
-    3.  **Agent State Management:** Tracking which agents are busy/idle (via Redis).
-    4.  **Inter-Process Communication:** Using Redis Pub/Sub to receive updates from
-        worker processes (where the actual browser agents run) and broadcasting them
-        to connected WebSockets.
-
-    Attributes:
-        redis (Redis): Async Redis client for state and pub/sub.
-        active_websockets (Dict[uuid.UUID, list[WebSocket]]): Map of user_id to active WebSocket connections.
+    Coordinates the full autonomous job application pipeline for a user.
+    Pipeline stages: DISCOVER -> FILTER -> PREPARE -> APPLY -> RECORD
     """
 
-    _instance = None
+    def __init__(self, user_id: UUID, session_id: UUID, browser_pool: BrowserPool):
+        self.user_id = user_id
+        self.session_id = session_id
+        self.brain = None  # Lazily loaded
+        self.browser_pool = browser_pool
+        self.state = PipelineState(
+            session_id=session_id, stage="initialized", last_updated=datetime.now()
+        )
+        self._profile: Optional[UserProfileResponse] = None
 
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super(AgentOrchestrator, cls).__new__(cls)
-            cls._instance.active_websockets = {}
-            cls._instance.redis = None
-        return cls._instance
+    async def run_pipeline(
+        self, config: PipelineConfig, profile: UserProfileResponse
+    ) -> PipelineResult:
+        """
+        Full pipeline execution.
+        """
+        self._profile = profile
+        self.brain = AgentBrain(profile)  # Instantiate Brain with profile
+        self.state.stage = "running"
+        self._update_state(
+            stage="discovering", progress=0.1, action="Starting job discovery"
+        )
 
-    async def initialize(self):
-        """
-        Initialize Redis connection and start the background listener for Pub/Sub.
-        """
-        if not self.redis:
-            self.redis = Redis.from_url(settings.REDIS_URL, decode_responses=True)
-            # Start background listener task
-            asyncio.create_task(self._listen_to_agent_events())
-            logger.info("Agent Orchestrator initialized.")
-
-    async def shutdown(self):
-        """
-        Close Redis connection.
-        """
-        if self.redis:
-            await self.redis.close()
-            logger.info("Agent Orchestrator shutdown.")
-
-    async def connect_websocket(self, user_id: uuid.UUID, websocket: WebSocket):
-        """
-        Register a new WebSocket connection for a user.
-        """
-        await websocket.accept()
-        if user_id not in self.active_websockets:
-            self.active_websockets[user_id] = []
-        self.active_websockets[user_id].append(websocket)
-        logger.info(f"User {user_id} connected to Agent Stream.")
+        results = []
+        discovered_jobs = []
+        ranked_jobs = []
 
         try:
-            # Send initial state
-            await websocket.send_json(
+            # STAGE 1: DISCOVER
+            discovered_jobs = await self._discover_jobs(config)
+            self._update_state(
+                stage="filtering",
+                progress=0.3,
+                action=f"Found {len(discovered_jobs)} jobs. Filtering...",
+            )
+
+            # STAGE 2: FILTER & RANK
+            ranked_jobs = await self._filter_and_rank(discovered_jobs, config)
+            self._update_state(
+                stage="applying",
+                progress=0.4,
+                action=f"Applying to top {len(ranked_jobs[: config.max_applications])} jobs",
+            )
+
+            # STAGE 3: APPLY
+            total_to_apply = min(len(ranked_jobs), config.max_applications)
+            self.state.total_jobs = total_to_apply
+
+            for i, job in enumerate(ranked_jobs[:total_to_apply]):
+                self.state.current_job_index = i + 1
+                self._update_state(
+                    stage="applying",
+                    progress=0.4 + (0.5 * (i / total_to_apply)),
+                    action=f"Applying to {job.company}: {job.title}",
+                )
+
+                # 3a. APPROVAL GATE
+                if config.require_approval:
+                    approved = await self._request_approval(job)
+                    if not approved:
+                        results.append(
+                            ApplicationAttempt(
+                                job=job,
+                                status="skipped_by_user",
+                                started_at=datetime.now(),
+                                completed_at=datetime.now(),
+                                duration_seconds=0,
+                            )
+                        )
+                        continue
+
+                # 3b. CHECK REGISTRATION & REGISTER
+                portal_domain = self._extract_domain(job.url)
+                # For now assume we might need to register.
+                # Optimization: Check if we have credentials or session cookies.
+                # Here we skip granular check and let Registrar handle if needed or Applicant handle.
+                # Ideally:
+                # if not await self._has_portal_session(portal_domain):
+                #      reg_result = await self._register_on_portal(job, portal_domain) ...
+
+                # 3c. APPLY
+                app_result = await self._apply_to_job(job, config.resume_file_path)
+                results.append(app_result)
+
+                # 3d. RECORD
+                await self._record_application(job, app_result)
+
+                # 3e. RATE LIMITING
+                if i < total_to_apply - 1:
+                    await self._pace_between_applications()
+
+            self.state.stage = "completed"
+            self._update_state(
+                stage="completed", progress=1.0, action="Pipeline completed"
+            )
+
+        except Exception as e:
+            logger.error(f"Pipeline failed: {e}")
+            self.state.stage = "failed"
+            self.state.errors.append(str(e))
+            self._update_state(
+                stage="failed",
+                progress=self.state.progress_percentage,
+                action="Pipeline failed",
+            )
+
+        return PipelineResult(
+            session_id=self.session_id,
+            total_discovered=len(discovered_jobs),
+            total_matched=len(ranked_jobs),
+            total_applied=sum(1 for r in results if r.status == "success"),
+            total_failed=sum(1 for r in results if r.status == "failed"),
+            total_skipped=sum(1 for r in results if r.status.startswith("skipped")),
+            attempts=results,
+            started_at=datetime.now(),  # Placeholder, track actual start
+            completed_at=datetime.now(),
+        )
+
+    async def _discover_jobs(self, config: PipelineConfig) -> List[DiscoveredJob]:
+        """
+        Run ScoutAgent on each source.
+        """
+        jobs = []
+        scout = ScoutAgent(self.user_id, self.browser_pool)
+
+        for source in config.search_sources:
+            result = await scout.run(
                 {
-                    "type": "connection_established",
-                    "timestamp": datetime.now(UTC).isoformat(),
-                    "message": "Connected to Stellapply Agent Network",
+                    "url": source.url,
+                    "search_criteria": config.filters.model_dump(),
+                    "profile": self._profile,
                 }
             )
 
-            # Keep connection alive
-            while True:
-                # We mainly send data OUT, but we can listen for "stop" commands here
-                data = await websocket.receive_text()
-                # Handle client-side commands if necessary (e.g., "pause_agent")
-                logger.debug(f"Received from {user_id}: {data}")
+            if result.get("status") == "success":
+                raw_data = result.get("data", {}).get("jobs", [])
+                for j in raw_data:
+                    # Convert raw dict to DiscoveredJob
+                    # Basic validation/cleaning
+                    jobs.append(
+                        DiscoveredJob(
+                            title=j.get("title", "Unknown"),
+                            company=j.get("company", "Unknown"),
+                            url=j.get("url", ""),
+                            location=j.get("location"),
+                            salary_range=j.get("salary"),
+                            description_snippet=j.get("description_snippet", ""),
+                            source_platform=source.platform,
+                        )
+                    )
+        return jobs
 
-        except WebSocketDisconnect:
-            logger.info(f"User {user_id} disconnected.")
-            self.active_websockets[user_id].remove(websocket)
-            if not self.active_websockets[user_id]:
-                del self.active_websockets[user_id]
-
-    async def dispatch_task(self, task_create: AgentTaskCreate) -> uuid.UUID:
+    async def _filter_and_rank(
+        self, jobs: List[DiscoveredJob], config: PipelineConfig
+    ) -> List[ScoredJob]:
         """
-        Dispatch a new task to the appropriate agent queue.
-
-        Args:
-            task_create (AgentTaskCreate): The task definition.
-
-        Returns:
-            uuid.UUID: The assigned Task ID.
+        Filter jobs using brain and criteria.
         """
-        task_id = uuid.uuid4()
+        scored_jobs = []
+        # In a real impl, batch this or do it in parallel
+        for job in jobs:
+            # Brain power to score
+            match_score = await self.brain.score_job(job, self._profile)
 
-        # 1. Create DB record (Pseudo-code, actual implementation would use Repository)
-        # await self.task_repository.create(task_create, task_id)
+            if match_score >= config.filters.min_match_score:
+                scored_jobs.append(
+                    ScoredJob(
+                        **job.model_dump(),
+                        match_score=match_score,
+                        match_reasons=["Matches skills"],
+                        red_flags=[],
+                    )
+                )
 
-        # 2. Determine Celery Queue based on AgentType
-        queue_map = {
-            AgentType.SCOUT: "discovery",
-            AgentType.APPLICANT: "application",
-            AgentType.REGISTRAR: "application",  # Registrar shares queue or has own
+        # Sort by score
+        scored_jobs.sort(key=lambda x: x.match_score, reverse=True)
+        return scored_jobs
+
+    async def _request_approval(self, job: ScoredJob) -> bool:
+        """
+        Stub for approval gate.
+        """
+        # In real system: create DB record, wait for API call to approve
+        # For autonomous mode without UI hooked up, we default True or use config
+        return True
+
+    async def _apply_to_job(
+        self, job: ScoredJob, resume_path: str | None
+    ) -> ApplicationAttempt:
+        start_time = datetime.now()
+        applicant = ApplicantAgent(self.user_id, self.browser_pool)
+
+        payload = {
+            "job_url": job.url,
+            "resume_file": resume_path,
+            "profile": self._profile,
         }
-        queue = queue_map.get(task_create.type, "default")
 
-        # 3. Construct payload for Celery
-        celery_payload = {
-            "task_id": str(task_id),
-            "user_id": str(task_create.user_id),
-            "payload": task_create.payload,
-        }
+        result = await applicant.run(payload)
 
-        # 4. Send to Celery
-        # We assume tasks are named 'src.agent.tasks.<type>.execute'
-        task_name = f"src.agent.tasks.{task_create.type}.execute"
+        status = "success" if result.get("status") == "success" else "failed"
 
-        celery_app.send_task(
-            task_name,
-            kwargs=celery_payload,
-            queue=queue,
-            priority=self._priority_to_int(task_create.priority),
+        return ApplicationAttempt(
+            job=job,
+            status=status,
+            error=result.get("error"),
+            started_at=start_time,
+            completed_at=datetime.now(),
+            duration_seconds=(datetime.now() - start_time).total_seconds(),
+            fields_filled=result.get("data"),
         )
 
-        logger.info(f"Dispatched task {task_id} ({task_create.type}) to queue {queue}")
-
-        # 5. Notify user via WebSocket
-        await self._broadcast_event(
-            task_create.user_id,
-            {
-                "type": "task_dispatched",
-                "task_id": str(task_id),
-                "agent_type": task_create.type,
-                "status": TaskStatus.PENDING,
-            },
-        )
-
-        return task_id
-
-    async def _broadcast_event(self, user_id: uuid.UUID, event: Dict[str, Any]):
+    async def _record_application(self, job: ScoredJob, result: ApplicationAttempt):
         """
-        Internal: Send an event to all active WebSockets for a specific user.
+        Persist result to DB.
         """
-        if user_id in self.active_websockets:
-            sockets = self.active_websockets[user_id]
-            to_remove = []
-            for ws in sockets:
-                try:
-                    await ws.send_json(event)
-                except Exception:
-                    to_remove.append(ws)
+        # Use a service or repository to save
+        # ApplicationAttemptEntity and update Application table
+        pass
 
-            # Cleanup dead sockets
-            for ws in to_remove:
-                sockets.remove(ws)
+    async def _pace_between_applications(self):
+        import random
 
-    async def _listen_to_agent_events(self):
-        """
-        Background Task: Subscribe to Redis Pub/Sub channels to receive updates from
-        worker agents (Browser/Celery runners) and forward them to WebSockets.
+        delay = random.uniform(30, 60)
+        logger.info(f"Pacing: Sleeping for {delay:.1f} seconds...")
+        await asyncio.sleep(delay)
 
-        Channel convention: "agent_events:<user_id>"
-        """
-        pubsub = self.redis.pubsub()
-        # We subscribe to a glob pattern to catch all users or just listen to a global channel
-        # For scalability in a single instance, we can subscribe to 'agent_events:*'
-        # but pattern matching in Redis is expensive if high volume.
-        # Better approach: All workers publish to "global_agent_events", orchestrator filters.
+    def _update_state(self, stage: str, progress: float, action: str):
+        self.state.stage = stage
+        self.state.progress_percentage = progress
+        self.state.current_action = action
+        self.state.last_updated = datetime.now()
+        # Trigger DB write or event emit
+        logger.info(f"[{stage.upper()}] {action} ({progress * 100:.1f}%)")
 
-        await pubsub.subscribe("global_agent_events")
+    def _extract_domain(self, url: str) -> str:
+        from urllib.parse import urlparse
 
-        async for message in pubsub.listen():
-            if message["type"] == "message":
-                try:
-                    data = json.loads(message["data"])
-                    user_id_str = data.get("user_id")
-                    if user_id_str:
-                        user_id = uuid.UUID(user_id_str)
-                        await self._broadcast_event(user_id, data)
-                except Exception as e:
-                    logger.error(f"Error processing pub/sub message: {e}")
-
-    def _priority_to_int(self, priority: TaskPriority) -> int:
-        mapping = {
-            TaskPriority.LOW: 0,
-            TaskPriority.MEDIUM: 5,
-            TaskPriority.HIGH: 9,
-            TaskPriority.CRITICAL: 10,
-        }
-        return mapping.get(priority, 5)
-
-
-# Singleton accessor
-orchestrator = AgentOrchestrator()
+        return urlparse(url).netloc

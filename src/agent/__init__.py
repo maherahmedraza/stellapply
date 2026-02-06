@@ -1,3 +1,3 @@
-from src.agent.orchestrator import orchestrator, AgentOrchestrator
+from src.agent.orchestrator import AgentOrchestrator
 
-__all__ = ["orchestrator", "AgentOrchestrator"]
+__all__ = ["AgentOrchestrator"]

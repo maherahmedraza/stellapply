@@ -8,8 +8,11 @@ from src.agent.orchestrator import orchestrator
 from src.api.middleware.auth import get_current_user
 from src.modules.identity.infrastructure.keycloak import KeycloakProvider
 
+from src.agent.hitl.router import router as hitl_router
+
 logger = logging.getLogger(__name__)
 router = APIRouter()
+router.include_router(hitl_router)
 
 
 @router.post(

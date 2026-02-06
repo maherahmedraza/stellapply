@@ -75,3 +75,61 @@ class BrowserSession(BaseModel):
     cookies_count: int = 0
     created_at: datetime
     last_accessed: datetime
+
+
+# Brain Schemas
+
+
+class AgentAction(BaseModel):
+    """
+    Structured output representing the next action the agent should take.
+    """
+
+    thinking: str = Field(
+        ..., description="Brief reasoning about what I see and what to do"
+    )
+    action_type: Literal[
+        "click",
+        "type",
+        "type_slow",
+        "select",
+        "upload",
+        "scroll",
+        "navigate",
+        "wait",
+        "press_key",
+        "clear_field",
+        "human_handoff",
+        "task_complete",
+        "fail",
+    ]
+    selector: str | None = Field(
+        None, description="CSS selector for the element to interact with"
+    )
+    value: str | None = Field(
+        None, description="Value to type/fill/select or URL to navigate to"
+    )
+    confidence: float = Field(..., description="Confidence score 0.0-1.0")
+    expected_result: str = Field(
+        ..., description="What should happen after this action"
+    )
+    fallback_selector: str | None = Field(
+        None, description="Alternative selector if primary fails"
+    )
+    wait_after_ms: int = Field(
+        default=1000, description="Milliseconds to wait after action"
+    )
+
+
+class PageContext(BaseModel):
+    """
+    Context provided to the Brain about the current page state.
+    """
+
+    url: str
+    title: str
+    dom_snippet: str
+    screenshot_b64: str | None = None
+    visible_text: str | None = None
+    forms: list[dict[str, Any]] = []
+    clickable_elements: list[str] = []

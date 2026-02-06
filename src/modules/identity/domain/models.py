@@ -9,6 +9,7 @@ from src.core.database.base_model import BaseModel
 
 if TYPE_CHECKING:
     from src.modules.resume.domain.models import Resume
+    from src.modules.profile.models import UserProfile
 
 
 from enum import Enum as PyEnum
@@ -42,6 +43,9 @@ class User(BaseModel):
     resumes: Mapped[list["Resume"]] = relationship("Resume", back_populates="user")
     settings: Mapped["UserSettings | None"] = relationship(
         "UserSettings", back_populates="user", uselist=False
+    )
+    profile: Mapped["UserProfile | None"] = relationship(
+        "src.modules.profile.models.UserProfile", back_populates="user", uselist=False
     )
 
     @property

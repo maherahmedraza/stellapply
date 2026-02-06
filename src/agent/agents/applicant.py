@@ -1,6 +1,9 @@
+import logging
 from typing import Any, Dict
 
 from src.agent.agents.base import BaseAgent
+
+logger = logging.getLogger(__name__)
 
 
 class ApplicantAgent(BaseAgent):
@@ -43,20 +46,34 @@ class ApplicantAgent(BaseAgent):
                 profile_data = payload.get("persona_data", {})
 
             # Format profile data for the prompt
-            import json
-
-            profile_str = json.dumps(profile_data, indent=2)
-
-            enhanced_goal = (
-                f"{apply_goal}\n\n"
-                f"USER PROFILE DATA:\n"
-                f"{profile_str}\n\n"
-                "INSTRUCTIONS: Use the above profile data to fill out the form. "
-                "If a field matches a profile attribute, use that value. "
-                "For open-ended questions, use the 'application_answers' or 'personal_info'."
+            from src.modules.profile.schemas import (
+                UserProfileResponse,
+                PersonalInfoSchema,
+                SearchPreferencesSchema,
+                AgentRulesSchema,
+                ApplicationAnswersSchema,
+                ResumeStrategySchema,
             )
 
-            result = await self.autonomous_loop(enhanced_goal, max_steps=20)
+            if isinstance(profile_data, dict):
+                try:
+                    # Validate and create strict UserProfileResponse
+                    # We assume the payload matches the schema structure
+                    user_profile = UserProfileResponse.model_validate(profile_data)
+                except Exception as e:
+                    logger.warning(
+                        f"Failed to validate profile data strict: {e}. Attempting construct."
+                    )
+                    # Fallback construction if strict validation fails (e.g. extra fields)
+                    # Or re-raise if critical.
+                    # For now, let's try to construct it manually or re-raise
+                    raise e
+            else:
+                user_profile = profile_data
+
+            result = await self.autonomous_loop(
+                apply_goal, profile=user_profile, max_steps=20
+            )
 
             return result
 
