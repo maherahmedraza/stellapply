@@ -95,6 +95,12 @@ export const useAuthStore = create<AuthState>()(
                 accessToken: state.accessToken,
                 refreshToken: state.refreshToken,
             }),
+            onRehydrateStorage: () => (state) => {
+                // After hydration from localStorage, mark loading as done
+                if (state) {
+                    state.isLoading = false
+                }
+            },
         }
     )
 )

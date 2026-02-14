@@ -1,5 +1,5 @@
 import React from "react";
-import { Header, Footer, Container, Section } from "@/components/layout";
+import { Navbar, Footer, Container, Section } from "@/components/layout";
 import { Heading, Text, Card, CardContent, Button, Badge } from "@/components/ui";
 import { SquigglyLine, PostItTag } from "@/components/decorations/hand-drawn-elements";
 import { Check } from "lucide-react";
@@ -21,7 +21,7 @@ export default function PricingPage() {
             description: "Everything you need for a serious job hunt.",
             features: ["Unlimited Resumes", "Unlimited Letters", "Advanced Talking Points", "Priority Support", "Private Dashboard"],
             cta: "Master your craft",
-            variant: "accent" as const,
+            variant: "elevated" as const,
             popular: true,
         },
         {
@@ -36,7 +36,7 @@ export default function PricingPage() {
 
     return (
         <div className="flex flex-col min-h-screen">
-            <Header />
+            <Navbar />
             <main className="flex-grow">
                 <Section background="alt" className="pt-20 pb-16 relative">
                     <Container className="text-center relative">
@@ -91,7 +91,7 @@ export default function PricingPage() {
                     <Container size="sm">
                         <Heading level="h3" className="mb-4">Need a student discount?</Heading>
                         <Text className="mb-8">We believe everyone deserves a chance to launch. Reach out to us if you're a student or between roles.</Text>
-                        <Button variant="link" asChild>
+                        <Button variant="ghost" asChild>
                             <Link href="/contact">Contact Support</Link>
                         </Button>
                     </Container>

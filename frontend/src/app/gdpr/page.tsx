@@ -1,5 +1,5 @@
 import React from "react";
-import { Header, Footer, Container, Section } from "@/components/layout";
+import { Navbar, Footer, Container, Section } from "@/components/layout";
 import { Heading, Text, Card, CardContent } from "@/components/ui";
 import { CornerMarks } from "@/components/decorations/hand-drawn-elements";
 import { Shield, Lock, Eye, Download, Trash2 } from "lucide-react";
@@ -14,7 +14,7 @@ export default function GDPRPage() {
 
     return (
         <div className="flex flex-col min-h-screen">
-            <Header />
+            <Navbar />
             <main className="flex-grow">
                 <Section background="alt" className="pt-20 pb-16 relative">
                     <Container className="text-center">
@@ -43,7 +43,7 @@ export default function GDPRPage() {
                             ))}
                         </div>
 
-                        <Card variant="default" padding="lg" className="relative">
+                        <Card variant="default" className="relative">
                             <CornerMarks className="text-accent/20" />
                             <Heading level="h3" className="mb-6">Data Privacy Policy (The Human Version)</Heading>
                             <div className="space-y-6">

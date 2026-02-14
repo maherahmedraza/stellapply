@@ -1,61 +1,72 @@
-# 🏗️ System Architecture
+# System Architecture
 
-## Architectural Pattern: Modular Monolith
-StellarApply follows a **Modular Monolith** architecture. This balances the simplicity of a single deployment unit with the separation of concerns typically found in microservices.
+## Overview
 
-### Why Modular Monolith?
-- **Speed:** Code sharing is trivial; refactoring is safe.
-- **Consistency:** Unified database transactions and shared domain models.
-- **Scalability:** Modules can be extracted into microservices later if needed (e.g., the AI Job Search module).
+Stellapply uses a **Modular Monolith** architecture: a single deployable unit with strict module boundaries, clean dependency management, and shared infrastructure.
 
-## High-Level Components
-1.  **Frontend (Presentation Layer):**
-    - Built with **Next.js 16** (React 19, Server Components).
-    - Styling: **TailwindCSS 4**.
-    - State: **Zustand** (Local) + **TanStack Query** (Server).
+```
+┌─────────────────────────────────────────────────────────┐
+│                   Next.js Frontend                       │
+│              (React, TailwindCSS, Zustand)               │
+└──────────────────────┬──────────────────────────────────┘
+                       │ REST + WebSocket
+┌──────────────────────┴──────────────────────────────────┐
+│                    FastAPI Backend                        │
+│  ┌──────────────────────────────────────────────────┐   │
+│  │                   API Layer                       │   │
+│  │  auth │ persona │ resume │ jobs │ apps │ billing  │   │
+│  │  gdpr │ agent │ settings │ admin                  │   │
+│  └──────────────────────┬───────────────────────────┘   │
+│  ┌──────────────────────┴───────────────────────────┐   │
+│  │              Domain / Service Layer               │   │
+│  │  Identity │ Persona │ Resume │ JobSearch │ Apps   │   │
+│  │  Billing │ GDPR │ CoverLetter │ AutoApply        │   │
+│  └──────────────────────┬───────────────────────────┘   │
+│  ┌──────────────────────┴───────────────────────────┐   │
+│  │               Agent Subsystem                     │   │
+│  │  Brain │ Orchestrator │ Executor │ HITL │ Browser │   │
+│  │  Scout │ Registrar │ Applicant │ Recovery         │   │
+│  └──────────────────────┬───────────────────────────┘   │
+│  ┌──────────────────────┴───────────────────────────┐   │
+│  │                Core Infrastructure                │   │
+│  │  Config │ Database │ Security │ AI (Gemini)       │   │
+│  └──────────────────────────────────────────────────┘   │
+└──────────────────────┬──────────────────────────────────┘
+          ┌────────────┼─────────────┐
+     ┌────┴────┐  ┌────┴────┐  ┌────┴────┐
+     │PostgreSQL│  │  Redis  │  │  MinIO  │
+     │(pgvector)│  │ (cache) │  │(storage)│
+     └─────────┘  └─────────┘  └─────────┘
+```
 
-2.  **API Gateway (API Layer):**
-    - **FastAPI** application serving REST endpoints.
-    - Handles Authentication (Keycloak Middleware) and Rate Limiting.
+## Module Communication
 
-3.  **Domain Modules (Business Logic):**
-    - Isolated modules with defined interfaces.
-    - `src/modules/{module_name}`:
-        - `identity`: User management & SSO.
-        - `resume`: Resume parsing & generation.
-        - `job_search`: Vector matching & job queries.
-        - `persona`: Career profile management.
-        - `gdpr`: Compliance data orchestration.
+- Modules communicate through **service interfaces** (Python imports)
+- No cross-module database access — each module owns its tables
+- The Agent subsystem consumes Profile schemas as its data bridge
 
-4.  **Infrastructure Layer:**
-    - **Database:** PostgreSQL with `pgvector` for semantic search.
-    - **Caching:** Redis for session & API response caching.
-    - **AI Engine:** Google Gemini Client (`src/core/ai`).
+## Security Architecture
 
-## Diagram
-```mermaid
-graph TD
-    User((User)) -->|HTTPS| Frontend[Next.js Frontend]
-    Frontend -->|REST| API[FastAPI Gateway]
-    
-    subgraph "Backend Core"
-        API --> Identity[Identity Module]
-        API --> Resume[Resume Module]
-        API --> Job[Job Search Module]
-        API --> GDPR[GDPR Module]
-    end
-    
-    subgraph "Infrastructure"
-        DB[(PostgreSQL\npgvector)]
-        Redis[(Redis Cache)]
-        Keycloak[Keycloak Auth]
-        Gemini[Google Gemini AI]
-    end
-    
-    Identity --> Keycloak
-    Identity --> DB
-    Resume --> Gemini
-    Resume --> DB
-    Job --> DB
-    Job --> Redis
+1. **Authentication**: Keycloak OIDC → JWT tokens → FastAPI middleware
+2. **Encryption**: Fernet encryption via EncryptedString TypeDecorator
+3. **Audit**: AuditMiddleware logs all API calls
+4. **GDPR**: Full data export/deletion, encryption-at-rest for PII
+
+## AI Architecture
+
+1. **GeminiClient**: Central AI service with rate limiting
+2. **Truth-Grounding**: All AI outputs verified against Persona facts
+3. **Vector Search**: pgvector embeddings for semantic job matching
+4. **RAG**: QuestionAnswerer uses Persona context for form answers
+
+## Agent Pipeline
+
+```
+Scout → Brain (score) → HITL (approve) → Applicant (fill forms)
+                                              │
+                              Executor (browser actions)
+                                              │
+                              Verifier (DOM checks)
+                                              │
+                        ApplicationRecord + Credentials + FormData
 ```

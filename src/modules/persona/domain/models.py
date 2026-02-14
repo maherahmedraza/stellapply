@@ -120,6 +120,16 @@ class Persona(BaseModel):
     portfolio_url: Mapped[str | None] = mapped_column(String(255))
     website_url: Mapped[str | None] = mapped_column(String(255))
 
+    # Application Email Configuration
+    # Separate email for receiving responses from job applications
+    application_email: Mapped[str | None] = mapped_column(
+        EncryptedString(255), nullable=True
+    )
+    # If True, agent uses the persona's primary email for applications
+    use_login_email_for_applications: Mapped[bool] = mapped_column(
+        Boolean, default=True, nullable=False
+    )
+
     # Professional Summary (can be AI-enhanced)
     summary_original: Mapped[str | None] = mapped_column(Text)
     summary_enhanced: Mapped[str | None] = mapped_column(Text)

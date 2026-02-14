@@ -1,5 +1,5 @@
 import React from "react";
-import { Header, Footer, Container, Section } from "@/components/layout";
+import { Navbar, Footer, Container, Section } from "@/components/layout";
 import { Heading, Text, Card, CardContent, Badge } from "@/components/ui";
 import { SquigglyLine, HandDrawnArrow } from "@/components/decorations/hand-drawn-elements";
 
@@ -33,7 +33,7 @@ export default function RoadmapPage() {
 
     return (
         <div className="flex flex-col min-h-screen">
-            <Header />
+            <Navbar />
             <main className="flex-grow">
                 <Section background="alt" className="pt-20 pb-16 relative overflow-hidden">
                     <Container className="text-center">

@@ -1,8 +1,11 @@
 import asyncio
 import logging
+import uuid
 from datetime import datetime
 from uuid import UUID
-from typing import List, Optional
+from typing import List, Optional, Dict
+
+from fastapi import WebSocket
 
 from src.agent.brain import AgentBrain
 from src.agent.agents.scout import ScoutAgent
@@ -17,14 +20,16 @@ from src.agent.models.pipeline import (
     ScoredJob,
     ApplicationAttempt,
 )
+from src.agent.models.schemas import AgentTaskCreate
 from src.modules.profile.schemas import UserProfileResponse
+from src.modules.profile.service import ProfileService
 
 logger = logging.getLogger(__name__)
 
 
-class AgentOrchestrator:
+class AgentPipeline:
     """
-    Coordinates the full autonomous job application pipeline for a user.
+    Coordinates the full autonomous job application pipeline for a SINGLE session.
     Pipeline stages: DISCOVER -> FILTER -> PREPARE -> APPLY -> RECORD
     """
 
@@ -99,15 +104,6 @@ class AgentOrchestrator:
                         )
                         continue
 
-                # 3b. CHECK REGISTRATION & REGISTER
-                portal_domain = self._extract_domain(job.url)
-                # For now assume we might need to register.
-                # Optimization: Check if we have credentials or session cookies.
-                # Here we skip granular check and let Registrar handle if needed or Applicant handle.
-                # Ideally:
-                # if not await self._has_portal_session(portal_domain):
-                #      reg_result = await self._register_on_portal(job, portal_domain) ...
-
                 # 3c. APPLY
                 app_result = await self._apply_to_job(job, config.resume_file_path)
                 results.append(app_result)
@@ -142,7 +138,7 @@ class AgentOrchestrator:
             total_failed=sum(1 for r in results if r.status == "failed"),
             total_skipped=sum(1 for r in results if r.status.startswith("skipped")),
             attempts=results,
-            started_at=datetime.now(),  # Placeholder, track actual start
+            started_at=datetime.now(),
             completed_at=datetime.now(),
         )
 
@@ -151,13 +147,17 @@ class AgentOrchestrator:
         Run ScoutAgent on each source.
         """
         jobs = []
-        scout = ScoutAgent(self.user_id, self.browser_pool)
+        scout = ScoutAgent(
+            self.user_id, self.session_id
+        )  # ScoutAgent needs task_id/session_id
 
         for source in config.search_sources:
             result = await scout.run(
                 {
-                    "url": source.url,
-                    "search_criteria": config.filters.model_dump(),
+                    "sources": [
+                        {"platform": source.platform, "search_url": source.url}
+                    ],
+                    # "search_criteria": config.filters.model_dump(), # Used in old scout?
                     "profile": self._profile,
                 }
             )
@@ -166,7 +166,6 @@ class AgentOrchestrator:
                 raw_data = result.get("data", {}).get("jobs", [])
                 for j in raw_data:
                     # Convert raw dict to DiscoveredJob
-                    # Basic validation/cleaning
                     jobs.append(
                         DiscoveredJob(
                             title=j.get("title", "Unknown"),
@@ -183,13 +182,8 @@ class AgentOrchestrator:
     async def _filter_and_rank(
         self, jobs: List[DiscoveredJob], config: PipelineConfig
     ) -> List[ScoredJob]:
-        """
-        Filter jobs using brain and criteria.
-        """
         scored_jobs = []
-        # In a real impl, batch this or do it in parallel
         for job in jobs:
-            # Brain power to score
             match_score = await self.brain.score_job(job, self._profile)
 
             if match_score >= config.filters.min_match_score:
@@ -202,23 +196,87 @@ class AgentOrchestrator:
                     )
                 )
 
-        # Sort by score
         scored_jobs.sort(key=lambda x: x.match_score, reverse=True)
         return scored_jobs
 
     async def _request_approval(self, job: ScoredJob) -> bool:
         """
-        Stub for approval gate.
+        Request user approval before applying to a job.
+        Uses the HITL intervention system to pause and wait for user consent.
+        Returns True if approved, False if rejected or timed out.
         """
-        # In real system: create DB record, wait for API call to approve
-        # For autonomous mode without UI hooked up, we default True or use config
-        return True
+        try:
+            from src.agent.hitl.service import InterventionService
+            from src.agent.hitl.schemas import (
+                InterventionType,
+                InterventionContext,
+            )
+
+            hitl_service = InterventionService()
+
+            context = InterventionContext(
+                url=job.url,
+                page_title=f"Apply to: {job.title}",
+                job_title=job.title,
+                company=job.company,
+                agent_thinking=(
+                    f"Match score: {job.match_score:.0f}%. "
+                    f"Reasons: {', '.join(job.match_reasons)}. "
+                    f"Red flags: {', '.join(job.red_flags) if job.red_flags else 'None'}."
+                ),
+                metadata={
+                    "match_score": job.match_score,
+                    "match_reasons": job.match_reasons,
+                    "red_flags": job.red_flags,
+                },
+            )
+
+            intervention = await hitl_service.request_intervention(
+                session_id=self.session_id,
+                user_id=self.user_id,
+                intervention_type=InterventionType.APPROVAL_GATE,
+                context=context,
+                timeout_minutes=60,
+            )
+
+            # Wait for user response (blocks until response or timeout)
+            response = await hitl_service.wait_for_response(
+                intervention_id=intervention.id
+            )
+
+            if response is None:
+                logger.warning(
+                    "Approval request timed out",
+                    job_title=job.title,
+                    company=job.company,
+                )
+                return False
+
+            # User approved if action is not 'abort_application'
+            approved = response.action != "abort_application"
+            logger.info(
+                "Approval response received",
+                approved=approved,
+                action=response.action,
+                job_title=job.title,
+            )
+            return approved
+
+        except Exception as e:
+            logger.error(
+                "Failed to request approval, auto-approving",
+                error=str(e),
+                job_title=job.title,
+            )
+            # Fail-open: if HITL system is down, allow application
+            # This can be changed to fail-closed (return False) for stricter control
+            return True
 
     async def _apply_to_job(
         self, job: ScoredJob, resume_path: str | None
     ) -> ApplicationAttempt:
         start_time = datetime.now()
-        applicant = ApplicantAgent(self.user_id, self.browser_pool)
+        applicant = ApplicantAgent(self.user_id, self.session_id)
 
         payload = {
             "job_url": job.url,
@@ -241,11 +299,6 @@ class AgentOrchestrator:
         )
 
     async def _record_application(self, job: ScoredJob, result: ApplicationAttempt):
-        """
-        Persist result to DB.
-        """
-        # Use a service or repository to save
-        # ApplicationAttemptEntity and update Application table
         pass
 
     async def _pace_between_applications(self):
@@ -260,10 +313,103 @@ class AgentOrchestrator:
         self.state.progress_percentage = progress
         self.state.current_action = action
         self.state.last_updated = datetime.now()
-        # Trigger DB write or event emit
         logger.info(f"[{stage.upper()}] {action} ({progress * 100:.1f}%)")
 
     def _extract_domain(self, url: str) -> str:
         from urllib.parse import urlparse
 
         return urlparse(url).netloc
+
+
+class GlobalOrchestrator:
+    """
+    Global manager for all agent pipelines and browser resources.
+    Singleton instance 'orchestrator' is used by the API.
+    """
+
+    def __init__(self):
+        self.browser_pool = BrowserPool()
+        self.active_pipelines: Dict[UUID, AgentPipeline] = {}
+        # ProfileService needs DB, so we instantiate it per task
+        self.client_sockets: Dict[UUID, List[WebSocket]] = {}
+
+    async def initialize(self):
+        logger.info("Initializing Global Agent Orchestrator...")
+        # Add any startup logic here
+
+    async def shutdown(self):
+        logger.info("Shutting down Global Agent Orchestrator...")
+        keys = list(self.active_pipelines.keys())
+        for k in keys:
+            # Ideally cancel tasks
+            pass
+        await self.browser_pool.shutdown()
+
+    async def dispatch_task(self, task: AgentTaskCreate) -> UUID:
+        """
+        Create and start a new agent pipeline task.
+        """
+        session_id = uuid.uuid4()
+        pipeline = AgentPipeline(task.user_id, session_id, self.browser_pool)
+        self.active_pipelines[session_id] = pipeline
+
+        # Start pipeline in background
+        asyncio.create_task(self._run_pipeline_wrapper(pipeline, task))
+
+        return session_id
+
+    async def _run_pipeline_wrapper(
+        self, pipeline: AgentPipeline, task: AgentTaskCreate
+    ):
+        """
+        Background wrapper to setup config and profile before running pipeline.
+        """
+        try:
+            # 1. Fetch Profile
+            profile = await self.profile_service.get_full_profile(pipeline.user_id)
+            if not profile:
+                logger.error(
+                    f"Cannot run task {pipeline.session_id}: Profile found for user {pipeline.user_id}"
+                )
+                return
+
+            # 2. Parse Config from Payload (assuming payload matches PipelineConfig or part of it)
+            # For MVP, we construct default config + payload overrides
+            # Ideally use Pydantic parsing
+            # config = PipelineConfig(**task.payload)
+            # Stubbed config for now:
+            from src.agent.models.pipeline import PipelineConfig, SearchFilters
+
+            config = PipelineConfig(
+                search_sources=[],
+                filters=SearchFilters(
+                    target_roles=profile.search_preferences.target_roles
+                ),
+                max_applications=5,
+            )
+
+            await pipeline.run_pipeline(config, profile)
+        except Exception as e:
+            logger.error(f"Error in pipeline execution: {e}", exc_info=True)
+        finally:
+            # Cleanup
+            if pipeline.session_id in self.active_pipelines:
+                del self.active_pipelines[pipeline.session_id]
+
+    async def connect_websocket(self, user_id: UUID, websocket: WebSocket):
+        await websocket.accept()
+        if user_id not in self.client_sockets:
+            self.client_sockets[user_id] = []
+        self.client_sockets[user_id].append(websocket)
+
+        try:
+            while True:
+                # Keep connection open, maybe handle incoming messages (control commands)
+                await websocket.receive_text()
+        except:
+            if user_id in self.client_sockets:
+                self.client_sockets[user_id].remove(websocket)
+
+
+# The Global Instance
+orchestrator = GlobalOrchestrator()

@@ -1,5 +1,5 @@
-@import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Kalam:wght@300;400;700&display=swap');
+@import "tailwindcss";
 
 /*
  * ============================================
@@ -55,6 +55,14 @@
   --transition-fast: 100ms ease-out;
   --transition-normal: 200ms ease-out;
   --transition-slow: 300ms ease-out;
+
+  /* --- BRAND COLORS (Aliased to theme variables) --- */
+  --color-pencil-black: var(--color-foreground);
+  --color-ink-blue: var(--color-accent-secondary);
+  --color-marker-red: var(--color-accent);
+  --color-paper-bg: var(--color-background);
+  --color-muted-paper: var(--color-background-muted);
+  --color-postit-yellow: var(--color-sticky-note);
 }
 
 /* --- LIGHT THEME (Default) --- */

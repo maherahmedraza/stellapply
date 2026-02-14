@@ -80,7 +80,7 @@ class AISettings(BaseSettings):
     )
 
     GEMINI_API_KEY: str | None = None
-    GEMINI_MODEL: str = "gemini-1.5-pro"
+    GEMINI_MODEL: str = "gemini-3.0-flash"
     EMBEDDING_MODEL: str = "text-embedding-004"
     RATE_LIMIT_RPM: int = Field(default=60, ge=1)
 

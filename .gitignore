@@ -1,32 +1,6 @@
-# Binaries for programs and plugins
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
-
-# Test binary, built with `go test -c`
-*.test
-
-# Output of the go coverage tool, specifically when used with LiteIDE
-*.out
-
-# Dependency directories (remove the comment below to include it)
-# vendor/
-
-# Go workspace file
-go.work
-
-# Node
-node_modules/
-npm-debug.log
-yarn-error.log
-.next/
-out/
-build/
-dist/
-
+# =========================
 # Python
+# =========================
 __pycache__/
 *.py[cod]
 *$py.class
@@ -50,32 +24,58 @@ wheels/
 *.egg
 .pytest_cache/
 .mypy_cache/
+.ruff_cache/
 venv/
 .venv/
+htmlcov/
+.coverage
+coverage.xml
 
-# Environment variables
+# =========================
+# Node / Next.js
+# =========================
+node_modules/
+npm-debug.log
+yarn-error.log
+.next/
+out/
+build/
+dist/
+
+# =========================
+# Environment Variables
+# =========================
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 .env*.local
+.env.test
 
+# =========================
 # IDEs
+# =========================
 .idea/
 .vscode/
 *.swp
 *.swo
 
+# =========================
 # OS
+# =========================
 .DS_Store
 Thumbs.db
 
-# Project specific
+# =========================
+# Project
+# =========================
 tmp/
 test-results/
 
-# Secrets - NEVER COMMIT
+# =========================
+# Secrets — NEVER COMMIT
+# =========================
 *.pem
 *.key
 *.p12
@@ -89,17 +89,17 @@ secrets/
 service-account*.json
 firebase*.json
 
-# API Keys and tokens (common patterns)
+# API Keys and tokens
 *api_key*
 *apikey*
-*token*
-*.token
 
-# Docker secrets
+# =========================
+# Docker
+# =========================
 docker-compose.override.yml
 docker-compose.local.yml
 
-# IDE settings with potential secrets
-.idea/workspace.xml
-.vscode/settings.json
-
+# =========================
+# Alembic (auto-generated)
+# =========================
+*.pyc

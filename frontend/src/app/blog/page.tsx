@@ -1,5 +1,5 @@
 import React from "react";
-import { Header, Footer, Container, Section } from "@/components/layout";
+import { Navbar, Footer, Container, Section } from "@/components/layout";
 import { Heading, Text, Card, CardContent, Badge } from "@/components/ui";
 import { SquigglyLine, Sparkle } from "@/components/decorations/hand-drawn-elements";
 import Link from "next/link";
@@ -38,7 +38,7 @@ export default function BlogPage() {
 
     return (
         <div className="flex flex-col min-h-screen">
-            <Header />
+            <Navbar />
             <main className="flex-grow">
                 <Section background="alt" className="pt-20 pb-16 relative">
                     <Sparkle className="absolute top-10 left-[10%] text-accent-warning" size={32} />

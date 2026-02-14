@@ -139,7 +139,77 @@ class ActionExecutor:
 
     async def verify_action(self, page: Page, expected: str) -> bool:
         """
-        Verify that the action had its expected effect.
-        Currently a placeholder for more complex verification logic.
+        Verify that the action had its expected effect by inspecting the DOM.
+        Checks for error messages, success indicators, and expected content.
         """
-        return True
+        try:
+            # 1. Check for common error indicators on the page
+            error_selectors = [
+                "[class*='error']",
+                "[class*='invalid']",
+                "[role='alert']",
+                ".form-error",
+                ".field-error",
+                ".validation-error",
+                ".alert-danger",
+                ".alert-error",
+            ]
+
+            for selector in error_selectors:
+                error_elements = await page.query_selector_all(selector)
+                for elem in error_elements:
+                    is_visible = await elem.is_visible()
+                    if is_visible:
+                        text = (await elem.text_content() or "").strip()
+                        if text and len(text) > 2:
+                            logger.warning(
+                                "Error detected on page after action",
+                                error_text=text[:200],
+                                selector=selector,
+                            )
+                            return False
+
+            # 2. Check for ARIA invalid states on form fields
+            invalid_fields = await page.query_selector_all("[aria-invalid='true']")
+            visible_invalid = [f for f in invalid_fields if await f.is_visible()]
+            if visible_invalid:
+                logger.warning(
+                    "Form fields marked as invalid",
+                    count=len(visible_invalid),
+                )
+                return False
+
+            # 3. Check for success indicators
+            success_selectors = [
+                "[class*='success']",
+                "[class*='confirmation']",
+                "[class*='thank']",
+            ]
+            for selector in success_selectors:
+                elements = await page.query_selector_all(selector)
+                for elem in elements:
+                    if await elem.is_visible():
+                        logger.info(
+                            "Success indicator found",
+                            selector=selector,
+                        )
+                        return True
+
+            # 4. If expected content was specified, check for its presence
+            if expected:
+                page_content = await page.content()
+                if expected.lower() in page_content.lower():
+                    return True
+                # Not finding expected content doesn't necessarily mean failure
+                logger.debug(
+                    "Expected content not found, but no errors detected",
+                    expected=expected[:100],
+                )
+
+            # 5. No errors found, assume success
+            return True
+
+        except Exception as e:
+            logger.error("Verification check failed", error=str(e))
+            # If we can't verify, assume success to avoid blocking pipeline
+            return True

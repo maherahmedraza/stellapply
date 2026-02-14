@@ -111,7 +111,7 @@ class QuestionAnswerer:
             logger.warning("GOOGLE_GEMINI_KEY not set. RAG service will fail.")
 
         self.llm = ChatGoogleGenerativeAI(
-            model="gemini-1.5-flash", google_api_key=self._api_key, temperature=0.4
+            model="gemini-3.0-flash", google_api_key=self._api_key, temperature=0.4
         )
         self.embeddings = GoogleGenerativeAIEmbeddings(  # type: ignore[call-arg]
             model="models/text-embedding-004",

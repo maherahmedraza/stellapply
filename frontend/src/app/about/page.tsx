@@ -1,5 +1,5 @@
 import React from "react";
-import { Header, Footer, Container, Section } from "@/components/layout";
+import { Navbar, Footer, Container, Section } from "@/components/layout";
 import { Heading, Text, Card, CardContent } from "@/components/ui";
 import { SquigglyLine, CornerMarks } from "@/components/decorations/hand-drawn-elements";
 import { Rocket, Heart, Coffee, Lightbulb } from "lucide-react";
@@ -7,7 +7,7 @@ import { Rocket, Heart, Coffee, Lightbulb } from "lucide-react";
 export default function AboutPage() {
     return (
         <div className="flex flex-col min-h-screen">
-            <Header />
+            <Navbar />
             <main className="flex-grow">
                 <Section background="alt" className="pt-20 pb-16 relative overflow-hidden">
                     <div className="absolute -top-10 -right-10 opacity-10">
@@ -26,7 +26,7 @@ export default function AboutPage() {
                 <Section className="py-20">
                     <Container size="md">
                         <div className="relative mb-20">
-                            <Card variant="default" padding="lg">
+                            <Card variant="default" className="p-8">
                                 <CornerMarks className="text-accent/30" />
                                 <Heading level="h2" className="mb-6 rotate-1">The Mission</Heading>
                                 <Text size="lg" className="mb-6 leading-relaxed">

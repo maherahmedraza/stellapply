@@ -37,7 +37,7 @@ class ProfileService:
     def __init__(self, db: AsyncSession):
         self.db = db
         # Use a consistent model for extraction
-        self.model_name = "gemini-2.0-flash-exp"
+        self.model_name = "gemini-3.0-flash"
         self.model = (
             genai.GenerativeModel(
                 self.model_name,

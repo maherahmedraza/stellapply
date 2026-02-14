@@ -2,7 +2,27 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { verifyToken } from '@/lib/auth'
 
-const publicPaths = ['/', '/auth/login', '/auth/register', '/forgot-password', '/privacy', '/terms', '/support']
+const publicPaths = [
+    '/',
+    '/auth/login',
+    '/auth/register',
+    '/forgot-password',
+    // Marketing pages
+    '/features',
+    '/pricing',
+    '/changelog',
+    '/roadmap',
+    // Company pages
+    '/about',
+    '/blog',
+    '/careers',
+    '/contact',
+    // Legal pages
+    '/privacy',
+    '/terms',
+    '/gdpr',
+    '/support',
+]
 
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl

@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { getSession } from '@/lib/auth'
+import { getSession } from '@/lib/session'
 import { Sidebar } from '@/components/layout/sidebar'
 import { Header } from '@/components/layout/header'
 // import { Toaster } from '@/components/ui/toaster' // Commenting out as Toaster might not exist yet

@@ -1,5 +1,5 @@
 import React from "react";
-import { Header, Footer, Container, Section } from "@/components/layout";
+import { Navbar, Footer, Container, Section } from "@/components/layout";
 import { Heading, Text, Card, CardContent, Badge, Button } from "@/components/ui";
 import { SquigglyLine, Sparkle } from "@/components/decorations/hand-drawn-elements";
 import Link from "next/link";
@@ -13,7 +13,7 @@ export default function CareersPage() {
 
     return (
         <div className="flex flex-col min-h-screen">
-            <Header />
+            <Navbar />
             <main className="flex-grow">
                 <Section background="alt" className="pt-20 pb-16 relative overflow-hidden">
                     <Container className="text-center">
@@ -53,14 +53,14 @@ export default function CareersPage() {
                             ))}
                         </div>
 
-                        <Card variant="default" padding="lg" className="bg-background-muted/30">
+                        <Card variant="default" className="bg-background-muted/30">
                             <div className="flex flex-col items-center text-center">
                                 <Sparkle className="mb-6 text-accent-warning" />
                                 <Heading level="h3" className="mb-4">Don't see a perfect fit?</Heading>
                                 <Text className="mb-8 max-w-lg">
                                     We're always looking for cosmic talent. Send us your resume (bonus points if it's tailored using StellarApply!) and a note about why you're a fit for the sketchbook.
                                 </Text>
-                                <Button variant="link" asChild>
+                                <Button variant="ghost" asChild>
                                     <Link href="/contact" className="font-heading text-lg">Send an Open Application →</Link>
                                 </Button>
                             </div>

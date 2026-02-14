@@ -30,7 +30,7 @@ class AgentBrain:
     """
 
     def __init__(
-        self, profile: UserProfileResponse, model_name: str = "gemini-2.0-flash-exp"
+        self, profile: UserProfileResponse, model_name: str = "gemini-3.0-flash"
     ):
         """
         Brain is initialized ONCE per agent run with the user's profile.
@@ -43,7 +43,7 @@ class AgentBrain:
         self.current_url = ""
 
         # Initialize model
-        # Using gemini-1.5-flash as default if 2.0 not specified/available
+        # Using gemini-3.0-flash as default
         # Adjust based on availability
         self.model_name = model_name
         self.model = genai.GenerativeModel(

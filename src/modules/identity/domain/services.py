@@ -41,9 +41,11 @@ class RegistrationService:
             {
                 "email": schema.email,
                 "username": schema.email,
-                "firstName": schema.name.split()[0] if schema.name else "User",
-                "lastName": " ".join(schema.name.split()[1:])
-                if schema.name and len(schema.name.split()) > 1
+                "firstName": schema.full_name.split()[0]
+                if schema.full_name
+                else "User",
+                "lastName": " ".join(schema.full_name.split()[1:])
+                if schema.full_name and len(schema.full_name.split()) > 1
                 else "",
                 "enabled": True,
                 "emailVerified": True,  # For dev, skip email verification

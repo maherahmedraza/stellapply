@@ -15,7 +15,7 @@ from src.agent.hitl.schemas import (
 )
 from src.agent.hitl.service import InterventionService
 from src.core.infrastructure.redis import redis_provider
-from src.modules.identity.auth import get_current_user
+from src.api.middleware.auth import get_current_user
 from src.modules.identity.domain.models import User
 
 router = APIRouter(prefix="/interventions", tags=["Agent Interventions"])

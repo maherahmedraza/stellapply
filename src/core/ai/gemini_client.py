@@ -50,7 +50,7 @@ class GeminiClient:
     def __init__(
         self,
         api_key: str,
-        default_model: str = "gemini-1.5-flash",
+        default_model: str = "gemini-3.0-flash",
         requests_per_minute: int = 60,
     ):
         genai.configure(api_key=api_key)  # type: ignore[attr-defined]
@@ -104,7 +104,7 @@ class GeminiClient:
     ) -> T:
         """Generate structured data using Pydantic models."""
         async with self.limiter:
-            model_name = kwargs.pop("model", "gemini-1.5-pro")  # Better for structured
+            model_name = kwargs.pop("model", "gemini-3.0-pro")  # Better for structured
             model = self._get_model(model_name)
 
             # Gemini supports response_mime_type="application/json"
@@ -125,7 +125,7 @@ class GeminiClient:
     ) -> str:
         """Generate content with an image input (multimodal)."""
         async with self.limiter:
-            model_name = kwargs.pop("model", "gemini-1.5-pro")
+            model_name = kwargs.pop("model", "gemini-3.0-pro")
             model = self._get_model(model_name)
 
             # Create image part for multimodal input

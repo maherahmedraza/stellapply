@@ -11,17 +11,41 @@ from src.api.main import app
 from src.core.database.base_model import Base
 
 
-# Test settings
+# Test settings — uses env vars because Settings has nested BaseSettings models
+# with env prefixes (DB_, SECURITY_, AI_, etc.)
 @pytest.fixture(scope="session")
-def settings() -> Settings:
-    return Settings(
-        ENVIRONMENT="test",
-        DB_HOST="localhost",
-        DB_PORT=5432,
-        DB_NAME="test_db",
-        SECRET_KEY="test-secret-key-for-testing-only",
-        GEMINI_API_KEY="test-api-key",
-    )
+def settings(monkeypatch_session) -> Settings:
+    """Create test settings via environment variables.
+
+    Settings uses composed sub-models (DatabaseSettings, SecuritySettings, etc.)
+    that each read from prefixed env vars. We set those env vars here.
+    """
+    env_overrides = {
+        "ENVIRONMENT": "development",  # test is not a valid Literal value
+        # Database — prefix DB_
+        "DB_URL": "postgresql+asyncpg://test:test@localhost:5432/test_db",
+        # Security — prefix SECURITY_
+        "SECURITY_SECRET_KEY": "test-only-not-for-production-key-min32chars!!",
+        "SECURITY_ENCRYPTION_KEY": "test-only-not-for-production-enc-min32chars!!",
+        # AI — prefix AI_
+        "AI_GEMINI_API_KEY": "test-api-key-not-real",
+        # Redis — prefix REDIS_
+        "REDIS_URL": "redis://localhost:6379/1",
+    }
+    for key, value in env_overrides.items():
+        monkeypatch_session.setenv(key, value)
+
+    return Settings()
+
+
+@pytest.fixture(scope="session")
+def monkeypatch_session():
+    """Session-scoped monkeypatch for env var overrides."""
+    from _pytest.monkeypatch import MonkeyPatch
+
+    mp = MonkeyPatch()
+    yield mp
+    mp.undo()
 
 
 # PostgreSQL test container

@@ -1,5 +1,5 @@
 import React from "react";
-import { Header, Footer, Container, Section } from "@/components/layout";
+import { Navbar, Footer, Container, Section } from "@/components/layout";
 import { Heading, Text, Card, CardContent, Button, Input, Textarea } from "@/components/ui";
 import { SquigglyLine, HandDrawnArrow } from "@/components/decorations/hand-drawn-elements";
 import { Mail, MessageCircle, MapPin } from "lucide-react";
@@ -7,7 +7,7 @@ import { Mail, MessageCircle, MapPin } from "lucide-react";
 export default function ContactPage() {
     return (
         <div className="flex flex-col min-h-screen">
-            <Header />
+            <Navbar />
             <main className="flex-grow">
                 <Section background="alt" className="pt-20 pb-16 relative">
                     <Container className="text-center">
@@ -64,7 +64,7 @@ export default function ContactPage() {
                                 </div>
                             </div>
 
-                            <Card variant="elevated" padding="lg">
+                            <Card variant="elevated">
                                 <CardContent className="space-y-6">
                                     <div>
                                         <label className="block font-heading text-lg mb-2">Your Name</label>

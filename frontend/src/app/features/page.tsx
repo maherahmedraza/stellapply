@@ -1,5 +1,5 @@
 import React from "react";
-import { Header, Footer, Container, Section } from "@/components/layout";
+import { Navbar, Footer, Container, Section } from "@/components/layout";
 import { Heading, Text, Card, CardContent, Button } from "@/components/ui";
 import { SquigglyLine, Sparkle } from "@/components/decorations/hand-drawn-elements";
 import Link from "next/link";
@@ -41,7 +41,7 @@ export default function FeaturesPage() {
 
     return (
         <div className="flex flex-col min-h-screen">
-            <Header />
+            <Navbar />
             <main className="flex-grow">
                 <Section background="alt" className="pt-20 pb-16 relative overflow-hidden">
                     <SquigglyLine className="absolute top-10 right-[10%] w-48 text-accent/20" />

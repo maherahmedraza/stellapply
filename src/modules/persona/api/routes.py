@@ -55,8 +55,17 @@ async def get_my_persona(
     user_id = get_user_id_from_token(current_user)
     persona = await service.get_persona_by_user_id(user_id)
     if not persona:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Persona not found"
+        # Auto-create persona for new users instead of returning 404
+        email = current_user.get("email", "user@example.com")
+        name = current_user.get(
+            "name", current_user.get("preferred_username", "New User")
+        )
+        persona = await service.update_persona(
+            user_id,
+            PersonaUpdate(
+                full_name=name,
+                email=email,
+            ),
         )
     return PersonaResponse.model_validate(persona)
 
